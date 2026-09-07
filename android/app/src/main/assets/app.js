@@ -38,6 +38,10 @@ const state = {
   }
 };
 
+// Module Level State
+var currentTableFinderSchedule = null;
+var isTableFinderInitialized = false;
+
 // ==========================================
 // REAL SAMPLE DATA (Costa Smeralda Schedule Format)
 // ==========================================
@@ -305,26 +309,38 @@ const SAMPLE_SCHEDULE = {
 };
 
 // Initialize App
-document.addEventListener('DOMContentLoaded', () => {
-  setupEventListeners();
-  
-  // Set sample as default for today lunch if empty
-  if (!state.schedules.today[state.currentMeal]) {
-    state.schedules.today[state.currentMeal] = SAMPLE_SCHEDULE;
-    saveStoredSchedules();
-  }
-  
-  renderSchedule();
-
-  // Smoothly dismiss splash loading & validation overlay
-  setTimeout(() => {
-    const splash = document.getElementById('splashOverlay');
-    if (splash) {
-      splash.classList.add('fade-out');
-      setTimeout(() => splash.remove(), 400);
+function initApp() {
+  try {
+    setupEventListeners();
+    
+    // Set sample as default for today lunch if empty
+    if (!state.schedules.today[state.currentMeal]) {
+      state.schedules.today[state.currentMeal] = SAMPLE_SCHEDULE;
+      saveStoredSchedules();
     }
-  }, 400);
-});
+    
+    renderSchedule();
+  } catch (err) {
+    console.error('App initialization error:', err);
+  } finally {
+    // Hardcoded 3-second opening spinner before transitioning to UI
+    setTimeout(() => {
+      const splash = document.getElementById('splashOverlay');
+      if (splash) {
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 500);
+      }
+    }, 3000);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ==========================================
 // STORAGE & RETENTION MANAGEMENT (2 DAYS / 6 SLOTS)
@@ -429,6 +445,9 @@ function cleanNameString(str) {
     .replace(/[^\w\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+function cleanCrewName(str) {
+  return cleanNameString(str);
 }
 
 function isCurrentUser(name) {
@@ -622,9 +641,6 @@ function updatePersonalBriefingAndSpotlight(userDuty, schedule) {
 // RESTAURANT SERVICE COMMAND HUB (Schedule Tab)
 // Replaces redundant venue list with Table Finder, Milestones, and Station Leads
 // ==========================================
-let currentTableFinderSchedule = null;
-let isTableFinderInitialized = false;
-
 function renderRestaurantCommandHub(schedule) {
   currentTableFinderSchedule = schedule;
   initTableFinderEvents();
