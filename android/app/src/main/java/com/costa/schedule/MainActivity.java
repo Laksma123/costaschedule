@@ -38,7 +38,26 @@ public class MainActivity extends AppCompatActivity {
         settings.setDatabaseEnabled(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url != null && url.startsWith("intent:")) {
+                    try {
+                        Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                        if (intent != null) {
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "Tidak dapat membuka aplikasi Jam: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
         webView.addJavascriptInterface(new WebAppInterface(this), "AndroidBridge");
         webView.loadUrl("file:///android_asset/index.html");
@@ -71,20 +90,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void setAlarm(int hour, int minute, String message) {
+            setAlarm(hour, minute, message, false);
+        }
+
+        @JavascriptInterface
         public void setAlarm(int hour, int minute, String message, boolean skipUi) {
-            try {
-                Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-                intent.putExtra(AlarmClock.EXTRA_HOUR, hour);
-                intent.putExtra(AlarmClock.EXTRA_MINUTES, minute);
-                intent.putExtra(AlarmClock.EXTRA_MESSAGE, message);
-                intent.putExtra(AlarmClock.EXTRA_SKIP_UI, skipUi);
-                intent.putExtra(AlarmClock.EXTRA_VIBRATE, true);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intent);
-            } catch (Exception e) {
-                e.printStackTrace();
-                mainHandler.post(() -> Toast.makeText(mContext, "Unable to set alarm: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-            }
+            mainHandler.post(() -> {
+                try {
+                    triggerAlarmIntent(hour, minute, message, skipUi);
+                    String timeStr = String.format("%02d:%02d", hour, minute);
+                    Toast.makeText(mContext, "⏰ Membuka Jam untuk alarm " + timeStr, Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(mContext, "Gagal menyetel alarm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @JavascriptInterface
@@ -95,20 +116,10 @@ public class MainActivity extends AppCompatActivity {
                     String timeStr2 = String.format("%02d:%02d", h2, m2);
                     String timeStr3 = String.format("%02d:%02d", h3, m3);
 
-                    // 1st alarm
-                    triggerAlarmIntent(h1, m1, title + " (Alarm 1 - " + timeStr1 + ")", true);
+                    // 1st alarm (with UI so user sees and confirms the alarm)
+                    triggerAlarmIntent(h1, m1, title + " (Alarm 1 - " + timeStr1 + ")", false);
 
-                    // 2nd alarm after 200ms delay to ensure system registers separate intent
-                    mainHandler.postDelayed(() -> {
-                        triggerAlarmIntent(h2, m2, title + " (Alarm 2 - " + timeStr2 + ")", true);
-                    }, 250);
-
-                    // 3rd alarm after 500ms delay
-                    mainHandler.postDelayed(() -> {
-                        triggerAlarmIntent(h3, m3, title + " (Alarm 3 - " + timeStr3 + ")", true);
-                    }, 500);
-
-                    Toast.makeText(mContext, "⏰ 3 Alarms set: " + timeStr1 + ", " + timeStr2 + ", " + timeStr3, Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "⏰ Waktu Alarm 1: " + timeStr1 + " (Juga salin: " + timeStr2 + ", " + timeStr3 + ")", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(mContext, "Error setting alarms: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -128,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 mContext.startActivity(intent);
             } catch (Exception e) {
                 e.printStackTrace();
+                mainHandler.post(() -> Toast.makeText(mContext, "Gagal membuka Jam: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }
     }

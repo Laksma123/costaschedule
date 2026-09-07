@@ -416,16 +416,16 @@ html, body {
 }
 
 .filter-label {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--costa-slate);
-  width: 42px;
+  width: 36px;
   flex-shrink: 0;
 }
 
 .outline-pill-group {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
 }
 
@@ -433,9 +433,9 @@ html, body {
   background-color: #FFFFFF;
   border: 1px solid var(--border-card);
   color: var(--costa-ink);
-  padding: 7px 16px;
+  padding: 5px 12px;
   border-radius: var(--radius-pill);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -458,8 +458,8 @@ html, body {
 /* Primary Action Bar (One Primary Yellow Button per Screen Rule) */
 .action-bar {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .costa-primary-btn {
@@ -467,17 +467,17 @@ html, body {
   background-color: var(--costa-yellow);
   color: var(--costa-ink);
   border: none;
-  padding: 13px 18px;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 700;
   font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(249, 176, 0, 0.35);
+  box-shadow: 0 2px 8px rgba(249, 176, 0, 0.3);
   transition: transform 0.12s ease, filter 0.15s ease;
 }
 
@@ -493,9 +493,9 @@ html, body {
   background-color: #FFFFFF;
   color: var(--costa-blue);
   border: 1.5px solid var(--costa-blue);
-  padding: 13px 18px;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   font-weight: 600;
   font-family: inherit;
   display: flex;
@@ -515,24 +515,24 @@ html, body {
 }
 
 .btn-svg {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   flex-shrink: 0;
 }
 
 /* Search Box & Meta Bar */
 .search-box-wrapper {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .search-input-box {
   background-color: #FFFFFF;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
-  padding: 0 14px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -542,8 +542,8 @@ html, body {
 }
 
 .search-icon {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   color: var(--costa-faint);
   flex-shrink: 0;
 }
@@ -552,11 +552,18 @@ html, body {
   flex: 1;
   border: none;
   outline: none;
-  padding: 12px 0;
-  font-size: 1rem; /* 16px min prevents iOS Safari auto-zoom */
+  padding: 10px 0;
+  font-size: 0.88rem;
   color: var(--costa-ink);
   font-family: inherit;
   background: transparent;
+  min-width: 0;
+}
+
+.search-input-box input::placeholder {
+  color: var(--costa-slate);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
 }
 
 .clear-btn {
@@ -1580,39 +1587,95 @@ input:checked + .slider:before {
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid var(--border-subtle);
+  gap: 8px;
 }
 
 .alarm-item:last-child {
   border-bottom: none;
 }
 
+.alarm-item-info {
+  text-align: left;
+  flex: 1;
+}
+
 .alarm-item-title {
   display: block;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: var(--costa-navy);
 }
 
 .alarm-item-desc {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--costa-slate);
   margin-top: 1px;
 }
 
+.alarm-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .alarm-item-time {
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   font-weight: 700;
   color: var(--costa-blue);
   background-color: #FFFFFF;
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 6px;
   border: 1.5px solid #BAE6FD;
 }
 
+.alarm-set-single-btn {
+  background-color: var(--costa-yellow);
+  color: var(--costa-ink);
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(249, 176, 0, 0.25);
+  transition: transform 0.1s ease;
+}
+
+.alarm-set-single-btn:active {
+  transform: scale(0.95);
+}
+
 .alarm-platform-wrap {
-  margin-top: 6px;
+  margin-top: 8px;
   margin-bottom: 12px;
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--costa-navy);
+  border: 1px solid var(--border-card);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: var(--costa-slate);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
 }
 
 .btn-smart-copy-alarm {
@@ -1620,13 +1683,13 @@ input:checked + .slider:before {
   background-color: var(--costa-yellow);
   color: var(--costa-ink);
   border: none;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(249, 176, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(249, 176, 0, 0.3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1639,14 +1702,12 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  background-color: var(--costa-yellow);
-  color: var(--costa-ink);
-  border: none;
-  box-shadow: 0 3px 10px rgba(249, 176, 0, 0.3);
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .siri-prompt-box {
@@ -1656,8 +1717,8 @@ input:checked + .slider:before {
   background-color: #F8FAFC;
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  padding: 10px 14px;
-  margin-top: 10px;
+  padding: 8px 12px;
+  margin-top: 8px;
   text-align: left;
 }
 
@@ -1667,15 +1728,15 @@ input:checked + .slider:before {
 }
 
 .siri-title {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--costa-slate);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .siri-prompt-box code {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--costa-ink);
   background-color: #FFFFFF;
@@ -1687,16 +1748,16 @@ input:checked + .slider:before {
 }
 
 .alarm-platform-note {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--costa-slate);
   line-height: 1.35;
-  margin-top: 8px;
-  margin-bottom: 4px;
+  margin-top: 6px;
+  margin-bottom: 2px;
 }
 
 .alarm-secondary-wrap {
-  margin-top: 10px;
-  padding-top: 8px;
+  margin-top: 8px;
+  padding-top: 6px;
   border-top: 1px dashed var(--border-color);
 }
 
@@ -1704,55 +1765,55 @@ input:checked + .slider:before {
   background: none;
   border: none;
   color: var(--costa-slate);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 500;
   cursor: pointer;
   text-decoration: underline;
-  padding: 4px 8px;
+  padding: 3px 6px;
 }
 
 /* Empty State */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 36px 16px;
   background-color: #FFFFFF;
   border-radius: var(--radius-lg);
   border: 1.5px dashed var(--border-card);
   color: var(--costa-slate);
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .empty-icon-wrap {
   color: var(--costa-faint);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .empty-svg {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
 }
 
 .empty-state h2 {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--costa-navy);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .empty-state p {
-  font-size: 0.85rem;
-  line-height: 1.45;
-  max-width: 380px;
-  margin: 0 auto 16px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  max-width: 360px;
+  margin: 0 auto 14px;
 }
 
 .sample-pill-btn {
   background-color: #F8FAFC;
   border: 1px solid var(--border-card);
   color: var(--costa-blue);
-  padding: 8px 18px;
+  padding: 7px 16px;
   border-radius: var(--radius-pill);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -1763,49 +1824,85 @@ input:checked + .slider:before {
   border-color: var(--costa-blue);
 }
 
-/* Help Accordion in Settings */
-.help-accordion-wrapper {
+/* Dedicated Guide Modal Styling */
+.guide-modal-body {
+  padding: 16px 14px;
+  text-align: left;
+}
+
+.guide-intro {
+  background-color: var(--costa-blue-faint);
+  border-left: 3.5px solid var(--costa-blue);
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  padding: 8px 12px;
+  margin-bottom: 12px;
 }
 
-.help-accordion-toggle {
-  width: 100%;
-  background: transparent;
-  border: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 4px;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--costa-slate);
-  cursor: pointer;
-}
-
-.help-accordion-body {
-  padding: 8px 6px 4px;
+.guide-intro p {
   font-size: 0.78rem;
-  color: var(--costa-slate);
-  line-height: 1.4;
+  color: var(--costa-navy);
+  line-height: 1.35;
 }
 
-.help-accordion-body h4 {
-  font-size: 0.82rem;
-  color: var(--costa-blue);
-  margin: 6px 0 3px;
+.guide-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: 10px;
 }
 
-.help-accordion-body ul, .help-accordion-body ol {
-  padding-left: 18px;
+.guide-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
 }
 
-.help-accordion-body li {
+.guide-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background-color: #F0F9FF;
+  color: var(--costa-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guide-card-header h4 {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--costa-navy);
+}
+
+.guide-card-content p {
+  font-size: 0.76rem;
+  color: var(--costa-slate);
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.guide-list, .guide-ordered-list {
+  padding-left: 16px;
+  font-size: 0.76rem;
+  color: var(--costa-ink);
+  line-height: 1.4;
+}
+
+.guide-list li, .guide-ordered-list li {
   margin-bottom: 4px;
 }
 
-/* Toast */
+.guide-subnote {
+  font-size: 0.72rem;
+  color: var(--costa-slate);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* Toast (Responsive & Never Truncated) */
 .toast {
   position: fixed;
   bottom: 74px; /* Above bottom nav */
@@ -1813,14 +1910,17 @@ input:checked + .slider:before {
   transform: translateX(-50%);
   background-color: var(--costa-navy);
   color: #FFFFFF;
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-size: 0.84rem;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 0.78rem;
   font-weight: 600;
-  box-shadow: 0 6px 20px rgba(0, 50, 74, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 50, 74, 0.25);
   z-index: 2000;
   animation: toastPop 0.2s ease-out;
-  white-space: nowrap;
+  max-width: 90vw;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
 }
 
 @keyframes toastPop {
@@ -1830,6 +1930,285 @@ input:checked + .slider:before {
 
 .hidden {
   display: none !important;
+}
+
+/* =============================================================
+   MOBILE RESPONSIVE SYSTEM (MAX-WIDTH: 600PX)
+   Streamlines all typography, inputs, pills, cards, and tables
+   ============================================================= */
+@media (max-width: 600px) {
+  html, body {
+    font-size: 14.5px;
+  }
+
+  .app-header {
+    height: 50px;
+  }
+
+  .brand-titles h1 {
+    font-size: 0.88rem;
+  }
+
+  .sub-brand {
+    font-size: 0.58rem;
+  }
+
+  .ship-icon-wrapper {
+    width: 28px;
+    height: 28px;
+  }
+
+  .header-avatar-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.72rem;
+  }
+
+  .app-main {
+    padding: 14px 12px 76px;
+  }
+
+  .news-city-headline {
+    font-size: 1.45rem;
+    letter-spacing: -0.4px;
+  }
+
+  .news-date-text {
+    font-size: 0.74rem;
+  }
+
+  .news-day-chip {
+    font-size: 0.62rem;
+    padding: 2px 6px;
+  }
+
+  .news-briefing-card {
+    padding: 2px 12px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .briefing-row {
+    padding: 9px 0;
+    gap: 10px;
+  }
+
+  .briefing-icon-wrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .news-svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .briefing-label {
+    font-size: 0.65rem;
+  }
+
+  .briefing-val {
+    font-size: 0.85rem;
+  }
+
+  .filter-section {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .filter-row {
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 0.72rem;
+    width: 34px;
+  }
+
+  .outline-pill-group {
+    gap: 6px;
+  }
+
+  .outline-pill-btn {
+    padding: 4px 10px;
+    font-size: 0.74rem;
+  }
+
+  .action-bar {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .costa-primary-btn, .costa-outline-btn {
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .btn-svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-box-wrapper {
+    margin-bottom: 14px;
+  }
+
+  .search-input-box {
+    padding: 0 10px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .search-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-input-box input {
+    padding: 9px 0;
+    font-size: 0.82rem;
+  }
+
+  .search-input-box input::placeholder {
+    font-size: 0.8rem;
+  }
+
+  .search-count {
+    font-size: 0.7rem;
+  }
+
+  .btn-toggle-all {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+  }
+
+  .personal-spotlight-card {
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+
+  .spotlight-time {
+    font-size: 0.88rem;
+  }
+
+  .spotlight-venue {
+    font-size: 0.95rem;
+  }
+
+  .spotlight-details {
+    font-size: 0.78rem;
+  }
+
+  .category-card {
+    margin-bottom: 10px;
+  }
+
+  .category-header {
+    padding: 11px 12px;
+  }
+
+  .cat-svg-icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .cat-title h3 {
+    font-size: 0.88rem;
+  }
+
+  .badge-count {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .category-body {
+    padding: 8px;
+  }
+
+  .venue-header {
+    padding: 7px 10px;
+    font-size: 0.78rem;
+  }
+
+  .schedule-table th {
+    padding: 6px 8px;
+    font-size: 0.65rem;
+  }
+
+  .schedule-table td {
+    padding: 7px 8px;
+    font-size: 0.78rem;
+  }
+
+  .station-badge {
+    padding: 1px 5px;
+    font-size: 0.7rem;
+  }
+
+  .crew-id {
+    font-size: 0.68rem;
+  }
+
+  .more-profile-item, .more-menu-item {
+    padding: 12px 4px;
+  }
+
+  .more-avatar-circle {
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
+  }
+
+  .more-profile-title {
+    font-size: 0.95rem;
+  }
+
+  .more-profile-subtext {
+    font-size: 0.72rem;
+  }
+
+  .more-item-text {
+    font-size: 0.86rem;
+  }
+
+  .modal-card {
+    max-width: 94vw;
+  }
+
+  .modal-header {
+    padding: 12px 14px;
+  }
+
+  .modal-header h3 {
+    font-size: 0.96rem;
+  }
+
+  .modal-body {
+    padding: 14px;
+  }
+
+  .alarm-item {
+    padding: 6px 0;
+  }
+
+  .alarm-item-title {
+    font-size: 0.8rem;
+  }
+
+  .alarm-item-desc {
+    font-size: 0.68rem;
+  }
+
+  .alarm-item-time {
+    font-size: 0.95rem;
+    padding: 2px 8px;
+  }
+
+  .btn-alarm-action, .btn-smart-copy-alarm {
+    padding: 10px 14px;
+    font-size: 0.84rem;
+  }
 }
 
 </style>
@@ -1979,7 +2358,7 @@ input:checked + .slider:before {
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.3-4.3"/>
           </svg>
-          <input type="text" id="searchInput" placeholder="Search Crew Name, Station, Table, Duty..." autocomplete="off">
+          <input type="text" id="searchInput" placeholder="Search crew, station, duty..." autocomplete="off">
           <button id="clearSearchBtn" class="clear-btn hidden">&times;</button>
         </div>
         <div class="search-meta-bar">
@@ -2327,32 +2706,108 @@ input:checked + .slider:before {
           </div>
         </div>
 
-        <!-- Accordion for Help Guide -->
-        <div class="settings-divider"></div>
-        <div class="help-accordion-wrapper">
-          <button type="button" class="help-accordion-toggle" id="helpAccordionToggle">
-            <span>How to Use & Install Guide</span>
-            <span id="helpChevron">▼</span>
-          </button>
-          <div class="help-accordion-body hidden" id="helpAccordionBody">
-            <h4>Offline Setup Guide:</h4>
-            <ul>
-              <li><strong>iPhone (Safari):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap Share button &rarr; Select <strong>"Add to Home Screen"</strong>.</li>
-              <li><strong>Android (Chrome):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap menu &rarr; Select <strong>"Add to Home Screen"</strong> (or use installed APK).</li>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" data-close="settingsModal">Cancel</button>
+        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: How to Use & Offline Guide (Dedicated Standalone Modal) -->
+  <div id="guideModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>How to Use & Guide</h3>
+        <button class="close-modal-btn" data-close="guideModal">&times;</button>
+      </div>
+      <div class="modal-body guide-modal-body">
+        <div class="guide-intro">
+          <p>Panduan lengkap penggunaan aplikasi jadwal restoran <strong>Costa Smeralda</strong> secara 100% offline saat kapal berlayar (At Sea).</p>
+        </div>
+
+        <!-- Guide Section 1: Offline Setup (Install PWA) -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                <path d="M12 18h.01"/>
+              </svg>
+            </div>
+            <h4>Pasang ke Layar Utama (Home Screen)</h4>
+          </div>
+          <div class="guide-card-content">
+            <p>Simpan aplikasi agar dapat langsung dibuka tanpa internet:</p>
+            <ul class="guide-list">
+              <li><strong>iPhone (Safari):</strong> Buka di Safari &rarr; Tekan ikon <strong>Share</strong> (kotak panah ke atas) &rarr; Pilih <strong>"Add to Home Screen"</strong>.</li>
+              <li><strong>Android (Chrome):</strong> Buka di Chrome &rarr; Tekan menu titik tiga (&vellip;) &rarr; Pilih <strong>"Install app"</strong> atau <strong>"Add to Home screen"</strong> (atau gunakan file APK).</li>
             </ul>
-            <h4>WhatsApp Workflow:</h4>
-            <ol>
-              <li>Copy schedule message from WhatsApp.</li>
-              <li>Tap <strong>"Paste WhatsApp Schedule"</strong>.</li>
-              <li>Your duty will be automatically highlighted!</li>
+          </div>
+        </div>
+
+        <!-- Guide Section 2: WhatsApp Workflow -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/>
+              </svg>
+            </div>
+            <h4>Alur Update Jadwal dari WhatsApp</h4>
+          </div>
+          <div class="guide-card-content">
+            <ol class="guide-ordered-list">
+              <li>Salin (copy) seluruh teks pesan jadwal dari grup WhatsApp restoran.</li>
+              <li>Buka aplikasi, tekan tombol kuning <strong>"Paste WhatsApp Schedule"</strong>.</li>
+              <li>Jadwal otomatis tervalidasi dan nama kru Anda akan ditandai dengan garis kuning Costa!</li>
             </ol>
+          </div>
+        </div>
+
+        <!-- Guide Section 3: Smart Alarm Assistant -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <h4>Asisten Alarm Weker (3 Peringatan)</h4>
+          </div>
+          <div class="guide-card-content">
+            <p>Alarm menghitung 3 waktu berurutan menjelang jam lapor tugas:</p>
+            <ul class="guide-list">
+              <li><strong>Alarm 1:</strong> Bangun & persiapan awal (1 jam sebelum tugas).</li>
+              <li><strong>Alarm 2:</strong> Pengecekan seragam & nametag (+5 menit).</li>
+              <li><strong>Alarm 3:</strong> Waktu berangkat menuju outlet tugas (+10 menit).</li>
+            </ul>
+            <p class="guide-subnote">Di Android, tekan <em>"Set Primary Alarm in Clock"</em> untuk membuka aplikasi Jam secara otomatis.</p>
+          </div>
+        </div>
+
+        <!-- Guide Section 4: Data Retention & Privacy -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+              </svg>
+            </div>
+            <h4>Retensi 2 Hari & Keamanan Data</h4>
+          </div>
+          <div class="guide-card-content">
+            <p>Jadwal tersimpan otomatis selama 2 hari (<strong>Today</strong> & <strong>Yesterday</strong>). Seluruh data diproses 100% lokal di perangkat tanpa server luar.</p>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" data-close="settingsModal">Cancel</button>
-        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+        <button class="btn-primary" data-close="guideModal" style="width: 100%;">Tutup / Mengerti</button>
       </div>
     </div>
   </div>
@@ -2364,14 +2819,14 @@ input:checked + .slider:before {
         <h3>Smart Alarm Assistant</h3>
         <button class="close-modal-btn" data-close="alarmConfirmModal">&times;</button>
       </div>
-      <div class="modal-body" style="text-align: center; padding: 18px 16px;">
+      <div class="modal-body" style="text-align: center; padding: 16px 14px;">
         <div class="alarm-modal-icon-wrap">
-          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
         </div>
-        <h4 id="alarmDutyVenue" style="font-size: 1.05rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
-        <div id="alarmDutyReport" style="font-size: 0.85rem; color: var(--costa-slate); margin-bottom: 8px; font-weight: 500;">Report Time: 13:00</div>
+        <h4 id="alarmDutyVenue" style="font-size: 0.98rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
+        <div id="alarmDutyReport" style="font-size: 0.82rem; color: var(--costa-slate); margin-bottom: 6px; font-weight: 500;">Report Time: 13:00</div>
         
         <!-- Active Configuration Pill -->
         <div id="alarmConfigBadge" class="alarm-config-badge">
@@ -2381,47 +2836,59 @@ input:checked + .slider:before {
         <!-- 3-Tier Alarm Schedule Card -->
         <div class="alarm-schedule-list">
           <div class="alarm-item">
-            <div>
+            <div class="alarm-item-info">
               <span class="alarm-item-title">1st Alarm <small>(Wake Up)</small></span>
               <span class="alarm-item-desc">Primary wake up call for duty</span>
             </div>
-            <span id="alarmTime1" class="alarm-item-time">12:00</span>
+            <div class="alarm-item-actions">
+              <span id="alarmTime1" class="alarm-item-time">12:00</span>
+              <button type="button" class="alarm-set-single-btn" data-alarm-idx="1" title="Set Alarm in Clock">Set</button>
+            </div>
           </div>
           <div class="alarm-item">
-            <div>
+            <div class="alarm-item-info">
               <span class="alarm-item-title">2nd Alarm <small>(Final Prep / +5m)</small></span>
               <span class="alarm-item-desc">Uniform & equipment check</span>
             </div>
-            <span id="alarmTime2" class="alarm-item-time">12:05</span>
+            <div class="alarm-item-actions">
+              <span id="alarmTime2" class="alarm-item-time">12:05</span>
+              <button type="button" class="alarm-set-single-btn" data-alarm-idx="2" title="Set Alarm in Clock">Set</button>
+            </div>
           </div>
           <div class="alarm-item">
-            <div>
+            <div class="alarm-item-info">
               <span class="alarm-item-title">3rd Alarm <small>(Depart / +10m)</small></span>
               <span class="alarm-item-desc">Time to walk to restaurant outlet</span>
             </div>
-            <span id="alarmTime3" class="alarm-item-time">12:10</span>
+            <div class="alarm-item-actions">
+              <span id="alarmTime3" class="alarm-item-time">12:10</span>
+              <button type="button" class="alarm-set-single-btn" data-alarm-idx="3" title="Set Alarm in Clock">Set</button>
+            </div>
           </div>
         </div>
 
         <!-- Android Platform Action -->
         <div id="alarmAndroidActionWrap" class="alarm-platform-wrap hidden">
-          <a id="androidClockIntentBtn" class="btn-primary btn-alarm-action" href="#" role="button">
-            Set in Android Clock App
-          </a>
+          <button id="androidClockIntentBtn" class="btn-primary btn-alarm-action" type="button">
+            ⏰ Set Primary Alarm in Clock
+          </button>
+          <button id="androidCopyAlarmBtn" class="btn-secondary btn-alarm-action" type="button" style="margin-top: 8px;">
+            📋 Copy Alarm Times
+          </button>
           <p class="alarm-platform-note">
-            Opens native Android Clock app directly with alarm time pre-filled.
+            Membuka aplikasi Jam bawaan Android dengan jam alarm yang telah diisi otomatis.
           </p>
         </div>
 
         <!-- iPhone / iOS Smart Alarm Card Action -->
         <div id="alarmIosActionWrap" class="alarm-platform-wrap hidden">
-          <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm">
+          <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm" type="button">
             Copy Wake Up Time (<span id="copyAlarmTimeLabel">12:00</span>)
           </button>
           
           <div class="siri-prompt-box">
             <div class="siri-icon-wrap">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
               </svg>
             </div>
@@ -2437,7 +2904,7 @@ input:checked + .slider:before {
 
         <!-- Desktop / Generic Platform Action -->
         <div id="alarmGenericActionWrap" class="alarm-platform-wrap hidden">
-          <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm">
+          <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm" type="button">
             Copy Alarm Times
           </button>
           <p class="alarm-platform-note">
@@ -2451,7 +2918,7 @@ input:checked + .slider:before {
             Optional: Save to Calendar
           </button>
           <div id="calendarExportWrap" class="hidden" style="margin-top: 8px;">
-            <button id="downloadIcsBtn" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem;">
+            <button id="downloadIcsBtn" class="btn-secondary" type="button" style="width: 100%; padding: 8px; font-size: 0.8rem;">
               Download Calendar Event (.ics)
             </button>
           </div>
@@ -3746,18 +4213,7 @@ function handleAlarmButtonClick() {
   const reportFormatted = `${pad(startTime.hour)}:${pad(startTime.minute)}`;
   const venueTitle = userDuty.station || userDuty.venue || userDuty.sideDuty || 'Costa Duty';
 
-  // 1. If running inside Android APK (Native Bridge available)
-  if (window.AndroidBridge && typeof window.AndroidBridge.setThreeAlarms === 'function') {
-    window.AndroidBridge.setThreeAlarms(
-      alarms.h1, alarms.m1,
-      alarms.h2, alarms.m2,
-      alarms.h3, alarms.m3,
-      `Costa Duty: ${venueTitle}`
-    );
-    showToast(`3 Alarms set in Clock: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
-  }
-
-  // 2. Populate Smart Alarm Modal
+  // 1. Populate Smart Alarm Modal
   const venueEl = document.getElementById('alarmDutyVenue');
   if (venueEl) venueEl.innerText = venueTitle.toUpperCase();
 
@@ -3775,7 +4231,7 @@ function handleAlarmButtonClick() {
   if (t3) t3.innerText = alarms.str3;
 
   // Platform Detection
-  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent) || Boolean(window.AndroidBridge);
   const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const androidWrap = document.getElementById('alarmAndroidActionWrap');
@@ -3786,12 +4242,56 @@ function handleAlarmButtonClick() {
   if (iosWrap) iosWrap.classList.add('hidden');
   if (genericWrap) genericWrap.classList.add('hidden');
 
+  // Trigger Android Alarm Function
+  const triggerAndroidAlarm = (hour, minute, label) => {
+    // A. Native APK AndroidBridge
+    if (window.AndroidBridge) {
+      try {
+        if (typeof window.AndroidBridge.setAlarm === 'function') {
+          window.AndroidBridge.setAlarm(hour, minute, label, false);
+          return;
+        } else if (typeof window.AndroidBridge.setThreeAlarms === 'function') {
+          window.AndroidBridge.setThreeAlarms(alarms.h1, alarms.m1, alarms.h2, alarms.m2, alarms.h3, alarms.m3, label);
+          return;
+        }
+      } catch (err) {
+        console.error('Native bridge error:', err);
+      }
+    }
+
+    // B. Standard Android Clock Intent URI
+    const msg = encodeURIComponent(label);
+    const intentUrl = `intent://#Intent;action=android.intent.action.SET_ALARM;S.android.intent.extra.alarm.MESSAGE=${msg};i.android.intent.extra.alarm.HOUR=${hour};i.android.intent.extra.alarm.MINUTES=${minute};b.android.intent.extra.alarm.SKIP_UI=false;end`;
+
+    try {
+      window.location.href = intentUrl;
+      showToast(`⏰ Membuka Alarm Jam ${pad(hour)}:${pad(minute)}...`);
+    } catch (e) {
+      navigator.clipboard.writeText(`${pad(hour)}:${pad(minute)}`).catch(() => {});
+      showToast(`📋 Jam Alarm disalin: ${pad(hour)}:${pad(minute)}`);
+    }
+  };
+
   if (isAndroid) {
     if (androidWrap) {
       androidWrap.classList.remove('hidden');
       const intentBtn = document.getElementById('androidClockIntentBtn');
       if (intentBtn) {
-        intentBtn.href = `intent:#Intent;action=android.intent.action.SET_ALARM;i.android.intent.extra.hour=${alarms.h1};i.android.intent.extra.minutes=${alarms.m1};S.android.intent.extra.message=${encodeURIComponent('Costa Duty: ' + venueTitle)};B.android.intent.extra.skip_ui=false;end`;
+        intentBtn.onclick = () => {
+          triggerAndroidAlarm(alarms.h1, alarms.m1, `Costa Duty: ${venueTitle}`);
+        };
+      }
+      const copyBtn = document.getElementById('androidCopyAlarmBtn');
+      if (copyBtn) {
+        copyBtn.onclick = async () => {
+          const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            showToast(`📋 Waktu alarm disalin! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
+          } catch (e) {
+            showToast(`⏰ 1st Alarm: ${alarms.str1}`);
+          }
+        };
       }
     }
   } else if (isIos) {
@@ -3831,6 +4331,27 @@ function handleAlarmButtonClick() {
       }
     }
   }
+
+  // Bind single alarm trigger buttons in list
+  document.querySelectorAll('.alarm-set-single-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = btn.dataset.alarmIdx;
+      let targetH = alarms.h1, targetM = alarms.m1, targetStr = alarms.str1;
+      if (idx === '2') { targetH = alarms.h2; targetM = alarms.m2; targetStr = alarms.str2; }
+      if (idx === '3') { targetH = alarms.h3; targetM = alarms.m3; targetStr = alarms.str3; }
+
+      if (isAndroid) {
+        triggerAndroidAlarm(targetH, targetM, `Costa Duty (Alarm ${idx}): ${venueTitle}`);
+      } else {
+        navigator.clipboard.writeText(targetStr).then(() => {
+          showToast(`📋 Alarm ${idx} (${targetStr}) copied!`);
+        }).catch(() => {
+          showToast(`⏰ Alarm ${idx}: ${targetStr}`);
+        });
+      }
+    };
+  });
 
   // Setup toggle for optional calendar export
   const toggleCalBtn = document.getElementById('toggleCalendarExportBtn');
@@ -4013,11 +4534,7 @@ function setupEventListeners() {
   const moreItemGuide = document.getElementById('moreItemGuide');
   if (moreItemGuide) {
     moreItemGuide.addEventListener('click', () => {
-      openModal('settingsModal');
-      const helpBody = document.getElementById('helpAccordionBody');
-      const chevron = document.getElementById('helpChevron');
-      if (helpBody) helpBody.classList.remove('hidden');
-      if (chevron) chevron.innerText = '▲';
+      openModal('guideModal');
     });
   }
 
@@ -4187,16 +4704,6 @@ function setupEventListeners() {
     });
   });
 
-  // Settings Modal: Help Accordion Toggle
-  const helpToggle = document.getElementById('helpAccordionToggle');
-  if (helpToggle) {
-    helpToggle.addEventListener('click', () => {
-      const body = document.getElementById('helpAccordionBody');
-      const chevron = document.getElementById('helpChevron');
-      const isHidden = body.classList.toggle('hidden');
-      chevron.innerText = isHidden ? '▼' : '▲';
-    });
-  }
 
   // Save Settings Button
   document.getElementById('saveSettingsBtn').addEventListener('click', () => {

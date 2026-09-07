@@ -1273,18 +1273,7 @@ function handleAlarmButtonClick() {
   const reportFormatted = `${pad(startTime.hour)}:${pad(startTime.minute)}`;
   const venueTitle = userDuty.station || userDuty.venue || userDuty.sideDuty || 'Costa Duty';
 
-  // 1. If running inside Android APK (Native Bridge available)
-  if (window.AndroidBridge && typeof window.AndroidBridge.setThreeAlarms === 'function') {
-    window.AndroidBridge.setThreeAlarms(
-      alarms.h1, alarms.m1,
-      alarms.h2, alarms.m2,
-      alarms.h3, alarms.m3,
-      `Costa Duty: ${venueTitle}`
-    );
-    showToast(`3 Alarms set in Clock: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
-  }
-
-  // 2. Populate Smart Alarm Modal
+  // 1. Populate Smart Alarm Modal
   const venueEl = document.getElementById('alarmDutyVenue');
   if (venueEl) venueEl.innerText = venueTitle.toUpperCase();
 
@@ -1302,7 +1291,7 @@ function handleAlarmButtonClick() {
   if (t3) t3.innerText = alarms.str3;
 
   // Platform Detection
-  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent) || Boolean(window.AndroidBridge);
   const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const androidWrap = document.getElementById('alarmAndroidActionWrap');
@@ -1313,12 +1302,56 @@ function handleAlarmButtonClick() {
   if (iosWrap) iosWrap.classList.add('hidden');
   if (genericWrap) genericWrap.classList.add('hidden');
 
+  // Trigger Android Alarm Function
+  const triggerAndroidAlarm = (hour, minute, label) => {
+    // A. Native APK AndroidBridge
+    if (window.AndroidBridge) {
+      try {
+        if (typeof window.AndroidBridge.setAlarm === 'function') {
+          window.AndroidBridge.setAlarm(hour, minute, label, false);
+          return;
+        } else if (typeof window.AndroidBridge.setThreeAlarms === 'function') {
+          window.AndroidBridge.setThreeAlarms(alarms.h1, alarms.m1, alarms.h2, alarms.m2, alarms.h3, alarms.m3, label);
+          return;
+        }
+      } catch (err) {
+        console.error('Native bridge error:', err);
+      }
+    }
+
+    // B. Standard Android Clock Intent URI
+    const msg = encodeURIComponent(label);
+    const intentUrl = `intent://#Intent;action=android.intent.action.SET_ALARM;S.android.intent.extra.alarm.MESSAGE=${msg};i.android.intent.extra.alarm.HOUR=${hour};i.android.intent.extra.alarm.MINUTES=${minute};b.android.intent.extra.alarm.SKIP_UI=false;end`;
+
+    try {
+      window.location.href = intentUrl;
+      showToast(`⏰ Membuka Alarm Jam ${pad(hour)}:${pad(minute)}...`);
+    } catch (e) {
+      navigator.clipboard.writeText(`${pad(hour)}:${pad(minute)}`).catch(() => {});
+      showToast(`📋 Jam Alarm disalin: ${pad(hour)}:${pad(minute)}`);
+    }
+  };
+
   if (isAndroid) {
     if (androidWrap) {
       androidWrap.classList.remove('hidden');
       const intentBtn = document.getElementById('androidClockIntentBtn');
       if (intentBtn) {
-        intentBtn.href = `intent:#Intent;action=android.intent.action.SET_ALARM;i.android.intent.extra.hour=${alarms.h1};i.android.intent.extra.minutes=${alarms.m1};S.android.intent.extra.message=${encodeURIComponent('Costa Duty: ' + venueTitle)};B.android.intent.extra.skip_ui=false;end`;
+        intentBtn.onclick = () => {
+          triggerAndroidAlarm(alarms.h1, alarms.m1, `Costa Duty: ${venueTitle}`);
+        };
+      }
+      const copyBtn = document.getElementById('androidCopyAlarmBtn');
+      if (copyBtn) {
+        copyBtn.onclick = async () => {
+          const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            showToast(`📋 Waktu alarm disalin! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
+          } catch (e) {
+            showToast(`⏰ 1st Alarm: ${alarms.str1}`);
+          }
+        };
       }
     }
   } else if (isIos) {
@@ -1358,6 +1391,27 @@ function handleAlarmButtonClick() {
       }
     }
   }
+
+  // Bind single alarm trigger buttons in list
+  document.querySelectorAll('.alarm-set-single-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = btn.dataset.alarmIdx;
+      let targetH = alarms.h1, targetM = alarms.m1, targetStr = alarms.str1;
+      if (idx === '2') { targetH = alarms.h2; targetM = alarms.m2; targetStr = alarms.str2; }
+      if (idx === '3') { targetH = alarms.h3; targetM = alarms.m3; targetStr = alarms.str3; }
+
+      if (isAndroid) {
+        triggerAndroidAlarm(targetH, targetM, `Costa Duty (Alarm ${idx}): ${venueTitle}`);
+      } else {
+        navigator.clipboard.writeText(targetStr).then(() => {
+          showToast(`📋 Alarm ${idx} (${targetStr}) copied!`);
+        }).catch(() => {
+          showToast(`⏰ Alarm ${idx}: ${targetStr}`);
+        });
+      }
+    };
+  });
 
   // Setup toggle for optional calendar export
   const toggleCalBtn = document.getElementById('toggleCalendarExportBtn');
@@ -1540,11 +1594,7 @@ function setupEventListeners() {
   const moreItemGuide = document.getElementById('moreItemGuide');
   if (moreItemGuide) {
     moreItemGuide.addEventListener('click', () => {
-      openModal('settingsModal');
-      const helpBody = document.getElementById('helpAccordionBody');
-      const chevron = document.getElementById('helpChevron');
-      if (helpBody) helpBody.classList.remove('hidden');
-      if (chevron) chevron.innerText = '▲';
+      openModal('guideModal');
     });
   }
 
@@ -1714,16 +1764,6 @@ function setupEventListeners() {
     });
   });
 
-  // Settings Modal: Help Accordion Toggle
-  const helpToggle = document.getElementById('helpAccordionToggle');
-  if (helpToggle) {
-    helpToggle.addEventListener('click', () => {
-      const body = document.getElementById('helpAccordionBody');
-      const chevron = document.getElementById('helpChevron');
-      const isHidden = body.classList.toggle('hidden');
-      chevron.innerText = isHidden ? '▼' : '▲';
-    });
-  }
 
   // Save Settings Button
   document.getElementById('saveSettingsBtn').addEventListener('click', () => {

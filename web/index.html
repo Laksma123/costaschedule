@@ -158,7 +158,7 @@
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.3-4.3"/>
           </svg>
-          <input type="text" id="searchInput" placeholder="Search Crew Name, Station, Table, Duty..." autocomplete="off">
+          <input type="text" id="searchInput" placeholder="Search crew, station, duty..." autocomplete="off">
           <button id="clearSearchBtn" class="clear-btn hidden">&times;</button>
         </div>
         <div class="search-meta-bar">
@@ -506,32 +506,108 @@
           </div>
         </div>
 
-        <!-- Accordion for Help Guide -->
-        <div class="settings-divider"></div>
-        <div class="help-accordion-wrapper">
-          <button type="button" class="help-accordion-toggle" id="helpAccordionToggle">
-            <span>How to Use & Install Guide</span>
-            <span id="helpChevron">▼</span>
-          </button>
-          <div class="help-accordion-body hidden" id="helpAccordionBody">
-            <h4>Offline Setup Guide:</h4>
-            <ul>
-              <li><strong>iPhone (Safari):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap Share button &rarr; Select <strong>"Add to Home Screen"</strong>.</li>
-              <li><strong>Android (Chrome):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap menu &rarr; Select <strong>"Add to Home Screen"</strong> (or use installed APK).</li>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" data-close="settingsModal">Cancel</button>
+        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: How to Use & Offline Guide (Dedicated Standalone Modal) -->
+  <div id="guideModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>How to Use & Guide</h3>
+        <button class="close-modal-btn" data-close="guideModal">&times;</button>
+      </div>
+      <div class="modal-body guide-modal-body">
+        <div class="guide-intro">
+          <p>Panduan lengkap penggunaan aplikasi jadwal restoran <strong>Costa Smeralda</strong> secara 100% offline saat kapal berlayar (At Sea).</p>
+        </div>
+
+        <!-- Guide Section 1: Offline Setup (Install PWA) -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                <path d="M12 18h.01"/>
+              </svg>
+            </div>
+            <h4>Pasang ke Layar Utama (Home Screen)</h4>
+          </div>
+          <div class="guide-card-content">
+            <p>Simpan aplikasi agar dapat langsung dibuka tanpa internet:</p>
+            <ul class="guide-list">
+              <li><strong>iPhone (Safari):</strong> Buka di Safari &rarr; Tekan ikon <strong>Share</strong> (kotak panah ke atas) &rarr; Pilih <strong>"Add to Home Screen"</strong>.</li>
+              <li><strong>Android (Chrome):</strong> Buka di Chrome &rarr; Tekan menu titik tiga (&vellip;) &rarr; Pilih <strong>"Install app"</strong> atau <strong>"Add to Home screen"</strong> (atau gunakan file APK).</li>
             </ul>
-            <h4>WhatsApp Workflow:</h4>
-            <ol>
-              <li>Copy schedule message from WhatsApp.</li>
-              <li>Tap <strong>"Paste WhatsApp Schedule"</strong>.</li>
-              <li>Your duty will be automatically highlighted!</li>
+          </div>
+        </div>
+
+        <!-- Guide Section 2: WhatsApp Workflow -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/>
+              </svg>
+            </div>
+            <h4>Alur Update Jadwal dari WhatsApp</h4>
+          </div>
+          <div class="guide-card-content">
+            <ol class="guide-ordered-list">
+              <li>Salin (copy) seluruh teks pesan jadwal dari grup WhatsApp restoran.</li>
+              <li>Buka aplikasi, tekan tombol kuning <strong>"Paste WhatsApp Schedule"</strong>.</li>
+              <li>Jadwal otomatis tervalidasi dan nama kru Anda akan ditandai dengan garis kuning Costa!</li>
             </ol>
+          </div>
+        </div>
+
+        <!-- Guide Section 3: Smart Alarm Assistant -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <h4>Asisten Alarm Weker (3 Peringatan)</h4>
+          </div>
+          <div class="guide-card-content">
+            <p>Alarm menghitung 3 waktu berurutan menjelang jam lapor tugas:</p>
+            <ul class="guide-list">
+              <li><strong>Alarm 1:</strong> Bangun & persiapan awal (1 jam sebelum tugas).</li>
+              <li><strong>Alarm 2:</strong> Pengecekan seragam & nametag (+5 menit).</li>
+              <li><strong>Alarm 3:</strong> Waktu berangkat menuju outlet tugas (+10 menit).</li>
+            </ul>
+            <p class="guide-subnote">Di Android, tekan <em>"Set Primary Alarm in Clock"</em> untuk membuka aplikasi Jam secara otomatis.</p>
+          </div>
+        </div>
+
+        <!-- Guide Section 4: Data Retention & Privacy -->
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <div class="guide-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+              </svg>
+            </div>
+            <h4>Retensi 2 Hari & Keamanan Data</h4>
+          </div>
+          <div class="guide-card-content">
+            <p>Jadwal tersimpan otomatis selama 2 hari (<strong>Today</strong> & <strong>Yesterday</strong>). Seluruh data diproses 100% lokal di perangkat tanpa server luar.</p>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" data-close="settingsModal">Cancel</button>
-        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+        <button class="btn-primary" data-close="guideModal" style="width: 100%;">Tutup / Mengerti</button>
       </div>
     </div>
   </div>
@@ -543,14 +619,14 @@
         <h3>Smart Alarm Assistant</h3>
         <button class="close-modal-btn" data-close="alarmConfirmModal">&times;</button>
       </div>
-      <div class="modal-body" style="text-align: center; padding: 18px 16px;">
+      <div class="modal-body" style="text-align: center; padding: 16px 14px;">
         <div class="alarm-modal-icon-wrap">
-          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
         </div>
-        <h4 id="alarmDutyVenue" style="font-size: 1.05rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
-        <div id="alarmDutyReport" style="font-size: 0.85rem; color: var(--costa-slate); margin-bottom: 8px; font-weight: 500;">Report Time: 13:00</div>
+        <h4 id="alarmDutyVenue" style="font-size: 0.98rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
+        <div id="alarmDutyReport" style="font-size: 0.82rem; color: var(--costa-slate); margin-bottom: 6px; font-weight: 500;">Report Time: 13:00</div>
         
         <!-- Active Configuration Pill -->
         <div id="alarmConfigBadge" class="alarm-config-badge">
@@ -560,47 +636,59 @@
         <!-- 3-Tier Alarm Schedule Card -->
         <div class="alarm-schedule-list">
           <div class="alarm-item">
-            <div>
+            <div class="alarm-item-info">
               <span class="alarm-item-title">1st Alarm <small>(Wake Up)</small></span>
               <span class="alarm-item-desc">Primary wake up call for duty</span>
             </div>
-            <span id="alarmTime1" class="alarm-item-time">12:00</span>
+            <div class="alarm-item-actions">
+              <span id="alarmTime1" class="alarm-item-time">12:00</span>
+              <button type="button" class="alarm-set-single-btn" data-alarm-idx="1" title="Set Alarm in Clock">Set</button>
+            </div>
           </div>
           <div class="alarm-item">
-            <div>
+            <div class="alarm-item-info">
               <span class="alarm-item-title">2nd Alarm <small>(Final Prep / +5m)</small></span>
               <span class="alarm-item-desc">Uniform & equipment check</span>
             </div>
-            <span id="alarmTime2" class="alarm-item-time">12:05</span>
+            <div class="alarm-item-actions">
+              <span id="alarmTime2" class="alarm-item-time">12:05</span>
+              <button type="button" class="alarm-set-single-btn" data-alarm-idx="2" title="Set Alarm in Clock">Set</button>
+            </div>
           </div>
           <div class="alarm-item">
-            <div>
+            <div class="alarm-item-info">
               <span class="alarm-item-title">3rd Alarm <small>(Depart / +10m)</small></span>
               <span class="alarm-item-desc">Time to walk to restaurant outlet</span>
             </div>
-            <span id="alarmTime3" class="alarm-item-time">12:10</span>
+            <div class="alarm-item-actions">
+              <span id="alarmTime3" class="alarm-item-time">12:10</span>
+              <button type="button" class="alarm-set-single-btn" data-alarm-idx="3" title="Set Alarm in Clock">Set</button>
+            </div>
           </div>
         </div>
 
         <!-- Android Platform Action -->
         <div id="alarmAndroidActionWrap" class="alarm-platform-wrap hidden">
-          <a id="androidClockIntentBtn" class="btn-primary btn-alarm-action" href="#" role="button">
-            Set in Android Clock App
-          </a>
+          <button id="androidClockIntentBtn" class="btn-primary btn-alarm-action" type="button">
+            ⏰ Set Primary Alarm in Clock
+          </button>
+          <button id="androidCopyAlarmBtn" class="btn-secondary btn-alarm-action" type="button" style="margin-top: 8px;">
+            📋 Copy Alarm Times
+          </button>
           <p class="alarm-platform-note">
-            Opens native Android Clock app directly with alarm time pre-filled.
+            Membuka aplikasi Jam bawaan Android dengan jam alarm yang telah diisi otomatis.
           </p>
         </div>
 
         <!-- iPhone / iOS Smart Alarm Card Action -->
         <div id="alarmIosActionWrap" class="alarm-platform-wrap hidden">
-          <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm">
+          <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm" type="button">
             Copy Wake Up Time (<span id="copyAlarmTimeLabel">12:00</span>)
           </button>
           
           <div class="siri-prompt-box">
             <div class="siri-icon-wrap">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
               </svg>
             </div>
@@ -616,7 +704,7 @@
 
         <!-- Desktop / Generic Platform Action -->
         <div id="alarmGenericActionWrap" class="alarm-platform-wrap hidden">
-          <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm">
+          <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm" type="button">
             Copy Alarm Times
           </button>
           <p class="alarm-platform-note">
@@ -630,7 +718,7 @@
             Optional: Save to Calendar
           </button>
           <div id="calendarExportWrap" class="hidden" style="margin-top: 8px;">
-            <button id="downloadIcsBtn" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem;">
+            <button id="downloadIcsBtn" class="btn-secondary" type="button" style="width: 100%; padding: 8px; font-size: 0.8rem;">
               Download Calendar Event (.ics)
             </button>
           </div>
