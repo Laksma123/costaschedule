@@ -538,7 +538,7 @@ function renderSchedule() {
   const userDuty = findUserDuty(schedule);
   updatePillDisplay(userDuty, schedule.shift);
   updatePersonalBriefingAndSpotlight(userDuty, schedule);
-  renderQuickVenuesOverview(schedule);
+  renderRestaurantCommandHub(schedule);
 
   // Render Sections with Search Query Filter
   let matchCount = 0;
@@ -618,32 +618,69 @@ function updatePersonalBriefingAndSpotlight(userDuty, schedule) {
   }
 }
 
-function renderQuickVenuesOverview(schedule) {
-  const listEl = document.getElementById('overviewVenuesList');
-  if (!listEl) return;
-  listEl.innerHTML = '';
+// ==========================================
+// RESTAURANT SERVICE COMMAND HUB (Schedule Tab)
+// Replaces redundant venue list with Table Finder, Milestones, and Station Leads
+// ==========================================
+let currentTableFinderSchedule = null;
+let isTableFinderInitialized = false;
 
-  const allVenues = [
-    ...(schedule.venues || []).map(v => ({ name: v.name, time: v.reportTime, count: (v.assignments || []).length })),
-    ...(schedule.buffetAndVenues || []).map(b => ({ name: b.name, time: b.timing, count: (b.crew || []).length }))
-  ];
+function renderRestaurantCommandHub(schedule) {
+  currentTableFinderSchedule = schedule;
+  initTableFinderEvents();
 
-  if (allVenues.length === 0) {
-    listEl.innerHTML = '<div style="font-size:0.82rem; color:var(--costa-slate); padding:10px 0;">No active venues for this meal shift.</div>';
-    return;
+  const input = document.getElementById('tableFinderInput');
+  const val = input ? input.value : '';
+  searchAndDisplayTable(val);
+  renderShiftMilestones(schedule);
+  renderStationSupportLeads(schedule);
+}
+
+function initTableFinderEvents() {
+  if (isTableFinderInitialized) return;
+  isTableFinderInitialized = true;
+
+  const input = document.getElementById('tableFinderInput');
+  const clearBtn = document.getElementById('clearTableFinderBtn');
+
+  if (input) {
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      if (clearBtn) clearBtn.classList.toggle('hidden', !val);
+      searchAndDisplayTable(val);
+    });
   }
 
-  allVenues.slice(0, 5).forEach(v => {
-    const card = document.createElement('div');
-    card.className = 'overview-venue-card';
-    card.innerHTML = `
-      <div>
-        <div class="overview-venue-name">${escapeHtml(v.name)}</div>
-        <div class="overview-venue-meta">Report Time: <strong>${escapeHtml(v.time || 'Standard')}</strong></div>
-      </div>
-      <span class="overview-badge">${v.count} Crew</span>
-    `;
-    card.onclick = () => {
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (input) {
+        input.value = '';
+        clearBtn.classList.add('hidden');
+        searchAndDisplayTable('');
+        input.focus();
+      }
+    });
+  }
+
+  // Quick Suggest Table Chips
+  const chipsContainer = document.getElementById('tableFinderChips');
+  if (chipsContainer) {
+    chipsContainer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.table-chip-btn');
+      if (chip && chip.dataset.tbl) {
+        if (input) {
+          input.value = chip.dataset.tbl;
+          if (clearBtn) clearBtn.classList.remove('hidden');
+          searchAndDisplayTable(chip.dataset.tbl);
+        }
+      }
+    });
+  }
+
+  // Jump to Venues link
+  const jumpVenues = document.getElementById('jumpToVenuesTabBtn');
+  if (jumpVenues) {
+    jumpVenues.onclick = () => {
       switchTab('tabVenues');
       const cat = document.getElementById('catMainDining');
       if (cat) {
@@ -652,8 +689,270 @@ function renderQuickVenuesOverview(schedule) {
         if (b) b.classList.remove('hidden');
       }
     };
-    listEl.appendChild(card);
+  }
+
+  // Jump to Operations link
+  const jumpOps = document.getElementById('jumpToOpsTabBtn');
+  if (jumpOps) {
+    jumpOps.onclick = () => {
+      switchTab('tabOperations');
+    };
+  }
+}
+
+function searchAndDisplayTable(query) {
+  const resultBox = document.getElementById('tableFinderResult');
+  if (!resultBox) return;
+
+  const schedule = currentTableFinderSchedule;
+  if (!schedule) {
+    resultBox.innerHTML = '<div class="table-finder-placeholder">No schedule loaded for this shift.</div>';
+    return;
+  }
+
+  const q = (query || '').trim().toLowerCase();
+  if (!q) {
+    resultBox.innerHTML = `
+      <div class="table-finder-hint-box">
+        <span class="hint-icon">💡</span>
+        <span>Enter any table number to instantly locate its dining room, station &amp; assigned waiter.</span>
+      </div>
+    `;
+    return;
+  }
+
+  const matches = [];
+  (schedule.venues || []).forEach(venue => {
+    (venue.assignments || []).forEach(assign => {
+      const stn = String(assign.station || '').toLowerCase();
+      const tablesStr = String(assign.tables || '').toLowerCase();
+      const waiter = String(assign.waiterName || '').toLowerCase();
+      const attendant = String(assign.attendantName || '').toLowerCase();
+
+      const tableTokens = tablesStr.split(/[\s,]+/).filter(Boolean);
+      const isExactTable = tableTokens.includes(q) || tableTokens.some(t => t === q || t.replace(/^t-?/i, '') === q);
+      const isPartialTable = tablesStr.includes(q);
+      const isStationMatch = stn === q || stn === q.replace(/^stn\s*/i, '') || stn === q.replace(/^station\s*/i, '');
+      const isWaiterMatch = waiter.includes(q) || attendant.includes(q);
+
+      if (isExactTable || isStationMatch || isPartialTable || isWaiterMatch) {
+        matches.push({
+          venue: venue.name,
+          reportTime: venue.reportTime,
+          station: assign.station,
+          waiterName: cleanCrewName(assign.waiterName),
+          rawWaiter: assign.waiterName,
+          attendantName: assign.attendantName ? cleanCrewName(assign.attendantName) : '',
+          tables: assign.tables,
+          priority: isExactTable ? 1 : isStationMatch ? 2 : 3
+        });
+      }
+    });
   });
+
+  if (matches.length === 0) {
+    resultBox.innerHTML = `
+      <div class="table-finder-not-found">
+        <span>No match found for "<strong>${escapeHtml(query)}</strong>" in dining room stations.</span>
+        <small>Try another table number or check Buffet in the Venues tab.</small>
+      </div>
+    `;
+    return;
+  }
+
+  matches.sort((a, b) => a.priority - b.priority);
+  const best = matches.slice(0, 3);
+
+  let html = '';
+  best.forEach(m => {
+    html += `
+      <div class="table-found-card">
+        <div class="table-found-header">
+          <div class="table-found-tags">
+            <span class="badge-station">STATION ${escapeHtml(m.station)}</span>
+            <span class="badge-venue">${escapeHtml(m.venue)}</span>
+          </div>
+          <button class="btn-jump-table-station" type="button">View &rarr;</button>
+        </div>
+        <div class="table-found-body">
+          <div class="table-found-row">
+            <span class="tbl-label">Assigned Waiter:</span>
+            <strong class="tbl-val">${escapeHtml(m.waiterName)}</strong>
+          </div>
+          ${m.attendantName ? `
+          <div class="table-found-row">
+            <span class="tbl-label">Attendant:</span>
+            <span class="tbl-val">${escapeHtml(m.attendantName)}</span>
+          </div>` : ''}
+          <div class="table-found-row">
+            <span class="tbl-label">Station Tables:</span>
+            <span class="tbl-val tables-highlight">${escapeHtml(m.tables || 'Not specified')}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  if (matches.length > 3) {
+    html += `<div style="text-align:center; font-size:0.75rem; color:var(--costa-slate); margin-top:4px;">+${matches.length - 3} more matching stations in Venues</div>`;
+  }
+
+  resultBox.innerHTML = html;
+
+  resultBox.querySelectorAll('.btn-jump-table-station').forEach(btn => {
+    btn.onclick = () => {
+      switchTab('tabVenues');
+      const cat = document.getElementById('catMainDining');
+      if (cat) {
+        cat.classList.remove('collapsed');
+        const b = document.getElementById('bodyMainDining');
+        if (b) b.classList.remove('hidden');
+      }
+    };
+  });
+}
+
+function renderShiftMilestones(schedule) {
+  const subtitleEl = document.getElementById('milestonesSubtitle');
+  const dressBadge = document.getElementById('milestoneDressBadge');
+  const trackEl = document.getElementById('milestonesTrack');
+  if (!trackEl) return;
+
+  const meal = state.currentMeal || 'LUNCH';
+  let baseReport = '11:00';
+  if (schedule.venues && schedule.venues[0] && schedule.venues[0].reportTime) {
+    baseReport = schedule.venues[0].reportTime;
+  } else if (meal === 'BREAKFAST') {
+    baseReport = '06:30';
+  } else if (meal === 'DINNER') {
+    baseReport = '18:00';
+  }
+
+  const parts = baseReport.split(':');
+  let bH = parseInt(parts[0], 10) || 11;
+  let bM = parseInt(parts[1], 10) || 0;
+
+  const addMins = (h, m, add) => {
+    const d = new Date();
+    d.setHours(h, m + add, 0, 0);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const tReport = `${String(bH).padStart(2, '0')}:${String(bM).padStart(2, '0')}`;
+  const tBriefing = addMins(bH, bM, 15);
+  const tDoors = addMins(bH, bM, 30);
+  let tLastCall = meal === 'BREAKFAST' ? '09:30' : meal === 'LUNCH' ? '13:30' : '21:30';
+  let tClosing = meal === 'BREAKFAST' ? '10:15' : meal === 'LUNCH' ? '14:00' : '22:15';
+
+  if (subtitleEl) {
+    subtitleEl.innerText = `${meal.charAt(0) + meal.slice(1).toLowerCase()} Service Roadmap • ${tReport} Report`;
+  }
+
+  if (dressBadge) {
+    if (meal === 'DINNER') {
+      dressBadge.innerText = '👔 Evening / Gala Service';
+      dressBadge.className = 'milestone-dress-badge gala';
+    } else {
+      dressBadge.innerText = '👔 Standard White Jacket';
+      dressBadge.className = 'milestone-dress-badge';
+    }
+  }
+
+  const milestones = [
+    { time: tReport, title: 'Crew Report & Setup', desc: 'Mise-en-place, cutlery polish & grooming check' },
+    { time: tBriefing, title: 'Line-up Briefing', desc: 'Maitre D’ service briefing, specials & VIP alerts' },
+    { time: tDoors, title: 'Doors Open', desc: 'Guest seating, beverage service & food orders' },
+    { time: tLastCall, title: 'Kitchen Last Call', desc: 'Galley closing for main courses & desserts' },
+    { time: tClosing, title: 'Reset & Sanitizing', desc: 'Linen collection, table sanitize & handover' }
+  ];
+
+  let trackHtml = '';
+  milestones.forEach((m, idx) => {
+    trackHtml += `
+      <div class="milestone-item">
+        <div class="milestone-time-col">
+          <span class="milestone-time">${m.time}</span>
+        </div>
+        <div class="milestone-marker">
+          <span class="milestone-dot"></span>
+          ${idx < milestones.length - 1 ? '<span class="milestone-line"></span>' : ''}
+        </div>
+        <div class="milestone-content">
+          <h4 class="milestone-step-title">${m.title}</h4>
+          <p class="milestone-step-desc">${m.desc}</p>
+        </div>
+      </div>
+    `;
+  });
+
+  trackEl.innerHTML = trackHtml;
+}
+
+function renderStationSupportLeads(schedule) {
+  const grid = document.getElementById('supportLeadsGrid');
+  if (!grid) return;
+
+  const ctCrew = [];
+  const trCrew = [];
+  const linenCrew = [];
+  const dirCrew = [];
+
+  (schedule.venues || []).forEach(v => {
+    (v.assignments || []).forEach(a => {
+      const name = a.waiterName || '';
+      const cName = cleanCrewName(name);
+      if (/-CT\b/i.test(name) || /\bCT\b/i.test(name)) ctCrew.push(cName);
+      if (/-TR\b/i.test(name) || /\bTR\b/i.test(name)) trCrew.push(cName);
+      if (/-LINEN\b/i.test(name) || /\bLINEN\b/i.test(name)) linenCrew.push(cName);
+      if (/-DIRECTIONE\b/i.test(name) || /\bDIRECTIONE\b/i.test(name)) dirCrew.push(cName);
+
+      const attName = a.attendantName || '';
+      if (attName) {
+        const cAtt = cleanCrewName(attName);
+        if (/-CT\b/i.test(attName)) ctCrew.push(cAtt);
+        if (/-TR\b/i.test(attName)) trCrew.push(cAtt);
+        if (/-LINEN\b/i.test(attName)) linenCrew.push(cAtt);
+        if (/-DIRECTIONE\b/i.test(attName)) dirCrew.push(cAtt);
+      }
+    });
+  });
+
+  const formatList = (arr) => {
+    if (arr.length === 0) return '<span class="support-empty">No assignments listed</span>';
+    return arr.slice(0, 4).map(name => `<span class="support-crew-tag">${escapeHtml(name)}</span>`).join('');
+  };
+
+  grid.innerHTML = `
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge ct">CT</span>
+        <strong>Cutlery Team (${ctCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(ctCrew)}</div>
+    </div>
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge tr">TR</span>
+        <strong>Trash &amp; Trays (${trCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(trCrew)}</div>
+    </div>
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge ln">LN</span>
+        <strong>Linen Runners (${linenCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(linenCrew)}</div>
+    </div>
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge dr">DR</span>
+        <strong>Directione &amp; Door (${dirCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(dirCrew)}</div>
+    </div>
+  `;
 }
 
 function getShortVenueName(userDuty) {
@@ -1478,10 +1777,13 @@ document.addEventListener('visibilitychange', async () => {
 // ==========================================
 // REALISTIC MOBILE PHONE ALARM SOUND ENGINE
 // ==========================================
+// MOBILE SMARTPHONE ALARM ENGINE (Web Audio API)
+// ==========================================
 let mobileAlarmAudioCtx = null;
+let mobileAlarmMasterGain = null;
 let mobileAlarmLoopTimer = null;
 let isMobileAlarmPlaying = false;
-let testSoundTimeout = null;
+let isTestSoundPlaying = false;
 
 function playMobileAlarmLoop() {
   if (isMobileAlarmPlaying) return;
@@ -1489,15 +1791,27 @@ function playMobileAlarmLoop() {
 
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
-  if (!mobileAlarmAudioCtx || mobileAlarmAudioCtx.state === 'closed') {
-    mobileAlarmAudioCtx = new AudioContextClass();
-  }
-  if (mobileAlarmAudioCtx.state === 'suspended') {
-    mobileAlarmAudioCtx.resume();
+
+  try {
+    if (!mobileAlarmAudioCtx || mobileAlarmAudioCtx.state === 'closed') {
+      mobileAlarmAudioCtx = new AudioContextClass();
+      mobileAlarmMasterGain = null;
+    }
+    if (mobileAlarmAudioCtx.state === 'suspended') {
+      mobileAlarmAudioCtx.resume();
+    }
+    if (!mobileAlarmMasterGain) {
+      mobileAlarmMasterGain = mobileAlarmAudioCtx.createGain();
+      mobileAlarmMasterGain.connect(mobileAlarmAudioCtx.destination);
+    }
+    mobileAlarmMasterGain.gain.setValueAtTime(1.0, mobileAlarmAudioCtx.currentTime);
+  } catch (err) {
+    console.warn('AudioContext init error:', err);
+    return;
   }
 
   function playNote(freq, startOffset, duration, volume) {
-    if (!mobileAlarmAudioCtx) return;
+    if (!mobileAlarmAudioCtx || !mobileAlarmMasterGain) return;
     const now = mobileAlarmAudioCtx.currentTime + startOffset;
 
     // Osc1: Fundamental tone (Sine wave for warm body)
@@ -1515,19 +1829,19 @@ function playMobileAlarmLoop() {
     osc3.type = 'sine';
     osc3.frequency.setValueAtTime(freq * 2.76, now);
 
-    const gainNode = mobileAlarmAudioCtx.createGain();
+    const noteGain = mobileAlarmAudioCtx.createGain();
     const gain3 = mobileAlarmAudioCtx.createGain();
     gain3.gain.setValueAtTime(0.25, now);
 
-    gainNode.gain.setValueAtTime(0.0001, now);
-    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.012);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    noteGain.gain.setValueAtTime(0.0001, now);
+    noteGain.gain.exponentialRampToValueAtTime(volume, now + 0.012);
+    noteGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-    osc1.connect(gainNode);
-    osc2.connect(gainNode);
+    osc1.connect(noteGain);
+    osc2.connect(noteGain);
     osc3.connect(gain3);
-    gain3.connect(gainNode);
-    gainNode.connect(mobileAlarmAudioCtx.destination);
+    gain3.connect(noteGain);
+    noteGain.connect(mobileAlarmMasterGain);
 
     osc1.start(now);
     osc2.start(now);
@@ -1578,35 +1892,62 @@ function playMobileAlarmLoop() {
 
 function stopMobileAlarmLoop() {
   isMobileAlarmPlaying = false;
+  isTestSoundPlaying = false;
+
   if (mobileAlarmLoopTimer) {
     clearTimeout(mobileAlarmLoopTimer);
     mobileAlarmLoopTimer = null;
   }
+
+  if (mobileAlarmAudioCtx) {
+    try {
+      if (mobileAlarmMasterGain) {
+        mobileAlarmMasterGain.gain.setValueAtTime(0, mobileAlarmAudioCtx.currentTime);
+      }
+      mobileAlarmAudioCtx.close();
+    } catch (e) {
+      console.warn('Error closing audio context:', e);
+    }
+    mobileAlarmAudioCtx = null;
+    mobileAlarmMasterGain = null;
+  }
+
   if ('vibrate' in navigator) {
     navigator.vibrate(0);
+  }
+
+  // Always reset Test Button UI state immediately
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+  if (testBtn) {
+    testBtn.innerHTML = '🔊 Test Alarm Ringtone';
+    testBtn.classList.remove('btn-test-active');
   }
 }
 
 function testAlarmRingtone() {
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+
+  // If already playing, stop immediately!
+  if (isMobileAlarmPlaying || isTestSoundPlaying) {
+    stopMobileAlarmLoop();
+    showToast('⏹️ Alarm test sound stopped.');
+    return;
+  }
+
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) {
     showToast('⚠️ Web Audio not supported on this device.');
     return;
   }
-  if (isMobileAlarmPlaying) {
-    stopMobileAlarmLoop();
-    showToast('Alarm sound preview stopped.');
-    return;
+
+  isTestSoundPlaying = true;
+  if (testBtn) {
+    testBtn.innerHTML = '⏹️ Stop Test Sound';
+    testBtn.classList.add('btn-test-active');
   }
 
-  showToast('🔊 Playing mobile alarm ringtone preview...');
+  showToast('🔊 Playing alarm preview (tap Stop to mute)...');
   playMobileAlarmLoop();
-  if (testSoundTimeout) clearTimeout(testSoundTimeout);
-  testSoundTimeout = setTimeout(() => {
-    if (!state.bedside.isRinging) {
-      stopMobileAlarmLoop();
-    }
-  }, 3400);
 }
 
 // ==========================================
@@ -1618,6 +1959,17 @@ function startBedsideClockCountdown(targetHour, targetMin) {
   if (state.bedside.timer) clearInterval(state.bedside.timer);
 
   const updateClock = () => {
+    const modal = document.getElementById('bedsideAlarmModal');
+    // Absolute guarantee: if modal is hidden or inactive, immediately terminate!
+    if (!state.bedside.active || !modal || modal.classList.contains('hidden')) {
+      if (state.bedside.timer) {
+        clearInterval(state.bedside.timer);
+        state.bedside.timer = null;
+      }
+      stopMobileAlarmLoop();
+      return;
+    }
+
     const now = new Date();
     const currH = now.getHours();
     const currM = now.getMinutes();
@@ -1656,6 +2008,12 @@ function startBedsideClockCountdown(targetHour, targetMin) {
 }
 
 function triggerBedsideAlarmRinging() {
+  const modal = document.getElementById('bedsideAlarmModal');
+  if (!state.bedside.active || !modal || modal.classList.contains('hidden')) {
+    stopBedsideAlarmRinging();
+    return;
+  }
+
   state.bedside.isRinging = true;
   const standbyWrap = document.getElementById('bedsideStandbyControls');
   const ringingWrap = document.getElementById('bedsideRingingControls');
@@ -1705,6 +2063,9 @@ function snoozeBedsideAlarm() {
 function exitBedsideNightstandMode() {
   state.bedside.active = false;
   state.bedside.isRinging = false;
+  state.bedside.targetHour = null;
+  state.bedside.targetMin = null;
+
   stopMobileAlarmLoop();
 
   if (state.bedside.timer) {
@@ -1716,6 +2077,14 @@ function exitBedsideNightstandMode() {
 
   const modal = document.getElementById('bedsideAlarmModal');
   if (modal) modal.classList.add('hidden');
+
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+  if (testBtn) {
+    testBtn.innerHTML = '🔊 Test Alarm Ringtone';
+    testBtn.classList.remove('btn-test-active');
+  }
+
+  showToast('⏰ Nightstand mode exited. Alarm disarmed.');
 }
 
 // ==========================================
@@ -1973,6 +2342,16 @@ function setupEventListeners() {
       }
     });
   });
+
+  // Bedside Modal Backdrop Click (Guarantees alarm disarm on tap outside)
+  const bedsideModalEl = document.getElementById('bedsideAlarmModal');
+  if (bedsideModalEl) {
+    bedsideModalEl.addEventListener('click', (e) => {
+      if (e.target === bedsideModalEl) {
+        exitBedsideNightstandMode();
+      }
+    });
+  }
 
   // Smart Paste from Clipboard
   document.getElementById('autoPasteClipboardBtn').addEventListener('click', async () => {

@@ -711,48 +711,386 @@ html, body {
   text-decoration: underline;
 }
 
-.overview-venues-list {
+/* =============================================================
+   RESTAURANT SERVICE COMMAND HUB (TAB 1 DASHBOARD)
+   ============================================================= */
+.schedule-overview-wrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  margin-top: 10px;
 }
 
-.overview-venue-card {
+.hub-card {
   background-color: #FFFFFF;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(0, 50, 74, 0.04);
+}
+
+.hub-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.hub-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hub-card-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.hub-card-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--costa-navy);
+  margin: 0;
+}
+
+.hub-card-desc {
+  font-size: 0.74rem;
+  color: var(--costa-slate);
+  margin: 1px 0 0 0;
+}
+
+/* 1. Table & Station Quick Finder */
+.table-finder-search-row {
+  margin-bottom: 8px;
+}
+
+.table-finder-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.table-finder-svg {
+  position: absolute;
+  left: 11px;
+  width: 15px;
+  height: 15px;
+  color: var(--costa-slate);
+  pointer-events: none;
+}
+
+#tableFinderInput {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  font-size: 0.84rem;
+  font-family: inherit;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: #F8FAFC;
+  color: var(--costa-navy);
+  outline: none;
   transition: border-color 0.15s, background-color 0.15s;
 }
 
-.overview-venue-card:hover {
-  background-color: #F8FAFC;
-  border-color: var(--border-card);
+#tableFinderInput:focus {
+  border-color: var(--costa-blue);
+  background: #FFFFFF;
 }
 
-.overview-venue-name {
-  font-size: 0.92rem;
+.table-finder-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.table-chip-label {
+  font-size: 0.72rem;
   font-weight: 600;
+  color: var(--costa-slate);
+}
+
+.table-chip-btn {
+  background: var(--costa-blue-faint);
+  color: var(--costa-blue);
+  border: 1px solid rgba(0, 102, 179, 0.2);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.table-chip-btn:hover {
+  background: var(--costa-blue);
+  color: #FFFFFF;
+}
+
+.table-finder-hint-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: 0.76rem;
+  color: var(--costa-slate);
+  line-height: 1.4;
+}
+
+.table-finder-placeholder,
+.table-finder-not-found {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--costa-slate);
+  background: #F8FAFC;
+  border-radius: var(--radius-md);
+}
+
+.table-found-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--costa-yellow-dark);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  box-shadow: 0 2px 6px rgba(255, 199, 44, 0.12);
+  margin-top: 6px;
+}
+
+.table-found-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.table-found-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-station {
+  background: var(--costa-yellow);
+  color: var(--costa-navy);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
+}
+
+.badge-venue {
+  background: #F1F5F9;
+  color: var(--costa-navy);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.btn-jump-table-station {
+  background: none;
+  border: none;
+  color: var(--costa-blue);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-jump-table-station:hover {
+  text-decoration: underline;
+}
+
+.table-found-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.table-found-row {
+  display: flex;
+  align-items: baseline;
+  font-size: 0.78rem;
+  gap: 6px;
+}
+
+.tbl-label {
+  color: var(--costa-slate);
+  min-width: 95px;
+  font-size: 0.74rem;
+}
+
+.tbl-val {
   color: var(--costa-navy);
 }
 
-.overview-venue-meta {
-  font-size: 0.78rem;
-  color: var(--costa-slate);
-  margin-top: 2px;
+.tables-highlight {
+  font-weight: 700;
+  color: var(--costa-blue);
+  letter-spacing: 0.3px;
 }
 
-.overview-badge {
-  background-color: var(--costa-blue-faint);
+/* 2. Shift Service Milestones */
+.milestone-dress-badge {
+  background: var(--costa-blue-faint);
   color: var(--costa-blue);
-  font-size: 0.74rem;
-  font-weight: 600;
+  border: 1px solid rgba(0, 102, 179, 0.2);
+  font-size: 0.7rem;
+  font-weight: 700;
   padding: 3px 8px;
-  border-radius: 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.milestone-dress-badge.gala {
+  background: #FFFBEB;
+  color: #92400E;
+  border-color: #FDE68A;
+}
+
+.milestones-track {
+  display: flex;
+  flex-direction: column;
+  padding-left: 2px;
+  margin-top: 4px;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: flex-start;
+  min-height: 42px;
+}
+
+.milestone-time-col {
+  width: 44px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.milestone-time {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--costa-navy);
+  letter-spacing: 0.2px;
+}
+
+.milestone-marker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.milestone-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--costa-yellow);
+  border: 1.5px solid var(--costa-navy);
+  z-index: 2;
+}
+
+.milestone-line {
+  position: absolute;
+  top: 12px;
+  bottom: -4px;
+  width: 2px;
+  background: #E2E8F0;
+  z-index: 1;
+}
+
+.milestone-content {
+  padding-left: 6px;
+  padding-bottom: 12px;
+}
+
+.milestone-step-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--costa-navy);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.milestone-step-desc {
+  font-size: 0.72rem;
+  color: var(--costa-slate);
+  margin: 2px 0 0 0;
+  line-height: 1.3;
+}
+
+/* 3. Station Support Leads */
+.support-leads-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 420px) {
+  .support-leads-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.support-lead-item {
+  background: #F8FAFC;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+}
+
+.support-lead-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--costa-navy);
+  margin-bottom: 6px;
+}
+
+.support-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #FFFFFF;
+}
+
+.support-badge.ct { background: #2563EB; }
+.support-badge.tr { background: #D97706; }
+.support-badge.ln { background: #059669; }
+.support-badge.dr { background: #7C3AED; }
+
+.support-tag-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.support-crew-tag {
+  font-size: 0.72rem;
+  color: var(--costa-navy);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.support-empty {
+  font-size: 0.7rem;
+  color: var(--costa-slate);
+  font-style: italic;
 }
 
 /* =============================================================
@@ -2053,6 +2391,19 @@ input:checked + .slider:before {
   border-color: #475569;
 }
 
+.btn-bedside-test.btn-test-active {
+  background: #DC2626 !important;
+  color: #FFFFFF !important;
+  border-color: #EF4444 !important;
+  box-shadow: 0 0 14px rgba(220, 38, 38, 0.45);
+  animation: pulseTestStopBtn 0.9s infinite alternate;
+}
+
+@keyframes pulseTestStopBtn {
+  from { transform: scale(1); box-shadow: 0 0 8px rgba(220, 38, 38, 0.35); }
+  to { transform: scale(1.02); box-shadow: 0 0 16px rgba(220, 38, 38, 0.6); }
+}
+
 .bedside-exit-btn {
   width: 100%;
   margin-top: 8px;
@@ -2747,15 +3098,84 @@ input:checked + .slider:before {
         <button id="loadSampleScheduleBtn" class="sample-pill-btn">Load Sample Data</button>
       </div>
 
-      <!-- Quick Outlets Overview Section -->
+      <!-- Restaurant Service Command Hub (Replaces redundant Lineup) -->
       <div id="scheduleOverviewSection" class="schedule-overview-wrap">
-        <div class="section-subhead-row">
-          <h2 class="section-title">Today's Restaurant Lineup<span class="costa-dot">.</span></h2>
-          <button id="jumpToVenuesTabBtn" class="section-subhead-link">See All Venues &rarr;</button>
+        
+        <!-- Hub Widget 1: Interactive Table & Station Finder -->
+        <div class="hub-card table-finder-card">
+          <div class="hub-card-header">
+            <div class="hub-card-title-group">
+              <span class="hub-card-icon">🔍</span>
+              <div>
+                <h3 class="hub-card-title">Table &amp; Station Finder</h3>
+                <p class="hub-card-desc">Find any table's deck, station &amp; assigned waiter</p>
+              </div>
+            </div>
+            <button id="jumpToVenuesTabBtn" class="section-subhead-link">Venues &rarr;</button>
+          </div>
+          
+          <div class="table-finder-search-row">
+            <div class="table-finder-input-wrap">
+              <svg class="table-finder-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+              <input type="text" id="tableFinderInput" placeholder="Enter table # (e.g. 314, 402, 62)..." autocomplete="off">
+              <button id="clearTableFinderBtn" class="clear-btn hidden" type="button">&times;</button>
+            </div>
+          </div>
+
+          <!-- Quick Suggest Chips -->
+          <div class="table-finder-chips" id="tableFinderChips">
+            <span class="table-chip-label">Quick:</span>
+            <button type="button" class="table-chip-btn" data-tbl="314">T-314</button>
+            <button type="button" class="table-chip-btn" data-tbl="326">T-326</button>
+            <button type="button" class="table-chip-btn" data-tbl="402">T-402</button>
+            <button type="button" class="table-chip-btn" data-tbl="65">Stn 65</button>
+            <button type="button" class="table-chip-btn" data-tbl="SE-1">Suite</button>
+          </div>
+
+          <!-- Result Container -->
+          <div id="tableFinderResult" class="table-finder-result-box">
+            <!-- Dynamically populated via JS -->
+          </div>
         </div>
-        <div id="overviewVenuesList" class="overview-venues-list">
-          <!-- Populated via JS -->
+
+        <!-- Hub Widget 2: Shift Service Milestones -->
+        <div class="hub-card shift-milestones-card">
+          <div class="hub-card-header">
+            <div class="hub-card-title-group">
+              <span class="hub-card-icon">⏱️</span>
+              <div>
+                <h3 class="hub-card-title">Shift Service Milestones</h3>
+                <p class="hub-card-desc" id="milestonesSubtitle">Service Roadmap</p>
+              </div>
+            </div>
+            <span class="milestone-dress-badge" id="milestoneDressBadge">👔 White Jacket</span>
+          </div>
+
+          <div class="milestones-track" id="milestonesTrack">
+            <!-- Dynamically populated via JS -->
+          </div>
         </div>
+
+        <!-- Hub Widget 3: Key Station Support Leads -->
+        <div class="hub-card support-leads-card">
+          <div class="hub-card-header">
+            <div class="hub-card-title-group">
+              <span class="hub-card-icon">⚡</span>
+              <div>
+                <h3 class="hub-card-title">Station Support Leads</h3>
+                <p class="hub-card-desc">Cutlery (CT), Trash (TR), Linen &amp; Floor Coordination</p>
+              </div>
+            </div>
+            <button id="jumpToOpsTabBtn" class="section-subhead-link">Operations &rarr;</button>
+          </div>
+          <div class="support-leads-grid" id="supportLeadsGrid">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
       </div>
 
     </section>
@@ -3248,7 +3668,7 @@ input:checked + .slider:before {
             <strong id="bedsideWakeLockStatus">Screen Always ON (Lock Screen Bypassed)</strong>
           </div>
           <p class="bedside-status-desc">
-            Your phone's 5-minute auto-lock is overridden. Leave phone charging beside your bed; screen stays active and alarm will ring.
+            Your phone's auto-lock screen is overridden. Leave phone charging beside your bed; screen stays active and alarm will ring on time.
           </p>
         </div>
 
@@ -3820,7 +4240,7 @@ function renderSchedule() {
   const userDuty = findUserDuty(schedule);
   updatePillDisplay(userDuty, schedule.shift);
   updatePersonalBriefingAndSpotlight(userDuty, schedule);
-  renderQuickVenuesOverview(schedule);
+  renderRestaurantCommandHub(schedule);
 
   // Render Sections with Search Query Filter
   let matchCount = 0;
@@ -3900,32 +4320,69 @@ function updatePersonalBriefingAndSpotlight(userDuty, schedule) {
   }
 }
 
-function renderQuickVenuesOverview(schedule) {
-  const listEl = document.getElementById('overviewVenuesList');
-  if (!listEl) return;
-  listEl.innerHTML = '';
+// ==========================================
+// RESTAURANT SERVICE COMMAND HUB (Schedule Tab)
+// Replaces redundant venue list with Table Finder, Milestones, and Station Leads
+// ==========================================
+let currentTableFinderSchedule = null;
+let isTableFinderInitialized = false;
 
-  const allVenues = [
-    ...(schedule.venues || []).map(v => ({ name: v.name, time: v.reportTime, count: (v.assignments || []).length })),
-    ...(schedule.buffetAndVenues || []).map(b => ({ name: b.name, time: b.timing, count: (b.crew || []).length }))
-  ];
+function renderRestaurantCommandHub(schedule) {
+  currentTableFinderSchedule = schedule;
+  initTableFinderEvents();
 
-  if (allVenues.length === 0) {
-    listEl.innerHTML = '<div style="font-size:0.82rem; color:var(--costa-slate); padding:10px 0;">No active venues for this meal shift.</div>';
-    return;
+  const input = document.getElementById('tableFinderInput');
+  const val = input ? input.value : '';
+  searchAndDisplayTable(val);
+  renderShiftMilestones(schedule);
+  renderStationSupportLeads(schedule);
+}
+
+function initTableFinderEvents() {
+  if (isTableFinderInitialized) return;
+  isTableFinderInitialized = true;
+
+  const input = document.getElementById('tableFinderInput');
+  const clearBtn = document.getElementById('clearTableFinderBtn');
+
+  if (input) {
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      if (clearBtn) clearBtn.classList.toggle('hidden', !val);
+      searchAndDisplayTable(val);
+    });
   }
 
-  allVenues.slice(0, 5).forEach(v => {
-    const card = document.createElement('div');
-    card.className = 'overview-venue-card';
-    card.innerHTML = `
-      <div>
-        <div class="overview-venue-name">${escapeHtml(v.name)}</div>
-        <div class="overview-venue-meta">Report Time: <strong>${escapeHtml(v.time || 'Standard')}</strong></div>
-      </div>
-      <span class="overview-badge">${v.count} Crew</span>
-    `;
-    card.onclick = () => {
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (input) {
+        input.value = '';
+        clearBtn.classList.add('hidden');
+        searchAndDisplayTable('');
+        input.focus();
+      }
+    });
+  }
+
+  // Quick Suggest Table Chips
+  const chipsContainer = document.getElementById('tableFinderChips');
+  if (chipsContainer) {
+    chipsContainer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.table-chip-btn');
+      if (chip && chip.dataset.tbl) {
+        if (input) {
+          input.value = chip.dataset.tbl;
+          if (clearBtn) clearBtn.classList.remove('hidden');
+          searchAndDisplayTable(chip.dataset.tbl);
+        }
+      }
+    });
+  }
+
+  // Jump to Venues link
+  const jumpVenues = document.getElementById('jumpToVenuesTabBtn');
+  if (jumpVenues) {
+    jumpVenues.onclick = () => {
       switchTab('tabVenues');
       const cat = document.getElementById('catMainDining');
       if (cat) {
@@ -3934,8 +4391,270 @@ function renderQuickVenuesOverview(schedule) {
         if (b) b.classList.remove('hidden');
       }
     };
-    listEl.appendChild(card);
+  }
+
+  // Jump to Operations link
+  const jumpOps = document.getElementById('jumpToOpsTabBtn');
+  if (jumpOps) {
+    jumpOps.onclick = () => {
+      switchTab('tabOperations');
+    };
+  }
+}
+
+function searchAndDisplayTable(query) {
+  const resultBox = document.getElementById('tableFinderResult');
+  if (!resultBox) return;
+
+  const schedule = currentTableFinderSchedule;
+  if (!schedule) {
+    resultBox.innerHTML = '<div class="table-finder-placeholder">No schedule loaded for this shift.</div>';
+    return;
+  }
+
+  const q = (query || '').trim().toLowerCase();
+  if (!q) {
+    resultBox.innerHTML = `
+      <div class="table-finder-hint-box">
+        <span class="hint-icon">💡</span>
+        <span>Enter any table number to instantly locate its dining room, station &amp; assigned waiter.</span>
+      </div>
+    `;
+    return;
+  }
+
+  const matches = [];
+  (schedule.venues || []).forEach(venue => {
+    (venue.assignments || []).forEach(assign => {
+      const stn = String(assign.station || '').toLowerCase();
+      const tablesStr = String(assign.tables || '').toLowerCase();
+      const waiter = String(assign.waiterName || '').toLowerCase();
+      const attendant = String(assign.attendantName || '').toLowerCase();
+
+      const tableTokens = tablesStr.split(/[\s,]+/).filter(Boolean);
+      const isExactTable = tableTokens.includes(q) || tableTokens.some(t => t === q || t.replace(/^t-?/i, '') === q);
+      const isPartialTable = tablesStr.includes(q);
+      const isStationMatch = stn === q || stn === q.replace(/^stn\s*/i, '') || stn === q.replace(/^station\s*/i, '');
+      const isWaiterMatch = waiter.includes(q) || attendant.includes(q);
+
+      if (isExactTable || isStationMatch || isPartialTable || isWaiterMatch) {
+        matches.push({
+          venue: venue.name,
+          reportTime: venue.reportTime,
+          station: assign.station,
+          waiterName: cleanCrewName(assign.waiterName),
+          rawWaiter: assign.waiterName,
+          attendantName: assign.attendantName ? cleanCrewName(assign.attendantName) : '',
+          tables: assign.tables,
+          priority: isExactTable ? 1 : isStationMatch ? 2 : 3
+        });
+      }
+    });
   });
+
+  if (matches.length === 0) {
+    resultBox.innerHTML = `
+      <div class="table-finder-not-found">
+        <span>No match found for "<strong>${escapeHtml(query)}</strong>" in dining room stations.</span>
+        <small>Try another table number or check Buffet in the Venues tab.</small>
+      </div>
+    `;
+    return;
+  }
+
+  matches.sort((a, b) => a.priority - b.priority);
+  const best = matches.slice(0, 3);
+
+  let html = '';
+  best.forEach(m => {
+    html += `
+      <div class="table-found-card">
+        <div class="table-found-header">
+          <div class="table-found-tags">
+            <span class="badge-station">STATION ${escapeHtml(m.station)}</span>
+            <span class="badge-venue">${escapeHtml(m.venue)}</span>
+          </div>
+          <button class="btn-jump-table-station" type="button">View &rarr;</button>
+        </div>
+        <div class="table-found-body">
+          <div class="table-found-row">
+            <span class="tbl-label">Assigned Waiter:</span>
+            <strong class="tbl-val">${escapeHtml(m.waiterName)}</strong>
+          </div>
+          ${m.attendantName ? `
+          <div class="table-found-row">
+            <span class="tbl-label">Attendant:</span>
+            <span class="tbl-val">${escapeHtml(m.attendantName)}</span>
+          </div>` : ''}
+          <div class="table-found-row">
+            <span class="tbl-label">Station Tables:</span>
+            <span class="tbl-val tables-highlight">${escapeHtml(m.tables || 'Not specified')}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  if (matches.length > 3) {
+    html += `<div style="text-align:center; font-size:0.75rem; color:var(--costa-slate); margin-top:4px;">+${matches.length - 3} more matching stations in Venues</div>`;
+  }
+
+  resultBox.innerHTML = html;
+
+  resultBox.querySelectorAll('.btn-jump-table-station').forEach(btn => {
+    btn.onclick = () => {
+      switchTab('tabVenues');
+      const cat = document.getElementById('catMainDining');
+      if (cat) {
+        cat.classList.remove('collapsed');
+        const b = document.getElementById('bodyMainDining');
+        if (b) b.classList.remove('hidden');
+      }
+    };
+  });
+}
+
+function renderShiftMilestones(schedule) {
+  const subtitleEl = document.getElementById('milestonesSubtitle');
+  const dressBadge = document.getElementById('milestoneDressBadge');
+  const trackEl = document.getElementById('milestonesTrack');
+  if (!trackEl) return;
+
+  const meal = state.currentMeal || 'LUNCH';
+  let baseReport = '11:00';
+  if (schedule.venues && schedule.venues[0] && schedule.venues[0].reportTime) {
+    baseReport = schedule.venues[0].reportTime;
+  } else if (meal === 'BREAKFAST') {
+    baseReport = '06:30';
+  } else if (meal === 'DINNER') {
+    baseReport = '18:00';
+  }
+
+  const parts = baseReport.split(':');
+  let bH = parseInt(parts[0], 10) || 11;
+  let bM = parseInt(parts[1], 10) || 0;
+
+  const addMins = (h, m, add) => {
+    const d = new Date();
+    d.setHours(h, m + add, 0, 0);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const tReport = `${String(bH).padStart(2, '0')}:${String(bM).padStart(2, '0')}`;
+  const tBriefing = addMins(bH, bM, 15);
+  const tDoors = addMins(bH, bM, 30);
+  let tLastCall = meal === 'BREAKFAST' ? '09:30' : meal === 'LUNCH' ? '13:30' : '21:30';
+  let tClosing = meal === 'BREAKFAST' ? '10:15' : meal === 'LUNCH' ? '14:00' : '22:15';
+
+  if (subtitleEl) {
+    subtitleEl.innerText = `${meal.charAt(0) + meal.slice(1).toLowerCase()} Service Roadmap • ${tReport} Report`;
+  }
+
+  if (dressBadge) {
+    if (meal === 'DINNER') {
+      dressBadge.innerText = '👔 Evening / Gala Service';
+      dressBadge.className = 'milestone-dress-badge gala';
+    } else {
+      dressBadge.innerText = '👔 Standard White Jacket';
+      dressBadge.className = 'milestone-dress-badge';
+    }
+  }
+
+  const milestones = [
+    { time: tReport, title: 'Crew Report & Setup', desc: 'Mise-en-place, cutlery polish & grooming check' },
+    { time: tBriefing, title: 'Line-up Briefing', desc: 'Maitre D’ service briefing, specials & VIP alerts' },
+    { time: tDoors, title: 'Doors Open', desc: 'Guest seating, beverage service & food orders' },
+    { time: tLastCall, title: 'Kitchen Last Call', desc: 'Galley closing for main courses & desserts' },
+    { time: tClosing, title: 'Reset & Sanitizing', desc: 'Linen collection, table sanitize & handover' }
+  ];
+
+  let trackHtml = '';
+  milestones.forEach((m, idx) => {
+    trackHtml += `
+      <div class="milestone-item">
+        <div class="milestone-time-col">
+          <span class="milestone-time">${m.time}</span>
+        </div>
+        <div class="milestone-marker">
+          <span class="milestone-dot"></span>
+          ${idx < milestones.length - 1 ? '<span class="milestone-line"></span>' : ''}
+        </div>
+        <div class="milestone-content">
+          <h4 class="milestone-step-title">${m.title}</h4>
+          <p class="milestone-step-desc">${m.desc}</p>
+        </div>
+      </div>
+    `;
+  });
+
+  trackEl.innerHTML = trackHtml;
+}
+
+function renderStationSupportLeads(schedule) {
+  const grid = document.getElementById('supportLeadsGrid');
+  if (!grid) return;
+
+  const ctCrew = [];
+  const trCrew = [];
+  const linenCrew = [];
+  const dirCrew = [];
+
+  (schedule.venues || []).forEach(v => {
+    (v.assignments || []).forEach(a => {
+      const name = a.waiterName || '';
+      const cName = cleanCrewName(name);
+      if (/-CT\b/i.test(name) || /\bCT\b/i.test(name)) ctCrew.push(cName);
+      if (/-TR\b/i.test(name) || /\bTR\b/i.test(name)) trCrew.push(cName);
+      if (/-LINEN\b/i.test(name) || /\bLINEN\b/i.test(name)) linenCrew.push(cName);
+      if (/-DIRECTIONE\b/i.test(name) || /\bDIRECTIONE\b/i.test(name)) dirCrew.push(cName);
+
+      const attName = a.attendantName || '';
+      if (attName) {
+        const cAtt = cleanCrewName(attName);
+        if (/-CT\b/i.test(attName)) ctCrew.push(cAtt);
+        if (/-TR\b/i.test(attName)) trCrew.push(cAtt);
+        if (/-LINEN\b/i.test(attName)) linenCrew.push(cAtt);
+        if (/-DIRECTIONE\b/i.test(attName)) dirCrew.push(cAtt);
+      }
+    });
+  });
+
+  const formatList = (arr) => {
+    if (arr.length === 0) return '<span class="support-empty">No assignments listed</span>';
+    return arr.slice(0, 4).map(name => `<span class="support-crew-tag">${escapeHtml(name)}</span>`).join('');
+  };
+
+  grid.innerHTML = `
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge ct">CT</span>
+        <strong>Cutlery Team (${ctCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(ctCrew)}</div>
+    </div>
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge tr">TR</span>
+        <strong>Trash &amp; Trays (${trCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(trCrew)}</div>
+    </div>
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge ln">LN</span>
+        <strong>Linen Runners (${linenCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(linenCrew)}</div>
+    </div>
+    <div class="support-lead-item">
+      <div class="support-lead-head">
+        <span class="support-badge dr">DR</span>
+        <strong>Directione &amp; Door (${dirCrew.length})</strong>
+      </div>
+      <div class="support-tag-wrap">${formatList(dirCrew)}</div>
+    </div>
+  `;
 }
 
 function getShortVenueName(userDuty) {
@@ -4760,10 +5479,13 @@ document.addEventListener('visibilitychange', async () => {
 // ==========================================
 // REALISTIC MOBILE PHONE ALARM SOUND ENGINE
 // ==========================================
+// MOBILE SMARTPHONE ALARM ENGINE (Web Audio API)
+// ==========================================
 let mobileAlarmAudioCtx = null;
+let mobileAlarmMasterGain = null;
 let mobileAlarmLoopTimer = null;
 let isMobileAlarmPlaying = false;
-let testSoundTimeout = null;
+let isTestSoundPlaying = false;
 
 function playMobileAlarmLoop() {
   if (isMobileAlarmPlaying) return;
@@ -4771,15 +5493,27 @@ function playMobileAlarmLoop() {
 
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
-  if (!mobileAlarmAudioCtx || mobileAlarmAudioCtx.state === 'closed') {
-    mobileAlarmAudioCtx = new AudioContextClass();
-  }
-  if (mobileAlarmAudioCtx.state === 'suspended') {
-    mobileAlarmAudioCtx.resume();
+
+  try {
+    if (!mobileAlarmAudioCtx || mobileAlarmAudioCtx.state === 'closed') {
+      mobileAlarmAudioCtx = new AudioContextClass();
+      mobileAlarmMasterGain = null;
+    }
+    if (mobileAlarmAudioCtx.state === 'suspended') {
+      mobileAlarmAudioCtx.resume();
+    }
+    if (!mobileAlarmMasterGain) {
+      mobileAlarmMasterGain = mobileAlarmAudioCtx.createGain();
+      mobileAlarmMasterGain.connect(mobileAlarmAudioCtx.destination);
+    }
+    mobileAlarmMasterGain.gain.setValueAtTime(1.0, mobileAlarmAudioCtx.currentTime);
+  } catch (err) {
+    console.warn('AudioContext init error:', err);
+    return;
   }
 
   function playNote(freq, startOffset, duration, volume) {
-    if (!mobileAlarmAudioCtx) return;
+    if (!mobileAlarmAudioCtx || !mobileAlarmMasterGain) return;
     const now = mobileAlarmAudioCtx.currentTime + startOffset;
 
     // Osc1: Fundamental tone (Sine wave for warm body)
@@ -4797,19 +5531,19 @@ function playMobileAlarmLoop() {
     osc3.type = 'sine';
     osc3.frequency.setValueAtTime(freq * 2.76, now);
 
-    const gainNode = mobileAlarmAudioCtx.createGain();
+    const noteGain = mobileAlarmAudioCtx.createGain();
     const gain3 = mobileAlarmAudioCtx.createGain();
     gain3.gain.setValueAtTime(0.25, now);
 
-    gainNode.gain.setValueAtTime(0.0001, now);
-    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.012);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    noteGain.gain.setValueAtTime(0.0001, now);
+    noteGain.gain.exponentialRampToValueAtTime(volume, now + 0.012);
+    noteGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-    osc1.connect(gainNode);
-    osc2.connect(gainNode);
+    osc1.connect(noteGain);
+    osc2.connect(noteGain);
     osc3.connect(gain3);
-    gain3.connect(gainNode);
-    gainNode.connect(mobileAlarmAudioCtx.destination);
+    gain3.connect(noteGain);
+    noteGain.connect(mobileAlarmMasterGain);
 
     osc1.start(now);
     osc2.start(now);
@@ -4860,35 +5594,62 @@ function playMobileAlarmLoop() {
 
 function stopMobileAlarmLoop() {
   isMobileAlarmPlaying = false;
+  isTestSoundPlaying = false;
+
   if (mobileAlarmLoopTimer) {
     clearTimeout(mobileAlarmLoopTimer);
     mobileAlarmLoopTimer = null;
   }
+
+  if (mobileAlarmAudioCtx) {
+    try {
+      if (mobileAlarmMasterGain) {
+        mobileAlarmMasterGain.gain.setValueAtTime(0, mobileAlarmAudioCtx.currentTime);
+      }
+      mobileAlarmAudioCtx.close();
+    } catch (e) {
+      console.warn('Error closing audio context:', e);
+    }
+    mobileAlarmAudioCtx = null;
+    mobileAlarmMasterGain = null;
+  }
+
   if ('vibrate' in navigator) {
     navigator.vibrate(0);
+  }
+
+  // Always reset Test Button UI state immediately
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+  if (testBtn) {
+    testBtn.innerHTML = '🔊 Test Alarm Ringtone';
+    testBtn.classList.remove('btn-test-active');
   }
 }
 
 function testAlarmRingtone() {
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+
+  // If already playing, stop immediately!
+  if (isMobileAlarmPlaying || isTestSoundPlaying) {
+    stopMobileAlarmLoop();
+    showToast('⏹️ Alarm test sound stopped.');
+    return;
+  }
+
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) {
     showToast('⚠️ Web Audio not supported on this device.');
     return;
   }
-  if (isMobileAlarmPlaying) {
-    stopMobileAlarmLoop();
-    showToast('Alarm sound preview stopped.');
-    return;
+
+  isTestSoundPlaying = true;
+  if (testBtn) {
+    testBtn.innerHTML = '⏹️ Stop Test Sound';
+    testBtn.classList.add('btn-test-active');
   }
 
-  showToast('🔊 Playing mobile alarm ringtone preview...');
+  showToast('🔊 Playing alarm preview (tap Stop to mute)...');
   playMobileAlarmLoop();
-  if (testSoundTimeout) clearTimeout(testSoundTimeout);
-  testSoundTimeout = setTimeout(() => {
-    if (!state.bedside.isRinging) {
-      stopMobileAlarmLoop();
-    }
-  }, 3400);
 }
 
 // ==========================================
@@ -4900,6 +5661,17 @@ function startBedsideClockCountdown(targetHour, targetMin) {
   if (state.bedside.timer) clearInterval(state.bedside.timer);
 
   const updateClock = () => {
+    const modal = document.getElementById('bedsideAlarmModal');
+    // Absolute guarantee: if modal is hidden or inactive, immediately terminate!
+    if (!state.bedside.active || !modal || modal.classList.contains('hidden')) {
+      if (state.bedside.timer) {
+        clearInterval(state.bedside.timer);
+        state.bedside.timer = null;
+      }
+      stopMobileAlarmLoop();
+      return;
+    }
+
     const now = new Date();
     const currH = now.getHours();
     const currM = now.getMinutes();
@@ -4938,6 +5710,12 @@ function startBedsideClockCountdown(targetHour, targetMin) {
 }
 
 function triggerBedsideAlarmRinging() {
+  const modal = document.getElementById('bedsideAlarmModal');
+  if (!state.bedside.active || !modal || modal.classList.contains('hidden')) {
+    stopBedsideAlarmRinging();
+    return;
+  }
+
   state.bedside.isRinging = true;
   const standbyWrap = document.getElementById('bedsideStandbyControls');
   const ringingWrap = document.getElementById('bedsideRingingControls');
@@ -4987,6 +5765,9 @@ function snoozeBedsideAlarm() {
 function exitBedsideNightstandMode() {
   state.bedside.active = false;
   state.bedside.isRinging = false;
+  state.bedside.targetHour = null;
+  state.bedside.targetMin = null;
+
   stopMobileAlarmLoop();
 
   if (state.bedside.timer) {
@@ -4998,6 +5779,14 @@ function exitBedsideNightstandMode() {
 
   const modal = document.getElementById('bedsideAlarmModal');
   if (modal) modal.classList.add('hidden');
+
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+  if (testBtn) {
+    testBtn.innerHTML = '🔊 Test Alarm Ringtone';
+    testBtn.classList.remove('btn-test-active');
+  }
+
+  showToast('⏰ Nightstand mode exited. Alarm disarmed.');
 }
 
 // ==========================================
@@ -5255,6 +6044,16 @@ function setupEventListeners() {
       }
     });
   });
+
+  // Bedside Modal Backdrop Click (Guarantees alarm disarm on tap outside)
+  const bedsideModalEl = document.getElementById('bedsideAlarmModal');
+  if (bedsideModalEl) {
+    bedsideModalEl.addEventListener('click', (e) => {
+      if (e.target === bedsideModalEl) {
+        exitBedsideNightstandMode();
+      }
+    });
+  }
 
   // Smart Paste from Clipboard
   document.getElementById('autoPasteClipboardBtn').addEventListener('click', async () => {
