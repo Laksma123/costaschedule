@@ -334,6 +334,11 @@ html, body {
   flex-shrink: 0;
 }
 
+.news-svg {
+  width: 20px;
+  height: 20px;
+}
+
 .briefing-content {
   display: flex;
   flex-direction: column;
@@ -473,6 +478,8 @@ html, body {
 }
 
 .btn-svg {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -498,6 +505,8 @@ html, body {
 }
 
 .search-icon {
+  width: 20px;
+  height: 20px;
   color: var(--costa-faint);
   flex-shrink: 0;
 }
@@ -1679,6 +1688,11 @@ input:checked + .slider:before {
 .empty-icon-wrap {
   color: var(--costa-faint);
   margin-bottom: 12px;
+}
+
+.empty-svg {
+  width: 48px;
+  height: 48px;
 }
 
 .empty-state h2 {

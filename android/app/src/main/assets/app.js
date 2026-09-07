@@ -1458,6 +1458,11 @@ function switchTab(targetTabId) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.remove('hidden');
+}
+
 function setupEventListeners() {
   // Day Selector (Outline Pills)
   document.querySelectorAll('#dayTabs button').forEach(btn => {
@@ -1486,10 +1491,35 @@ function setupEventListeners() {
     });
   });
 
-  // Header Avatar Quick Jump to More tab
+  // Header Avatar Quick Jump to User's Schedule Row
   const quickProfile = document.getElementById('quickProfileBtn');
   if (quickProfile) {
-    quickProfile.addEventListener('click', () => switchTab('tabMore'));
+    quickProfile.addEventListener('click', () => {
+      if (!hasUserProfile()) {
+        openModal('settingsModal');
+        return;
+      }
+      // Switch to Venues tab
+      switchTab('tabVenues');
+      // Expand all categories so user can see everything
+      document.querySelectorAll('.category-card').forEach(card => {
+        card.classList.remove('collapsed');
+        const body = card.querySelector('.category-body');
+        if (body) body.classList.remove('hidden');
+      });
+      document.querySelectorAll('.venue-group').forEach(grp => {
+        grp.classList.remove('sub-collapsed');
+      });
+      // Scroll to user's highlighted row
+      setTimeout(() => {
+        const highlightedRow = document.querySelector('.highlight-my-row');
+        if (highlightedRow) {
+          highlightedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          showToast('You are not scheduled in this shift.');
+        }
+      }, 150);
+    });
   }
 
   // Jump to Venues tab buttons
@@ -1503,34 +1533,18 @@ function setupEventListeners() {
   }
 
   // More Tab Navigation Actions
-  const moreProfile = document.getElementById('userProfilePill');
-  if (moreProfile) {
-    moreProfile.addEventListener('click', () => openModal('settingsModal'));
-  }
-  const moreItemProfile = document.getElementById('moreItemProfile');
-  if (moreItemProfile) {
-    moreItemProfile.addEventListener('click', () => openModal('settingsModal'));
-  }
   const moreItemAlarm = document.getElementById('moreItemAlarm');
   if (moreItemAlarm) {
     moreItemAlarm.addEventListener('click', handleAlarmButtonClick);
-  }
-  const moreItemPaste = document.getElementById('moreItemPaste');
-  if (moreItemPaste) {
-    moreItemPaste.addEventListener('click', () => openModal('pasteModal'));
   }
   const moreItemGuide = document.getElementById('moreItemGuide');
   if (moreItemGuide) {
     moreItemGuide.addEventListener('click', () => {
       openModal('settingsModal');
       const helpBody = document.getElementById('helpAccordionBody');
+      const chevron = document.getElementById('helpChevron');
       if (helpBody) helpBody.classList.remove('hidden');
-    });
-  }
-  const moreItemTelemetry = document.getElementById('moreItemTelemetry');
-  if (moreItemTelemetry) {
-    moreItemTelemetry.addEventListener('click', () => {
-      showToast("100% Offline Ready • Costa Smeralda • 2-Day Retention Active");
+      if (chevron) chevron.innerText = '▲';
     });
   }
 
@@ -1796,10 +1810,10 @@ function processSchedulePaste(text) {
     state.currentDay = 'today';
     state.currentMeal = mealKey;
 
-    document.querySelectorAll('#dayTabs .seg-btn').forEach(b => {
+    document.querySelectorAll('#dayTabs button').forEach(b => {
       b.classList.toggle('active', b.dataset.day === 'today');
     });
-    document.querySelectorAll('#mealTabs .meal-btn').forEach(b => {
+    document.querySelectorAll('#mealTabs button').forEach(b => {
       b.classList.toggle('active', b.dataset.meal === mealKey);
     });
 
