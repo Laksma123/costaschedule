@@ -85,6 +85,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void setKeepScreenOn(boolean keepOn) {
+            mainHandler.post(() -> {
+                if (keepOn) {
+                    getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                } else {
+                    getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+            });
+        }
+
+        @JavascriptInterface
         public void showToast(String message) {
             mainHandler.post(() -> Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show());
         }

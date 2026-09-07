@@ -1802,7 +1802,8 @@ input:checked + .slider:before {
   color: #F8FAFC !important;
   border: 1px solid #1E3E62 !important;
   text-align: center;
-  max-width: 380px;
+  max-width: 390px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6) !important;
 }
 
 .bedside-header {
@@ -1813,8 +1814,18 @@ input:checked + .slider:before {
   padding: 12px 16px;
 }
 
+.bedside-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bedside-moon-icon {
+  font-size: 1rem;
+}
+
 .bedside-tag {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.8px;
   color: var(--costa-yellow);
@@ -1822,65 +1833,100 @@ input:checked + .slider:before {
 
 .bedside-close-btn {
   color: #94A3B8 !important;
+  font-size: 1.4rem;
 }
 .bedside-close-btn:hover {
   color: #FFFFFF !important;
 }
 
 .bedside-body {
-  padding: 16px 14px;
+  padding: 16px 14px 20px;
+}
+
+.bedside-clock-section {
+  margin-bottom: 12px;
 }
 
 .bedside-current-time {
   font-family: 'SF Mono', Monaco, Consolas, monospace;
-  font-size: 2.2rem;
+  font-size: 2.35rem;
   font-weight: 800;
   color: #FFFFFF;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
 }
 
 .bedside-current-label {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   letter-spacing: 1px;
   color: #94A3B8;
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-top: 1px;
 }
 
 .bedside-target-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid #1E3E62;
   border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 14px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.bedside-target-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .bedside-target-label {
   font-size: 0.65rem;
-  color: var(--costa-yellow);
+  color: #94A3B8;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
+}
+
+.bedside-config-chip {
+  font-size: 0.62rem;
+  color: var(--costa-yellow);
+  background: rgba(249, 176, 0, 0.12);
+  border: 1px solid rgba(249, 176, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
 .bedside-target-time {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #38BDF8;
-  margin: 2px 0;
+  margin: 1px 0;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
 }
 
 .bedside-target-venue {
-  font-size: 0.8rem;
-  color: #E2E8F0;
-  font-weight: 500;
+  font-size: 0.82rem;
+  color: #F1F5F9;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bedside-target-report {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  margin-top: 1px;
 }
 
 .bedside-countdown-wrap {
-  background: rgba(249, 176, 0, 0.1);
+  background: rgba(249, 176, 0, 0.08);
   border: 1.5px solid var(--costa-yellow);
   border-radius: 12px;
   padding: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 16px rgba(249, 176, 0, 0.15);
 }
 
 .bedside-countdown-label {
@@ -1892,27 +1938,90 @@ input:checked + .slider:before {
 
 .bedside-countdown-digits {
   font-family: 'SF Mono', Monaco, Consolas, monospace;
-  font-size: 1.7rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: #FFFFFF;
-  margin-top: 4px;
+  margin-top: 2px;
+}
+
+/* 3-Tier Timeline Strip */
+.bedside-timeline-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #1E3E62;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.timeline-step .step-num {
+  font-size: 0.6rem;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1E3E62;
+  color: #94A3B8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.timeline-step.active .step-num {
+  background: var(--costa-yellow);
+  color: var(--costa-ink);
+}
+
+.timeline-step .step-name {
+  font-size: 0.65rem;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.timeline-step .step-time {
+  font-size: 0.75rem;
+  color: #F8FAFC;
+  font-weight: 700;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+}
+
+.timeline-arrow {
+  color: #475569;
+  font-size: 0.75rem;
+}
+
+/* Screen Status Box */
+.bedside-status-box {
+  background: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  text-align: left;
 }
 
 .bedside-status-row {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 6px;
   font-size: 0.72rem;
-  color: #94A3B8;
-  margin-bottom: 14px;
+  color: #4ADE80;
 }
 
 .bedside-status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background-color: #64748B;
+  flex-shrink: 0;
 }
 
 .bedside-status-dot.active {
@@ -1920,52 +2029,95 @@ input:checked + .slider:before {
   box-shadow: 0 0 8px #22C55E;
 }
 
+.bedside-status-desc {
+  font-size: 0.68rem;
+  color: #94A3B8;
+  line-height: 1.35;
+  margin-top: 4px;
+}
+
 .btn-bedside-test {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: #F8FAFC;
   border: 1px solid #334155;
   border-radius: var(--radius-md);
-  padding: 9px;
-  font-size: 0.8rem;
+  padding: 10px;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 .btn-bedside-test:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: #475569;
 }
 
+.bedside-exit-btn {
+  width: 100%;
+  margin-top: 8px;
+  background: #0F172A !important;
+  color: #CBD5E1 !important;
+  border-color: #334155 !important;
+}
+.bedside-exit-btn:hover {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+}
+
+/* Ringing Active View */
 .bedside-ringing-wrap {
   background: #DC2626;
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 18px 14px;
   margin-bottom: 14px;
-  animation: pulseRinging 1s infinite alternate;
+  animation: pulseRinging 0.8s infinite alternate;
 }
 
 @keyframes pulseRinging {
-  from { transform: scale(1); box-shadow: 0 0 10px #DC2626; }
-  to { transform: scale(1.02); box-shadow: 0 0 25px #EF4444; }
+  from { transform: scale(1); box-shadow: 0 0 15px #DC2626; }
+  to { transform: scale(1.02); box-shadow: 0 0 35px #EF4444; }
 }
 
 .ringing-headline {
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 1.3rem;
+  font-weight: 900;
   color: #FFFFFF;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.ringing-venue {
+  font-size: 0.82rem;
+  color: #FEE2E2;
+  margin-bottom: 14px;
+  font-weight: 500;
 }
 
 .btn-dismiss-alarm {
   background: #FFFFFF;
   color: #DC2626;
   border: none;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 900;
-  padding: 10px 20px;
-  border-radius: 25px;
+  padding: 13px 20px;
+  border-radius: 30px;
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  margin-bottom: 8px;
+}
+
+.btn-snooze-alarm {
+  background: rgba(0, 0, 0, 0.3);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 100%;
 }
 
 .alarm-secondary-wrap {
@@ -3004,7 +3156,7 @@ input:checked + .slider:before {
               <li><strong>2nd Alarm:</strong> Uniform, grooming & equipment check (+5 min).</li>
               <li><strong>3rd Alarm:</strong> Departure walk to restaurant outlet (+10 min).</li>
             </ul>
-            <p class="guide-subnote">On Android, tap <em>"Set Primary Alarm in Clock"</em> to pre-fill the native Clock app.</p>
+            <p class="guide-subnote">Tap <strong>"Alarm"</strong> to activate Bedside Nightstand Mode. Overrides screen lock to keep your display awake while resting, and sounds a mobile alarm ringtone when it's time to wake up!</p>
           </div>
         </div>
 
@@ -3033,145 +3185,89 @@ input:checked + .slider:before {
     </div>
   </div>
 
-  <!-- Modal: Smart Alarm Assistant / Device Alarm Card -->
-  <div id="alarmConfirmModal" class="modal-backdrop hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Smart Alarm Assistant</h3>
-        <button class="close-modal-btn" data-close="alarmConfirmModal">&times;</button>
-      </div>
-      <div class="modal-body" style="text-align: center; padding: 16px 14px;">
-        <div class="alarm-modal-icon-wrap">
-          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
-        <h4 id="alarmDutyVenue" style="font-size: 0.98rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
-        <div id="alarmDutyReport" style="font-size: 0.82rem; color: var(--costa-slate); margin-bottom: 6px; font-weight: 500;">Report Time: 13:00</div>
-        
-        <!-- Active Configuration Pill -->
-        <div id="alarmConfigBadge" class="alarm-config-badge">
-          Config: 1 Hour Before Duty
-        </div>
-        
-        <!-- 3-Tier Alarm Schedule Card -->
-        <div class="alarm-schedule-list">
-          <div class="alarm-item">
-            <div class="alarm-item-info">
-              <span class="alarm-item-title">1st Alarm <small>(Wake Up)</small></span>
-              <span class="alarm-item-desc">Primary wake up call for duty</span>
-            </div>
-            <div class="alarm-item-actions">
-              <span id="alarmTime1" class="alarm-item-time">12:00</span>
-              <button type="button" class="alarm-set-single-btn" data-alarm-idx="1" title="Set Alarm in Clock">Set</button>
-            </div>
-          </div>
-          <div class="alarm-item">
-            <div class="alarm-item-info">
-              <span class="alarm-item-title">2nd Alarm <small>(Final Prep / +5m)</small></span>
-              <span class="alarm-item-desc">Uniform & equipment check</span>
-            </div>
-            <div class="alarm-item-actions">
-              <span id="alarmTime2" class="alarm-item-time">12:05</span>
-              <button type="button" class="alarm-set-single-btn" data-alarm-idx="2" title="Set Alarm in Clock">Set</button>
-            </div>
-          </div>
-          <div class="alarm-item">
-            <div class="alarm-item-info">
-              <span class="alarm-item-title">3rd Alarm <small>(Depart / +10m)</small></span>
-              <span class="alarm-item-desc">Time to walk to restaurant outlet</span>
-            </div>
-            <div class="alarm-item-actions">
-              <span id="alarmTime3" class="alarm-item-time">12:10</span>
-              <button type="button" class="alarm-set-single-btn" data-alarm-idx="3" title="Set Alarm in Clock">Set</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Universal Alarm Action Options -->
-        <div class="alarm-actions-container">
-          <!-- Native APK Button (Only visible if running inside Android APK) -->
-          <div id="alarmApkWrap" class="hidden" style="margin-bottom: 8px;">
-            <button id="apkNativeClockBtn" class="btn-primary btn-alarm-action" type="button" style="background: #0284C7;">
-              ⏰ Set in Android Clock (APK Mode)
-            </button>
-          </div>
-
-          <!-- Option 1: Calendar Event with 3 Automated Alarms (Recommended for Standalone HTML) -->
-          <button id="calendarExportPrimaryBtn" class="btn-primary btn-alarm-action" type="button">
-            📅 Add to Calendar (Auto 3 Alarms)
-          </button>
-          <div class="alarm-feature-hint">
-            Directly imports duty into Google/Samsung Calendar with 3 pre-set audio alerts.
-          </div>
-
-          <!-- Option 2: Bedside Nightstand Alarm (In-Page Audio & Screen Wake Lock) -->
-          <button id="activateBedsideAlarmBtn" class="btn-secondary btn-alarm-action" type="button" style="margin-top: 8px;">
-            🔔 Open Bedside Nightstand Alarm
-          </button>
-          <div class="alarm-feature-hint">
-            Interactive bedside clock with countdown, screen wake lock & loud ship chimes.
-          </div>
-
-          <!-- Option 3: Copy Wake-Up Time & Voice Assistant -->
-          <button id="copyAlarmVoiceBtn" class="btn-smart-copy-alarm" type="button" style="margin-top: 8px;">
-            📋 Copy Wake-Up Time (<span id="copyPrimaryAlarmTimeSpan">12:00</span>)
-          </button>
-          
-          <div class="voice-assistant-tip">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-              <line x1="12" x2="12" y1="19" y2="22"/>
-            </svg>
-            <span>Voice prompt: <strong>"Hey Google / Siri, set alarm for <span id="voiceAlarmTimeSpan">12:00</span>"</strong></span>
-          </div>
-        </div>
-
-      </div>
-      <div class="modal-footer">
-        <button class="btn-primary" data-close="alarmConfirmModal" style="width: 100%;">Done / Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bedside Nightstand Alarm Modal -->
+  <!-- Modal: Bedside Nightstand Alarm (Dedicated Single-Alarm Solution) -->
   <div id="bedsideAlarmModal" class="modal-backdrop hidden">
     <div class="modal-card bedside-modal-card">
       <div class="bedside-header">
-        <span class="bedside-tag">🌙 BEDSIDE NIGHTSTAND ALARM</span>
+        <div class="bedside-header-left">
+          <span class="bedside-moon-icon">🌙</span>
+          <span class="bedside-tag">BEDSIDE NIGHTSTAND ALARM</span>
+        </div>
         <button class="close-modal-btn bedside-close-btn" data-close="bedsideAlarmModal">&times;</button>
       </div>
+
       <div class="bedside-body">
-        <div class="bedside-current-time" id="bedsideCurrentTime">00:00:00</div>
-        <div class="bedside-current-label">CURRENT TIME</div>
-        
-        <div class="bedside-target-card">
-          <div class="bedside-target-label">WAKE-UP TARGET</div>
-          <div class="bedside-target-time" id="bedsideTargetTime">12:00</div>
-          <div class="bedside-target-venue" id="bedsideTargetVenue">Ceres Restaurant Duty</div>
+        <!-- Live Current Ship Time -->
+        <div class="bedside-clock-section">
+          <div class="bedside-current-time" id="bedsideCurrentTime">00:00:00</div>
+          <div class="bedside-current-label">CURRENT TIME</div>
         </div>
 
+        <!-- Target Shift Card -->
+        <div class="bedside-target-card">
+          <div class="bedside-target-header">
+            <span class="bedside-target-label">NEXT DUTY TARGET</span>
+            <span class="bedside-config-chip" id="bedsideConfigChip">1h Before Duty</span>
+          </div>
+          <div class="bedside-target-time" id="bedsideTargetTime">10:00</div>
+          <div class="bedside-target-venue" id="bedsideTargetVenue">CERES MAIN RESTAURANT</div>
+          <div class="bedside-target-report" id="bedsideTargetReport">Report Time: 11:00</div>
+        </div>
+
+        <!-- Live Countdown Display -->
         <div class="bedside-countdown-wrap">
           <div class="bedside-countdown-label">ALARM RINGS IN</div>
           <div class="bedside-countdown-digits" id="bedsideCountdown">00h 00m 00s</div>
         </div>
 
-        <div class="bedside-status-row">
-          <span class="bedside-status-dot active" id="bedsideWakeLockDot"></span>
-          <span id="bedsideWakeLockStatus">Screen Keep-Awake Active</span>
+        <!-- 3-Tier Wake-Up Timeline Preview -->
+        <div class="bedside-timeline-strip">
+          <div class="timeline-step active">
+            <span class="step-num">1</span>
+            <span class="step-name">Wake Up</span>
+            <span class="step-time" id="bedsideStep1">10:00</span>
+          </div>
+          <div class="timeline-arrow">&rarr;</div>
+          <div class="timeline-step">
+            <span class="step-num">2</span>
+            <span class="step-name">Uniform</span>
+            <span class="step-time" id="bedsideStep2">10:05</span>
+          </div>
+          <div class="timeline-arrow">&rarr;</div>
+          <div class="timeline-step">
+            <span class="step-num">3</span>
+            <span class="step-name">Depart</span>
+            <span class="step-time" id="bedsideStep3">10:10</span>
+          </div>
         </div>
 
-        <!-- Ringing Active Controls (shown when alarm fires) -->
+        <!-- Screen Keep-Awake Protection Status (Always ON Badge) -->
+        <div class="bedside-status-box">
+          <div class="bedside-status-row">
+            <span class="bedside-status-dot active" id="bedsideWakeLockDot"></span>
+            <strong id="bedsideWakeLockStatus">Screen Always ON (Lock Screen Bypassed)</strong>
+          </div>
+          <p class="bedside-status-desc">
+            Your phone's 5-minute auto-lock is overridden. Leave phone charging beside your bed; screen stays active and alarm will ring.
+          </p>
+        </div>
+
+        <!-- Ringing Active Controls (shown when alarm triggers) -->
         <div id="bedsideRingingControls" class="bedside-ringing-wrap hidden">
-          <div class="ringing-headline">⏰ TIME FOR DUTY!</div>
-          <button id="dismissAlarmBtn" class="btn-dismiss-alarm">STOP ALARM</button>
+          <div class="ringing-headline">⏰ TIME TO WAKE UP!</div>
+          <div class="ringing-venue" id="bedsideRingingVenue">Report to Ceres Restaurant</div>
+          <button id="dismissAlarmBtn" class="btn-dismiss-alarm" type="button">STOP ALARM (I'M AWAKE)</button>
+          <button id="snoozeAlarmBtn" class="btn-snooze-alarm" type="button">💤 Snooze 5 Minutes</button>
         </div>
 
         <!-- Standby Controls -->
         <div id="bedsideStandbyControls" class="bedside-standby-wrap">
-          <button id="testAlarmSoundBtn" class="btn-bedside-test">🔊 Test Chime Sound</button>
-          <button class="btn-secondary" data-close="bedsideAlarmModal" style="width: 100%; margin-top: 8px;">Exit Nightstand Mode</button>
+          <button id="testAlarmSoundBtn" class="btn-bedside-test" type="button">
+            🔊 Test Alarm Ringtone
+          </button>
+          <button class="btn-secondary bedside-exit-btn" data-close="bedsideAlarmModal" type="button">
+            Exit Nightstand Mode
+          </button>
         </div>
       </div>
     </div>
@@ -3217,8 +3313,10 @@ const state = {
   bedside: {
     timer: null,
     wakeLock: null,
-    alarmInterval: null,
-    isRinging: false
+    active: false,
+    isRinging: false,
+    targetHour: 0,
+    targetMin: 0
   }
 };
 
@@ -4505,290 +4603,313 @@ function handleAlarmButtonClick() {
   const reportFormatted = `${pad(startTime.hour)}:${pad(startTime.minute)}`;
   const venueTitle = userDuty.station || userDuty.venue || userDuty.sideDuty || 'Costa Duty';
 
-  // 1. Populate Smart Alarm Modal
-  const venueEl = document.getElementById('alarmDutyVenue');
+  // Directly launch the dedicated Bedside Nightstand Alarm
+  openBedsideNightstandAlarm(venueTitle, reportFormatted, startTime.hour, startTime.minute, alarms);
+}
+
+// ==========================================
+// DEDICATED BEDSIDE NIGHTSTAND ALARM CONTROLLER
+// ==========================================
+function openBedsideNightstandAlarm(venueTitle, reportFormatted, dutyHour, dutyMin, alarms) {
+  state.bedside.active = true;
+  state.bedside.targetHour = alarms.h1;
+  state.bedside.targetMin = alarms.m1;
+  state.bedside.isRinging = false;
+
+  // 1. Populate Target Duty Details
+  const venueEl = document.getElementById('bedsideTargetVenue');
   if (venueEl) venueEl.innerText = venueTitle.toUpperCase();
 
-  const reportEl = document.getElementById('alarmDutyReport');
+  const reportEl = document.getElementById('bedsideTargetReport');
   if (reportEl) reportEl.innerText = `Report Time: ${reportFormatted}`;
 
-  const configBadgeEl = document.getElementById('alarmConfigBadge');
-  if (configBadgeEl) configBadgeEl.innerText = getAlarmConfigLabel();
-
-  const t1 = document.getElementById('alarmTime1');
-  const t2 = document.getElementById('alarmTime2');
-  const t3 = document.getElementById('alarmTime3');
-  if (t1) t1.innerText = alarms.str1;
-  if (t2) t2.innerText = alarms.str2;
-  if (t3) t3.innerText = alarms.str3;
-
-  const copySpan = document.getElementById('copyPrimaryAlarmTimeSpan');
-  if (copySpan) copySpan.innerText = alarms.str1;
-  const voiceSpan = document.getElementById('voiceAlarmTimeSpan');
-  if (voiceSpan) voiceSpan.innerText = alarms.str1;
-
-  // 1. APK Native Mode Button (Visible only when opened inside Android APK)
-  const apkWrap = document.getElementById('alarmApkWrap');
-  if (apkWrap) {
-    if (window.AndroidBridge) {
-      apkWrap.classList.remove('hidden');
-      const apkBtn = document.getElementById('apkNativeClockBtn');
-      if (apkBtn) {
-        apkBtn.onclick = () => {
-          try {
-            if (typeof window.AndroidBridge.setThreeAlarms === 'function') {
-              window.AndroidBridge.setThreeAlarms(alarms.h1, alarms.m1, alarms.h2, alarms.m2, alarms.h3, alarms.m3, `Costa Duty: ${venueTitle}`);
-            } else if (typeof window.AndroidBridge.setAlarm === 'function') {
-              window.AndroidBridge.setAlarm(alarms.h1, alarms.m1, `Costa Duty: ${venueTitle}`, false);
-            }
-          } catch (err) {
-            console.error('AndroidBridge error:', err);
-          }
-        };
-      }
-    } else {
-      apkWrap.classList.add('hidden');
-    }
-  }
-
-  // 2. Option 1: Calendar Event (.ics) with 3 Pre-set Alarms (Automated for HTML)
-  const calBtn = document.getElementById('calendarExportPrimaryBtn');
-  if (calBtn) {
-    calBtn.onclick = () => {
-      saveDutyCalendarEvent(venueTitle, schedule.date, startTime.hour, startTime.minute, alarms);
-    };
-  }
-
-  // 3. Option 2: Bedside Nightstand Alarm (In-Page Audio Chime & Wake Lock)
-  const bedsideBtn = document.getElementById('activateBedsideAlarmBtn');
-  if (bedsideBtn) {
-    bedsideBtn.onclick = () => {
-      document.getElementById('alarmConfirmModal').classList.add('hidden');
-      startBedsideNightstandMode(venueTitle, alarms.h1, alarms.m1, alarms.str1);
-    };
-  }
-
-  // 4. Option 3: Copy Wake-Up Time & Voice Assistant
-  const copyVoiceBtn = document.getElementById('copyAlarmVoiceBtn');
-  if (copyVoiceBtn) {
-    copyVoiceBtn.onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(alarms.str1);
-        showToast(`📋 Wake-up time ${alarms.str1} copied!`);
-      } catch (e) {
-        showToast(`⏰ Wake-up time: ${alarms.str1}`);
-      }
-
-      // Try opening general clock if running in Android Chrome
-      if (/Android/i.test(navigator.userAgent) && !window.AndroidBridge) {
-        setTimeout(() => {
-          window.location.href = 'intent:#Intent;action=android.intent.action.SHOW_ALARMS;end';
-        }, 400);
-      }
-    };
-  }
-
-  // 5. Individual Single Alarm Copy / Set Buttons in 3-Tier Card
-  document.querySelectorAll('.alarm-set-single-btn').forEach(btn => {
-    btn.onclick = async (e) => {
-      e.stopPropagation();
-      const idx = btn.dataset.alarmIdx;
-      let targetH = alarms.h1, targetM = alarms.m1, targetStr = alarms.str1;
-      if (idx === '2') { targetH = alarms.h2; targetM = alarms.m2; targetStr = alarms.str2; }
-      if (idx === '3') { targetH = alarms.h3; targetM = alarms.m3; targetStr = alarms.str3; }
-
-      if (window.AndroidBridge && typeof window.AndroidBridge.setAlarm === 'function') {
-        window.AndroidBridge.setAlarm(targetH, targetM, `Costa Duty (Alarm ${idx}): ${venueTitle}`, false);
-      } else {
-        try {
-          await navigator.clipboard.writeText(targetStr);
-          showToast(`📋 Alarm ${idx} (${targetStr}) copied!`);
-        } catch (err) {
-          showToast(`⏰ Alarm ${idx}: ${targetStr}`);
-        }
-      }
-    };
-  });
-
-  document.getElementById('alarmConfirmModal').classList.remove('hidden');
-}
-
-// ==========================================
-// CALENDAR (.ICS) EXPORT WITH 3 NATIVE ALARMS
-// ==========================================
-function saveDutyCalendarEvent(venueTitle, scheduleDateStr, hour, minute, alarms) {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const dateFormatted = `${year}${month}${day}`;
-
-  const pad = (n) => String(n).padStart(2, '0');
-  const startHour = pad(hour);
-  const startMin = pad(minute);
-  const endHour = pad((hour + 4) % 24);
-
-  const totalOffset = alarms.offsetMinutes;
-  const off1 = totalOffset;
-  const off2 = Math.max(0, totalOffset - 5);
-  const off3 = Math.max(0, totalOffset - 10);
-
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Costa Schedule//Duty Alarm//EN',
-    'CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT',
-    `SUMMARY:Costa Duty - ${venueTitle}`,
-    `DESCRIPTION:Costa Smeralda Shift Duty. 3 Alarms Pre-set: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}.`,
-    `DTSTART:${dateFormatted}T${startHour}${startMin}00`,
-    `DTEND:${dateFormatted}T${endHour}${startMin}00`,
-    'BEGIN:VALARM',
-    `TRIGGER:-PT${off1}M`,
-    'ACTION:AUDIO',
-    'DESCRIPTION:1st Duty Alarm (Wake Up)',
-    'END:VALARM',
-    'BEGIN:VALARM',
-    `TRIGGER:-PT${off2}M`,
-    'ACTION:AUDIO',
-    'DESCRIPTION:2nd Duty Alarm (+5m)',
-    'END:VALARM',
-    'BEGIN:VALARM',
-    `TRIGGER:-PT${off3}M`,
-    'ACTION:AUDIO',
-    'DESCRIPTION:3rd Duty Alarm (+10m)',
-    'END:VALARM',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  const fileName = `costa_duty_${dateFormatted}.ics`;
-
-  // Try Web Share API for 1-tap direct import into Calendar apps
-  if (navigator.canShare) {
-    try {
-      const file = new File([icsContent], fileName, { type: 'text/calendar' });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: `Costa Duty: ${venueTitle}`,
-          text: `Duty shift at ${venueTitle} with 3 alarms.`
-        }).then(() => {
-          showToast('📅 Duty event saved to calendar with 3 alarms!');
-        }).catch((err) => {
-          if (err.name !== 'AbortError') {
-            fallbackDownloadIcs(icsContent, fileName);
-          }
-        });
-        return;
-      }
-    } catch (e) {
-      console.warn('Web Share file error:', e);
-    }
-  }
-
-  fallbackDownloadIcs(icsContent, fileName);
-}
-
-function fallbackDownloadIcs(icsContent, fileName) {
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast('📅 Calendar event downloaded! Tap to save 3 alarms to phone.');
-}
-
-// ==========================================
-// BEDSIDE NIGHTSTAND ALARM (AUDIO + WAKELOCK)
-// ==========================================
-function playChimeSound() {
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-
-    // Dual-tone nautical ship bell wake chime
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(880, ctx.currentTime);       // A5
-    osc1.frequency.exponentialRampToValueAtTime(587.33, ctx.currentTime + 0.35); // D5
-
-    osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(1046.5, ctx.currentTime);     // C6
-    osc2.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.35);
-
-    gainNode.gain.setValueAtTime(0.8, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
-
-    osc1.connect(gainNode);
-    osc2.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    osc1.start();
-    osc2.start();
-    osc1.stop(ctx.currentTime + 0.8);
-    osc2.stop(ctx.currentTime + 0.8);
-  } catch (err) {
-    console.warn('Web Audio error:', err);
-  }
-}
-
-function startBedsideNightstandMode(venueTitle, targetHour, targetMin, targetStr) {
-  const pad = (n) => String(n).padStart(2, '0');
-  const targetVenueEl = document.getElementById('bedsideTargetVenue');
-  if (targetVenueEl) targetVenueEl.innerText = `Duty: ${venueTitle}`;
+  const configChip = document.getElementById('bedsideConfigChip');
+  if (configChip) configChip.innerText = getAlarmConfigLabel().replace('⚙️ Config: ', '');
 
   const targetTimeEl = document.getElementById('bedsideTargetTime');
-  if (targetTimeEl) targetTimeEl.innerText = targetStr;
+  if (targetTimeEl) targetTimeEl.innerText = alarms.str1;
 
+  const s1 = document.getElementById('bedsideStep1');
+  const s2 = document.getElementById('bedsideStep2');
+  const s3 = document.getElementById('bedsideStep3');
+  if (s1) s1.innerText = alarms.str1;
+  if (s2) s2.innerText = alarms.str2;
+  if (s3) s3.innerText = alarms.str3;
+
+  const ringVenueEl = document.getElementById('bedsideRingingVenue');
+  if (ringVenueEl) ringVenueEl.innerText = `Report to ${venueTitle.toUpperCase()} at ${reportFormatted}`;
+
+  // Reset Control Views
   const standbyWrap = document.getElementById('bedsideStandbyControls');
   const ringingWrap = document.getElementById('bedsideRingingControls');
   if (standbyWrap) standbyWrap.classList.remove('hidden');
   if (ringingWrap) ringingWrap.classList.add('hidden');
 
-  state.bedside.isRinging = false;
-  if (state.bedside.alarmInterval) {
-    clearInterval(state.bedside.alarmInterval);
-    state.bedside.alarmInterval = null;
+  // 2. Enable Screen Always ON (Overrides Phone 5-Min Screen Timeout)
+  enableScreenAlwaysOn();
+
+  // 3. Start Live Clock & Countdown
+  startBedsideClockCountdown(alarms.h1, alarms.m1);
+
+  // 4. Wire Action Buttons
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+  if (testBtn) testBtn.onclick = testAlarmRingtone;
+
+  const dismissBtn = document.getElementById('dismissAlarmBtn');
+  if (dismissBtn) dismissBtn.onclick = stopBedsideAlarmRinging;
+
+  const snoozeBtn = document.getElementById('snoozeAlarmBtn');
+  if (snoozeBtn) snoozeBtn.onclick = snoozeBedsideAlarm;
+
+  // 5. Open Modal View
+  document.getElementById('bedsideAlarmModal').classList.remove('hidden');
+}
+
+// ==========================================
+// SCREEN ALWAYS ON ENGINE (OVERRIDE SCREEN LOCK)
+// ==========================================
+let screenWakeLock = null;
+let dummyVideoEl = null;
+
+async function enableScreenAlwaysOn() {
+  let success = false;
+
+  // 1. W3C Screen Wake Lock API (Standard for Chrome on Android, Safari iOS 16.4+, Edge)
+  if ('wakeLock' in navigator) {
+    try {
+      screenWakeLock = await navigator.wakeLock.request('screen');
+      screenWakeLock.addEventListener('release', () => {
+        console.log('Screen Wake Lock was released');
+      });
+      state.bedside.wakeLock = screenWakeLock;
+      success = true;
+    } catch (err) {
+      console.warn('Screen Wake Lock request:', err);
+    }
   }
 
-  // Request Wake Lock
+  // 2. Universal Mobile Fallback: Invisible Looping Video
+  // Keeps screen awake on older Android & iOS browsers even with strict screen timeout settings
+  try {
+    if (!dummyVideoEl) {
+      dummyVideoEl = document.createElement('video');
+      dummyVideoEl.setAttribute('playsinline', '');
+      dummyVideoEl.setAttribute('webkit-playsinline', '');
+      dummyVideoEl.setAttribute('loop', '');
+      dummyVideoEl.setAttribute('muted', '');
+      dummyVideoEl.muted = true;
+      dummyVideoEl.style.position = 'fixed';
+      dummyVideoEl.style.top = '-9999px';
+      dummyVideoEl.style.left = '-9999px';
+      dummyVideoEl.style.width = '1px';
+      dummyVideoEl.style.height = '1px';
+      dummyVideoEl.style.opacity = '0.01';
+      dummyVideoEl.style.pointerEvents = 'none';
+
+      // 1x1 base64 transparent MP4
+      dummyVideoEl.src = 'data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAW1wNDJpc29tYXZjMQAAAAhmcmVlAAAAGG1kYXQAAAEAAQAAAABkYXRhAAAAAA==';
+      document.body.appendChild(dummyVideoEl);
+    }
+    dummyVideoEl.play().catch(() => {});
+  } catch (e) {}
+
+  // 3. Native APK Window Flag (when running inside Android APK)
+  if (window.AndroidBridge && typeof window.AndroidBridge.setKeepScreenOn === 'function') {
+    try {
+      window.AndroidBridge.setKeepScreenOn(true);
+      success = true;
+    } catch (e) {}
+  }
+
+  // Update Visual Status Badge
   const dot = document.getElementById('bedsideWakeLockDot');
   const status = document.getElementById('bedsideWakeLockStatus');
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').then(lock => {
-      state.bedside.wakeLock = lock;
-      if (dot) dot.classList.add('active');
-      if (status) status.innerText = 'Screen Keep-Awake Active';
-    }).catch(() => {
-      if (dot) dot.classList.remove('active');
-      if (status) status.innerText = 'Keep screen plugged into charger';
-    });
-  } else {
-    if (dot) dot.classList.remove('active');
-    if (status) status.innerText = 'Keep phone unlocked while resting';
+  if (dot) dot.classList.add('active');
+  if (status) status.innerText = 'Screen Always ON (Lock Screen Bypassed)';
+
+  return success;
+}
+
+function disableScreenAlwaysOn() {
+  if (screenWakeLock) {
+    screenWakeLock.release().catch(() => {});
+    screenWakeLock = null;
+    state.bedside.wakeLock = null;
+  }
+  if (dummyVideoEl) {
+    dummyVideoEl.pause();
+  }
+  if (window.AndroidBridge && typeof window.AndroidBridge.setKeepScreenOn === 'function') {
+    try {
+      window.AndroidBridge.setKeepScreenOn(false);
+    } catch (e) {}
+  }
+  const dot = document.getElementById('bedsideWakeLockDot');
+  const status = document.getElementById('bedsideWakeLockStatus');
+  if (dot) dot.classList.remove('active');
+  if (status) status.innerText = 'Screen Sleep Allowed';
+}
+
+// Automatically re-acquire screen wake lock if user briefly leaves and returns to tab
+document.addEventListener('visibilitychange', async () => {
+  if (state.bedside.active && document.visibilityState === 'visible') {
+    await enableScreenAlwaysOn();
+  }
+});
+
+// ==========================================
+// REALISTIC MOBILE PHONE ALARM SOUND ENGINE
+// ==========================================
+let mobileAlarmAudioCtx = null;
+let mobileAlarmLoopTimer = null;
+let isMobileAlarmPlaying = false;
+let testSoundTimeout = null;
+
+function playMobileAlarmLoop() {
+  if (isMobileAlarmPlaying) return;
+  isMobileAlarmPlaying = true;
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return;
+  if (!mobileAlarmAudioCtx || mobileAlarmAudioCtx.state === 'closed') {
+    mobileAlarmAudioCtx = new AudioContextClass();
+  }
+  if (mobileAlarmAudioCtx.state === 'suspended') {
+    mobileAlarmAudioCtx.resume();
   }
 
-  // Live Clock & Countdown Loop
+  function playNote(freq, startOffset, duration, volume) {
+    if (!mobileAlarmAudioCtx) return;
+    const now = mobileAlarmAudioCtx.currentTime + startOffset;
+
+    // Osc1: Fundamental tone (Sine wave for warm body)
+    const osc1 = mobileAlarmAudioCtx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(freq, now);
+
+    // Osc2: Harmonic overtone (Triangle wave for crisp mobile marimba/chime attack)
+    const osc2 = mobileAlarmAudioCtx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(freq * 2, now);
+
+    // Osc3: Subtle high overtone for realistic metal bell ring
+    const osc3 = mobileAlarmAudioCtx.createOscillator();
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(freq * 2.76, now);
+
+    const gainNode = mobileAlarmAudioCtx.createGain();
+    const gain3 = mobileAlarmAudioCtx.createGain();
+    gain3.gain.setValueAtTime(0.25, now);
+
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.012);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    osc3.connect(gain3);
+    gain3.connect(gainNode);
+    gainNode.connect(mobileAlarmAudioCtx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc3.start(now);
+    osc1.stop(now + duration + 0.05);
+    osc2.stop(now + duration + 0.05);
+    osc3.stop(now + duration + 0.05);
+  }
+
+  function scheduleMelodyCycle() {
+    if (!isMobileAlarmPlaying || !mobileAlarmAudioCtx) return;
+
+    // 12-Tone Smartphone Alarm Melody (Crescendo marimba + urgent pulse)
+    // Notes: D5 (587Hz), F#5 (740Hz), A5 (880Hz), D6 (1175Hz), E6 (1318Hz), F#6 (1480Hz), A6 (1760Hz)
+    const pattern = [
+      // Phrase 1: Ascending Morning Chime
+      { freq: 587.33, offset: 0.00, dur: 0.22, vol: 0.70 },
+      { freq: 739.99, offset: 0.22, dur: 0.22, vol: 0.75 },
+      { freq: 880.00, offset: 0.44, dur: 0.22, vol: 0.80 },
+      { freq: 1174.66, offset: 0.66, dur: 0.35, vol: 0.88 },
+
+      // Phrase 2: Melodic Uplift
+      { freq: 880.00, offset: 1.10, dur: 0.20, vol: 0.82 },
+      { freq: 1174.66, offset: 1.30, dur: 0.20, vol: 0.86 },
+      { freq: 1318.51, offset: 1.50, dur: 0.20, vol: 0.90 },
+      { freq: 1479.98, offset: 1.70, dur: 0.40, vol: 0.95 },
+
+      // Phrase 3: Staccato Radar Double-Pulse
+      { freq: 1479.98, offset: 2.25, dur: 0.12, vol: 0.92 },
+      { freq: 1479.98, offset: 2.45, dur: 0.12, vol: 0.92 },
+      { freq: 1760.00, offset: 2.70, dur: 0.15, vol: 0.98 },
+      { freq: 1760.00, offset: 2.90, dur: 0.28, vol: 1.00 }
+    ];
+
+    pattern.forEach(p => playNote(p.freq, p.offset, p.dur, p.vol));
+
+    // Device Vibration in sync with rhythmic beeps
+    if ('vibrate' in navigator) {
+      navigator.vibrate([180, 100, 180, 100, 350]);
+    }
+
+    // Schedule next repetition every 3.4 seconds indefinitely
+    mobileAlarmLoopTimer = setTimeout(scheduleMelodyCycle, 3400);
+  }
+
+  scheduleMelodyCycle();
+}
+
+function stopMobileAlarmLoop() {
+  isMobileAlarmPlaying = false;
+  if (mobileAlarmLoopTimer) {
+    clearTimeout(mobileAlarmLoopTimer);
+    mobileAlarmLoopTimer = null;
+  }
+  if ('vibrate' in navigator) {
+    navigator.vibrate(0);
+  }
+}
+
+function testAlarmRingtone() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    showToast('⚠️ Web Audio not supported on this device.');
+    return;
+  }
+  if (isMobileAlarmPlaying) {
+    stopMobileAlarmLoop();
+    showToast('Alarm sound preview stopped.');
+    return;
+  }
+
+  showToast('🔊 Playing mobile alarm ringtone preview...');
+  playMobileAlarmLoop();
+  if (testSoundTimeout) clearTimeout(testSoundTimeout);
+  testSoundTimeout = setTimeout(() => {
+    if (!state.bedside.isRinging) {
+      stopMobileAlarmLoop();
+    }
+  }, 3400);
+}
+
+// ==========================================
+// CLOCK & COUNTDOWN ENGINE
+// ==========================================
+function startBedsideClockCountdown(targetHour, targetMin) {
+  const pad = (n) => String(n).padStart(2, '0');
+
   if (state.bedside.timer) clearInterval(state.bedside.timer);
-  const updateBedsideClock = () => {
+
+  const updateClock = () => {
     const now = new Date();
     const currH = now.getHours();
     const currM = now.getMinutes();
     const currS = now.getSeconds();
 
-    const currTimeEl = document.getElementById('bedsideCurrentTime');
-    if (currTimeEl) {
-      currTimeEl.innerText = `${pad(currH)}:${pad(currM)}:${pad(currS)}`;
+    const currEl = document.getElementById('bedsideCurrentTime');
+    if (currEl) {
+      currEl.innerText = `${pad(currH)}:${pad(currM)}:${pad(currS)}`;
     }
 
-    // Calculate time difference to target
     const targetDate = new Date(now);
     targetDate.setHours(targetHour, targetMin, 0, 0);
     if (targetDate.getTime() <= now.getTime()) {
@@ -4801,9 +4922,9 @@ function startBedsideNightstandMode(venueTitle, targetHour, targetMin, targetStr
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
 
-    const countdownEl = document.getElementById('bedsideCountdown');
-    if (countdownEl) {
-      countdownEl.innerText = `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    const countEl = document.getElementById('bedsideCountdown');
+    if (countEl) {
+      countEl.innerText = `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
     }
 
     // Trigger Ringing when reached
@@ -4812,23 +4933,8 @@ function startBedsideNightstandMode(venueTitle, targetHour, targetMin, targetStr
     }
   };
 
-  updateBedsideClock();
-  state.bedside.timer = setInterval(updateBedsideClock, 1000);
-
-  // Wire Test Sound Button
-  const testBtn = document.getElementById('testAlarmSoundBtn');
-  if (testBtn) {
-    testBtn.onclick = () => playChimeSound();
-  }
-
-  // Wire Dismiss Button
-  const dismissBtn = document.getElementById('dismissAlarmBtn');
-  if (dismissBtn) {
-    dismissBtn.onclick = () => stopBedsideAlarmRinging();
-  }
-
-  // Open Bedside Modal
-  document.getElementById('bedsideAlarmModal').classList.remove('hidden');
+  updateClock();
+  state.bedside.timer = setInterval(updateClock, 1000);
 }
 
 function triggerBedsideAlarmRinging() {
@@ -4838,43 +4944,58 @@ function triggerBedsideAlarmRinging() {
   if (standbyWrap) standbyWrap.classList.add('hidden');
   if (ringingWrap) ringingWrap.classList.remove('hidden');
 
-  playChimeSound();
-  if ('vibrate' in navigator) navigator.vibrate([600, 300, 600, 300, 1000]);
-
-  // Repeat sound every 2 seconds until dismissed
-  state.bedside.alarmInterval = setInterval(() => {
-    if (!state.bedside.isRinging) {
-      clearInterval(state.bedside.alarmInterval);
-      return;
-    }
-    playChimeSound();
-    if ('vibrate' in navigator) navigator.vibrate([600, 300, 600, 300, 1000]);
-  }, 2000);
+  playMobileAlarmLoop();
 }
 
 function stopBedsideAlarmRinging() {
   state.bedside.isRinging = false;
-  if (state.bedside.alarmInterval) {
-    clearInterval(state.bedside.alarmInterval);
-    state.bedside.alarmInterval = null;
-  }
+  stopMobileAlarmLoop();
+
   const standbyWrap = document.getElementById('bedsideStandbyControls');
   const ringingWrap = document.getElementById('bedsideRingingControls');
   if (standbyWrap) standbyWrap.classList.remove('hidden');
   if (ringingWrap) ringingWrap.classList.add('hidden');
-  showToast('⏰ Duty alarm dismissed. Have a great shift!');
+
+  showToast("⏰ Duty alarm dismissed. Have a great shift!");
+}
+
+function snoozeBedsideAlarm() {
+  stopMobileAlarmLoop();
+  state.bedside.isRinging = false;
+
+  // Add 5 minutes to target time
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 5);
+  state.bedside.targetHour = now.getHours();
+  state.bedside.targetMin = now.getMinutes();
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const newTargetStr = `${pad(state.bedside.targetHour)}:${pad(state.bedside.targetMin)}`;
+
+  const targetTimeEl = document.getElementById('bedsideTargetTime');
+  if (targetTimeEl) targetTimeEl.innerText = newTargetStr;
+
+  const standbyWrap = document.getElementById('bedsideStandbyControls');
+  const ringingWrap = document.getElementById('bedsideRingingControls');
+  if (standbyWrap) standbyWrap.classList.remove('hidden');
+  if (ringingWrap) ringingWrap.classList.add('hidden');
+
+  startBedsideClockCountdown(state.bedside.targetHour, state.bedside.targetMin);
+  showToast(`💤 Snoozed for 5 minutes! Alarm will ring at ${newTargetStr}`);
 }
 
 function exitBedsideNightstandMode() {
-  stopBedsideAlarmRinging();
+  state.bedside.active = false;
+  state.bedside.isRinging = false;
+  stopMobileAlarmLoop();
+
   if (state.bedside.timer) {
     clearInterval(state.bedside.timer);
     state.bedside.timer = null;
   }
-  if (state.bedside.wakeLock) {
-    state.bedside.wakeLock.release().catch(() => {});
-    state.bedside.wakeLock = null;
-  }
+
+  disableScreenAlwaysOn();
+
   const modal = document.getElementById('bedsideAlarmModal');
   if (modal) modal.classList.add('hidden');
 }
