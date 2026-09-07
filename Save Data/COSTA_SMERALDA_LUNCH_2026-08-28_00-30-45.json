@@ -1,0 +1,756 @@
+{
+  "ship": "COSTA SMERALDA",
+  "port": "KAOHSIUNG",
+  "date": "August 23, 2026",
+  "shift": "LUNCH REPORT",
+  "meal": "LUNCH",
+  "venues": [
+    {
+      "name": "Ceres Restaurant Main (Deck 5)",
+      "reportTime": "11:00",
+      "assignments": [
+        {
+          "station": "1",
+          "waiterId": "796341",
+          "waiterName": "WIBOWO ANDRI -BS",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "302, 304, 306, 362, 364"
+        },
+        {
+          "station": "2",
+          "waiterId": "780418",
+          "waiterName": "PUTRA DUWI LAKSANA -BS",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "308, 310, 312, 366, 368"
+        },
+        {
+          "station": "3",
+          "waiterId": "814624",
+          "waiterName": "SETIOBUDI NIDZAR DICKY -TR -CT",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "314, 316, 370, 372, 374"
+        },
+        {
+          "station": "4",
+          "waiterId": "821652",
+          "waiterName": "WIJAYA I GEDE ARIK -TR CT",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "318, 320, 322, 324, 344, 346"
+        },
+        {
+          "station": "5",
+          "waiterId": "812444",
+          "waiterName": "WIDYANTARA I GUSTI NGURAH -TR",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "326, 328, 330, 338, 340, 342"
+        },
+        {
+          "station": "6",
+          "waiterId": "827541",
+          "waiterName": "HUSEN MUSTAFA AHMAD",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "331, 332, 333, 334, 335, 336, 337"
+        },
+        {
+          "station": "7",
+          "waiterId": "820751",
+          "waiterName": "ROHMAN FADILI",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "325, 327, 329, 339, 341, 343, 345"
+        },
+        {
+          "station": "8",
+          "waiterId": "829207",
+          "waiterName": "HAIRUDIN EXDA -CT",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "317, 319, 321, 323, 347, 349"
+        },
+        {
+          "station": "9",
+          "waiterId": "817116",
+          "waiterName": "SHARMA VICKY CHANDESWAR",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "313, 315, 351, 373, 375, 377"
+        },
+        {
+          "station": "10",
+          "waiterId": "782718",
+          "waiterName": "HALANKAR SACHIN SHAM -LINEN",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "307, 309, 311, 357, 359"
+        },
+        {
+          "station": "11",
+          "waiterId": "784016",
+          "waiterName": "THAKUR AKSHAY VISHNU -LINEN",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "301, 303, 305, 365, 367"
+        },
+        {
+          "station": "12",
+          "waiterId": "835302",
+          "waiterName": "SARMADI KEVIN TEGUH -DIRECTIONE",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "376, 378, 380, 382, 410, 379, 381, 383, 385, 413"
+        },
+        {
+          "station": "13",
+          "waiterId": "829101",
+          "waiterName": "CAMBA GHIEMER PAUL -CT",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "403, 405, 407, 427"
+        },
+        {
+          "station": "14",
+          "waiterId": "782852",
+          "waiterName": "JOSHI PREM",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "400, 402, 404, 424"
+        }
+      ]
+    },
+    {
+      "name": "Ceres Upper (Deck 6)",
+      "reportTime": "11:00",
+      "assignments": [
+        {
+          "station": "28",
+          "waiterId": "830813",
+          "waiterName": "RAHI AKASH",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 28"
+        },
+        {
+          "station": "30",
+          "waiterId": "820951",
+          "waiterName": "SIPAHUTAR DOLY CRISTIAN",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 30"
+        },
+        {
+          "station": "32",
+          "waiterId": "832123",
+          "waiterName": "DSOUZA RITHESHA",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 32"
+        },
+        {
+          "station": "34",
+          "waiterId": "832144",
+          "waiterName": "MANNA MANOJ",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 34"
+        },
+        {
+          "station": "36",
+          "waiterId": "832996",
+          "waiterName": "MALE ASHISH ANTHONY",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 36"
+        },
+        {
+          "station": "37",
+          "waiterId": "812443",
+          "waiterName": "TEMAJA MADE SINGA",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 37"
+        },
+        {
+          "station": "39",
+          "waiterId": "817037",
+          "waiterName": "PRABOWO AJI SURYA",
+          "attendantId": "",
+          "attendantName": "",
+          "tables": "Upper Station 39"
+        }
+      ]
+    },
+    {
+      "name": "Vesta Upper (Deck 6)",
+      "reportTime": "11:00",
+      "assignments": [
+        {
+          "station": "62",
+          "waiterId": "794527",
+          "waiterName": "SUSILA PUTU PANDE",
+          "attendantId": "829242",
+          "attendantName": "WARDANA WAYAN ADI WISNU",
+          "tables": "Vesta 62"
+        },
+        {
+          "station": "63",
+          "waiterId": "795035",
+          "waiterName": "LAUAN MARY",
+          "attendantId": "820216",
+          "attendantName": "SATYAMA I KADEK",
+          "tables": "Vesta 63"
+        },
+        {
+          "station": "64",
+          "waiterId": "782745",
+          "waiterName": "RAMESH KUMAR",
+          "attendantId": "830770",
+          "attendantName": "THAPA SAURABH",
+          "tables": "Vesta 64"
+        },
+        {
+          "station": "65",
+          "waiterId": "825675",
+          "waiterName": "KARMAKAR SUDIP",
+          "attendantId": "812619",
+          "attendantName": "RAFLI RIFKI -TR",
+          "tables": "Vesta 65"
+        },
+        {
+          "station": "66",
+          "waiterId": "817003",
+          "waiterName": "KALE SAGAR",
+          "attendantId": "827336",
+          "attendantName": "PRADHAN SAYANTA RABIN",
+          "tables": "Vesta 66"
+        },
+        {
+          "station": "67",
+          "waiterId": "541734",
+          "waiterName": "DARMAWAN I GUSTI PUTU ERI -CC",
+          "attendantId": "834952",
+          "attendantName": "LAZAGA MARIA",
+          "tables": "Vesta 67"
+        },
+        {
+          "station": "68",
+          "waiterId": "810579",
+          "waiterName": "KUMAR ABHIJEET",
+          "attendantId": "826477",
+          "attendantName": "WASIUN MOHAMMAD ROHIB",
+          "tables": "Vesta 68"
+        },
+        {
+          "station": "69",
+          "waiterId": "796889",
+          "waiterName": "INDRAWAN SALEH ARIF",
+          "attendantId": "832950",
+          "attendantName": "CATINDIG MATAWARAN HEIDEE",
+          "tables": "Vesta 69"
+        },
+        {
+          "station": "70",
+          "waiterId": "821748",
+          "waiterName": "PRAWIRA EDWIN -BS",
+          "attendantId": "830793",
+          "attendantName": "ALPHONSO MICHAEL PAUL",
+          "tables": "Vesta 70"
+        }
+      ]
+    }
+  ],
+  "buffetAndVenues": [
+    {
+      "name": "Buffet Deck 9 (Main)",
+      "timing": "07:00-10:00 / 11:00-14:00",
+      "lead": "SRS LI ZHI",
+      "crew": [
+        {
+          "id": "815849",
+          "name": "SHANMUGAM KARTHICK KUMAR"
+        },
+        {
+          "id": "784038",
+          "name": "DINGANKAR RITESH"
+        },
+        {
+          "id": "814588",
+          "name": "PRAMADYA FIKRYAN SURYA"
+        },
+        {
+          "id": "811767",
+          "name": "PRABU TAMA"
+        },
+        {
+          "id": "816366",
+          "name": "RAJ AMAN"
+        },
+        {
+          "id": "808318",
+          "name": "WAFA MUHAMMAD HILMI"
+        },
+        {
+          "id": "542135",
+          "name": "DEWI PUTU AYU RISTIANA"
+        },
+        {
+          "id": "809887",
+          "name": "FRANSISKA OCTAVIA MELIANA"
+        },
+        {
+          "id": "826336",
+          "name": "UMAM DAVID NUR"
+        },
+        {
+          "id": "20631",
+          "name": "DWIATMO JOKO"
+        },
+        {
+          "id": "801865",
+          "name": "YULIASTUTI EKA"
+        },
+        {
+          "id": "827493",
+          "name": "KESUMA SANG NYOMAN ARDIKA"
+        },
+        {
+          "id": "22426",
+          "name": "JAMALUDDIN XXX"
+        },
+        {
+          "id": "812457",
+          "name": "SETIAWAN MUKLIS"
+        },
+        {
+          "id": "808309",
+          "name": "WIDIARTA I PUTU HENDRA"
+        },
+        {
+          "id": "813364",
+          "name": "MUMAR BALONGA ZISKA"
+        },
+        {
+          "id": "802034",
+          "name": "CARDOZO BENZY FRANKLLIN"
+        },
+        {
+          "id": "829296",
+          "name": "BITUIN JOHN HOWEN"
+        },
+        {
+          "id": "542122",
+          "name": "ARTHA WIGUNA GEDE KOMANG"
+        },
+        {
+          "id": "803805",
+          "name": "GEORGE PETER SEBASTIAN"
+        },
+        {
+          "id": "832137",
+          "name": "SHAHI VIKRANT"
+        },
+        {
+          "id": "541974",
+          "name": "SAPUTRA I WAYAN SUMADI ADI"
+        },
+        {
+          "id": "798218",
+          "name": "SHAABAN ALI"
+        },
+        {
+          "id": "820210",
+          "name": "SEJATI MUHAMMAD AGUS WAHYU"
+        },
+        {
+          "id": "808132",
+          "name": "SOMBILON TACANG SHEENA LOU"
+        },
+        {
+          "id": "812681",
+          "name": "FLORES LENNY JOY"
+        },
+        {
+          "id": "823542",
+          "name": "TOGNI JUDY ANN"
+        },
+        {
+          "id": "802859",
+          "name": "NANDA JUILTA ARIA"
+        },
+        {
+          "id": "824664",
+          "name": "JASMINE IVANA"
+        }
+      ]
+    },
+    {
+      "name": "Specialty Restaurants & Lounges",
+      "timing": "Per Shift Roster",
+      "crew": [
+        {
+          "id": "810969",
+          "name": "RAJBHAR RAHUL MEGHNATH",
+          "role": "Noodle Bar 12:30-15:30/16:30-24:30"
+        },
+        {
+          "id": "820291",
+          "name": "PERMANA EPRIN OKTAVIAN 12:30-15:30 /18:30-02:30",
+          "role": "Pizzeria"
+        },
+        {
+          "id": "821124",
+          "name": "CHHETRI SHUBHAM 12:15-15:15/18:15-02:15",
+          "role": "Pizzeria"
+        },
+        {
+          "id": "830141",
+          "name": "BHADALE SIDDHANT 12:30-15:30 /18:30-02:30",
+          "role": "Pizzeria"
+        },
+        {
+          "id": "835920",
+          "name": "CHEN SUIYAN 13:00-16:30/19:30-01:00/02:30-04:30",
+          "role": "Salty Beach"
+        },
+        {
+          "id": "812629",
+          "name": "WIJAYA KETUT PUTRA 17:00-19:30/20:30-02:30/04:00-06:30",
+          "role": "Salty Beach"
+        },
+        {
+          "id": "808542",
+          "name": "SADEWA BENYAMIN BENY",
+          "role": "Sushino (Report 11:00)"
+        },
+        {
+          "id": "823907",
+          "name": "MUYCO VILLA ABRILLE JAN CLOYDE",
+          "role": "Sushino (Report 11:00)"
+        },
+        {
+          "id": "541869",
+          "name": "NEGARA I KOMANG ABDI",
+          "role": "Casanova (Report 11:00)"
+        },
+        {
+          "id": "503028",
+          "name": "ERON DIONSON SAMUEL",
+          "role": "Steakhouse (Report 11:00)"
+        },
+        {
+          "id": "827318",
+          "name": "MAHENDRA PRATAMA I PUTU GEDE DEVA",
+          "role": "Steakhouse (Report 11:00)"
+        },
+        {
+          "id": "801227",
+          "name": "GENG YANAN -SELLING HOTPOT AREA",
+          "role": "Hot Pot Team (10:00-14:00)"
+        },
+        {
+          "id": "540938",
+          "name": "DEGUNE JASPAL -SELLING HOTPOT AREA",
+          "role": "Hot Pot Team (10:00-14:00)"
+        },
+        {
+          "id": "823334",
+          "name": "KURNIA TEGAR",
+          "role": "Hot Pot Team (10:00-14:00)"
+        },
+        {
+          "id": "818339",
+          "name": "PANGESTU PANJI FAJAR",
+          "role": "Hot Pot Team (10:00-14:00)"
+        }
+      ]
+    }
+  ],
+  "sideDuties": [
+    {
+      "name": "Ceres — Refilling Team A (Report at 10:45)",
+      "timing": "10:45",
+      "crew": [
+        {
+          "id": "778977",
+          "name": "ARYANTO I PUTU AGUS"
+        },
+        {
+          "id": "778102",
+          "name": "SUARJANA MADE"
+        },
+        {
+          "id": "519107",
+          "name": "ABADI SULASTOMO"
+        },
+        {
+          "id": "812919",
+          "name": "GADIANO PAICA APRILLE JANE"
+        },
+        {
+          "id": "541054",
+          "name": "ERYANTO XXX"
+        },
+        {
+          "id": "803572",
+          "name": "ANATHASYA PRILY"
+        }
+      ]
+    },
+    {
+      "name": "Ceres — Refilling Team B (Report at 11:00)",
+      "timing": "11:00",
+      "crew": [
+        {
+          "id": "515189",
+          "name": "DARSANA I NYOMAN"
+        },
+        {
+          "id": "818936",
+          "name": "MUKHI ROSHAN"
+        },
+        {
+          "id": "778952",
+          "name": "NEMIS BENEDICT"
+        },
+        {
+          "id": "790215",
+          "name": "FALLADO CARREL"
+        }
+      ]
+    },
+    {
+      "name": "Ceres — Resetting Team (Report at 11:30)",
+      "timing": "11:30",
+      "crew": [
+        {
+          "id": "513468",
+          "name": "HERMAWAN WAWAN"
+        },
+        {
+          "id": "516491",
+          "name": "SANTIAGO ANDREW"
+        },
+        {
+          "id": "814601",
+          "name": "PRABANGKARA IDA BAGUS PUTU KRISNA -SG"
+        }
+      ]
+    },
+    {
+      "name": "DRS 07:00-13:00",
+      "timing": "07:00-13:00",
+      "crew": [
+        {
+          "id": "796336",
+          "name": "RAMANDA LAKSMANA DIAN"
+        }
+      ]
+    },
+    {
+      "name": "Office Disposition (07:00-13:00)",
+      "timing": "07:00-13:00",
+      "crew": [
+        {
+          "id": "824977",
+          "name": "RAMOS LESLIE"
+        },
+        {
+          "id": "813414",
+          "name": "JUANILLO USOG MAE RUSELLE -HANDOVER RECEIVER"
+        }
+      ]
+    },
+    {
+      "name": "Reservation Call",
+      "timing": "Shift Duty",
+      "crew": [
+        {
+          "id": "805134",
+          "name": "LU YANLING"
+        }
+      ]
+    },
+    {
+      "name": "Vesta Upper by the Door (11:00)",
+      "timing": "11:00",
+      "crew": [
+        {
+          "id": "811770",
+          "name": "ANTARI NI WAYAN DESI -FRONT"
+        }
+      ]
+    },
+    {
+      "name": "Vesta Lower by the Door (11:15-14:15)",
+      "timing": "11:15-14:15",
+      "crew": [
+        {
+          "id": "805134",
+          "name": "LU YANLING -FRONT"
+        }
+      ]
+    },
+    {
+      "name": "Linen Incharge (08:00-14:00)",
+      "timing": "08:00-14:00",
+      "crew": [
+        {
+          "id": "796337",
+          "name": "DJODI ACHMAD SETIA"
+        }
+      ]
+    },
+    {
+      "name": "Cleaning After Breakfast (13:00)",
+      "timing": "13:00",
+      "crew": [
+        {
+          "id": "810948",
+          "name": "BURHANUDIN MUHAMAD RIZKI -CT"
+        },
+        {
+          "id": "827569",
+          "name": "PUTRA ERICHO ALLAM FAQIHSYAH -CT"
+        },
+        {
+          "id": "824440",
+          "name": "SETIAWAN HERU -CT"
+        }
+      ]
+    },
+    {
+      "name": "Buffet Deck 9 Report with SRS Li Zhi",
+      "timing": "07:00-10:00 / 11:00-14:00",
+      "crew": [
+        {
+          "id": "801795",
+          "name": "PRATAMA WILY -DECK 3 FWD ELEVATOR & LOBBY"
+        },
+        {
+          "id": "804098",
+          "name": "NUGRAHA PUTU WIRA - DECK 3 CERES & LOUNGES"
+        },
+        {
+          "id": "788204",
+          "name": "ENDANG SAHIDIN -DECK 5 ALL LOUNGES"
+        },
+        {
+          "id": "811986",
+          "name": "ASEO GLADY'S -BUFFET DECK 9"
+        }
+      ]
+    },
+    {
+      "name": "Magazinero Report (08:00-14:00)",
+      "timing": "08:00-14:00",
+      "crew": [
+        {
+          "id": "808882",
+          "name": "BAPTISTA WILSON AUSTIN"
+        },
+        {
+          "id": "791481",
+          "name": "SYAMSI KHAERUL"
+        }
+      ]
+    },
+    {
+      "name": "Folding Napkin Deck 10",
+      "timing": "07:00-10:00 / 11:00-14:00",
+      "crew": [
+        {
+          "id": "809147",
+          "name": "KRENDANA ANGGRA -07:00-10:00/11:00-14:00"
+        },
+        {
+          "id": "820320",
+          "name": "HIDAYAH SHOHIBUL -07:00-10:00/11:00-14:00"
+        }
+      ]
+    },
+    {
+      "name": "Check Crew Mess Schedule",
+      "timing": "Shift Duty",
+      "crew": [
+        {
+          "id": "834885",
+          "name": "DSOUZA YORICK ROQUE JOHNSON"
+        },
+        {
+          "id": "833055",
+          "name": "XXX EI EI HTAR"
+        },
+        {
+          "id": "837082",
+          "name": "XXX CHIT KO KO ZAW"
+        }
+      ]
+    }
+  ],
+  "specialEvents": [
+    {
+      "title": "TRAVEL TALK — 05 NOVEMBER 2024 AT 10:40",
+      "location": "Stand by in front of Theater Deck 3",
+      "participants": [
+        {
+          "id": "824797",
+          "name": "CONCEPCION ILOGON ANNE JENESSE",
+          "uniform": "Day Uniform"
+        },
+        {
+          "id": "793234",
+          "name": "GU YUAN",
+          "uniform": "Day Uniform"
+        },
+        {
+          "id": "814464",
+          "name": "SEMERTI NI MADE DIAN BUDI",
+          "uniform": "Dinner Uniform"
+        },
+        {
+          "id": "544358",
+          "name": "SOFYAN HELMI",
+          "uniform": "Dinner Uniform"
+        },
+        {
+          "id": "834711",
+          "name": "CHEOK PEI YAN",
+          "uniform": "Hot Pot Uniform"
+        },
+        {
+          "id": "800392",
+          "name": "LI CHUN YUN",
+          "uniform": "Hot Pot Uniform"
+        },
+        {
+          "id": "790438",
+          "name": "YI KE",
+          "uniform": "Day Uniform"
+        }
+      ]
+    }
+  ],
+  "sickLeave": [
+    {
+      "id": "782948",
+      "name": "MOHANTY DEEPAK RAJ"
+    },
+    {
+      "id": "831827",
+      "name": "SHEIKH AMIR SULEMAN"
+    },
+    {
+      "id": "836593",
+      "name": "SALVADOR JOMEL"
+    },
+    {
+      "id": "832745",
+      "name": "KUMBHAR AJAY PANDURANG"
+    }
+  ]
+}

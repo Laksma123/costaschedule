@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.CostaSchedule" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">#00224d</item>
+        <item name="android:navigationBarColor">#00224d</item>
+    </style>
+</resources>

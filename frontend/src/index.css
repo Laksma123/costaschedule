@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant sakura (&:where(.sakura, .sakura *));
+
+/* ── THEME CSS VARIABLES ── */
+:root {
+  /* Default: Light Theme */
+  --bg-app: #FAFAFA;
+  --bg-sidebar: #FFFFFF;
+  --surface-card: #FFFFFF;
+  --surface-inner: #F7F7FA;
+  --surface-hover: #F0F0F5;
+  --border-subtle: #EBEBF0;
+  --border-card: #DCDCE5;
+  --text-primary: #1A1A2E;
+  --text-secondary: #555566;
+  --text-subtle: #8E8E9E;
+  --accent-color: #5E6AD2;
+  --accent-hover: #4F5ABF;
+  --accent-dim: #EDEEF8;
+  --accent-text: #434AA8;
+  --accent-border: #D5D8F2;
+  --status-ready-bg: #F0FDF4;
+  --status-ready-border: #DCFCE7;
+  --status-ready-text: #047857;
+  --badge-vessel-bg: #EDEEF8;
+  --badge-vessel-text: #434AA8;
+  --badge-vessel-border: #D5D8F2;
+}
+
+:root.dark, html.dark {
+  /* Dark Theme */
+  --bg-app: #050506;
+  --bg-sidebar: #09090D;
+  --surface-card: #121218;
+  --surface-inner: #08080B;
+  --surface-hover: #181822;
+  --border-subtle: #181822;
+  --border-card: #1E1E28;
+  --text-primary: #EDEDEF;
+  --text-secondary: #8A8F98;
+  --text-subtle: #525660;
+  --accent-color: #5E6AD2;
+  --accent-hover: #6872D9;
+  --accent-dim: #121326;
+  --accent-text: #7B85E6;
+  --accent-border: #2E3466;
+  --status-ready-bg: rgba(6, 40, 29, 0.6);
+  --status-ready-border: #0D4D38;
+  --status-ready-text: #34D399;
+  --badge-vessel-bg: #121326;
+  --badge-vessel-text: #7B85E6;
+  --badge-vessel-border: #2E3466;
+}
+
+:root.sakura, html.sakura {
+  /* Sakura Pink Theme (Soft Japanese Cherry Blossom) */
+  --bg-app: #FFF5F8;
+  --bg-sidebar: #FFF0F5;
+  --surface-card: #FFFFFF;
+  --surface-inner: #FFF0F4;
+  --surface-hover: #FFE4ED;
+  --border-subtle: #FCDCE7;
+  --border-card: #F9CADB;
+  --text-primary: #3B0E1B;
+  --text-secondary: #7E2A44;
+  --text-subtle: #AA657C;
+  --accent-color: #E85D88;
+  --accent-hover: #D44472;
+  --accent-dim: #FFE4EE;
+  --accent-text: #B81D52;
+  --accent-border: #F9B6CE;
+  --status-ready-bg: #FFF0F4;
+  --status-ready-border: #F9CADB;
+  --status-ready-text: #D44472;
+  --badge-vessel-bg: #FFE4EE;
+  --badge-vessel-text: #B81D52;
+  --badge-vessel-border: #F9B6CE;
+}
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+
+  /* Linear Indigo Accent */
+  --color-accent: var(--accent-color);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-dim: var(--accent-dim);
+  --color-accent-bg: var(--accent-dim);
+
+  /* Status */
+  --color-gold: #F59E0B;
+  --color-gold-dim: #2B1D08;
+  --color-gold-light-dim: #FEF3C7;
+  --color-cyan: #38BDF8;
+  --color-cyan-dim: #092535;
+  --color-cyan-light-dim: #E0F2FE;
+  --color-success: #10B981;
+  --color-success-dim: #06281D;
+  --color-success-light-dim: #D1FAE5;
+  --color-purple: #A855F7;
+  --color-purple-dim: #230F38;
+  --color-purple-light-dim: #EDE9FE;
+  --color-coral: #FB7185;
+  --color-coral-dim: #2E0E15;
+  --color-coral-light-dim: #FFE4E6;
+}
+
+/* ── Base Styles ── */
+* {
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.sakura *::-webkit-scrollbar-thumb {
+  background: rgba(232, 93, 136, 0.2);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sakura *::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 93, 136, 0.35);
+}
+
+body {
+  font-family: var(--font-sans);
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ── Selection ── */
+::selection {
+  background: rgba(94, 106, 210, 0.3);
+}
+
+.sakura ::selection {
+  background: rgba(232, 93, 136, 0.3);
+}

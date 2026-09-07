@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#00387a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Costa Schedule">
+  <title>Costa Smeralda Schedule</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Splash Loading & Validation Overlay -->
+  <div id="splashOverlay" class="splash-overlay">
+    <div class="splash-content">
+      <div class="splash-logo-wrap">
+        <img src="logo.png" alt="Costa Logo" class="splash-logo-img">
+      </div>
+      <div class="splash-spinner"></div>
+      <div class="splash-text">COSTA SMERALDA</div>
+      <div class="splash-subtext">Validating Schedule & Profile...</div>
+    </div>
+  </div>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="ship-icon-wrapper">
+          <img src="logo.png" alt="Costa Logo" class="brand-logo-img">
+        </div>
+        <div>
+          <h1 id="shipName">COSTA SMERALDA</h1>
+          <span class="sub-brand">F&B RESTAURANT SCHEDULE</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="settingsBtn" class="icon-btn icon-btn-round" title="Settings" aria-label="Settings">
+          <span class="btn-icon" style="font-size: 1.15rem; line-height: 1;">⚙️</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- User Profile Pill (Only visible when user is registered) -->
+    <div class="user-profile-pill hidden" id="userProfilePill">
+      <div class="pill-left">
+        <span class="pill-avatar">👤</span>
+        <span class="pill-name" id="userPillName">DIAN JULIE</span>
+      </div>
+    </div>
+
+    <!-- Active Schedule Banner -->
+    <div class="schedule-banner">
+      <div class="banner-info">
+        <div class="date-badge" id="displayDate">August 23, 2026</div>
+        <div class="port-badge" id="displayPort">📍 KAOHSIUNG</div>
+      </div>
+      <!-- Personal Report Time & Venue Pill (Tap to focus & expand duty) -->
+      <div class="shift-pill" id="displayShift" title="Tap to view & focus your assigned duty" role="button" tabindex="0">
+        <span id="shiftPillText">SET PROFILE</span>
+      </div>
+    </div>
+
+    <!-- Date & Meal Shift Filters -->
+    <div class="filter-controls">
+      <!-- Day Switcher (Today / Yesterday) -->
+      <div class="segmented-control" id="dayTabs">
+        <button class="seg-btn active" data-day="today">📅 Today</button>
+        <button class="seg-btn" data-day="yesterday">⏪ Yesterday</button>
+      </div>
+
+      <!-- Meal Shift Switcher -->
+      <div class="meal-tabs" id="mealTabs">
+        <button class="meal-btn" data-meal="BREAKFAST">🌅 Breakfast</button>
+        <button class="meal-btn active" data-meal="LUNCH">☀️ Lunch</button>
+        <button class="meal-btn" data-meal="DINNER">🌙 Dinner</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+    
+    <!-- Primary Action Bar (Paste Schedule / Alarm) -->
+    <div class="action-bar">
+      <button id="openPasteModalBtn" class="primary-action-btn">
+        <span class="btn-icon">📋</span>
+        <span>Paste WhatsApp Schedule</span>
+      </button>
+      <button id="alarmBtn" class="secondary-action-btn alarm-action-btn" title="Set 3 Alarms for Duty">
+        <span class="btn-icon">⏰</span>
+        <span>Alarm</span>
+      </button>
+    </div>
+
+
+
+    <!-- Global Search & Expand/Collapse Toggle -->
+    <div class="search-box-wrapper">
+      <div class="search-input-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search Crew Name, Station, Table, Duty..." autocomplete="off">
+        <button id="clearSearchBtn" class="clear-btn hidden">&times;</button>
+      </div>
+      <div class="search-meta-bar">
+        <div class="search-count" id="searchCount"></div>
+        <button id="toggleAllAccordionBtn" class="btn-toggle-all">Expand All</button>
+      </div>
+    </div>
+
+    <!-- Empty State (When no schedule is loaded yet) -->
+    <div id="emptyState" class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h2>No Schedule Loaded Yet</h2>
+      <p>Copy the schedule message from WhatsApp and tap <strong>Paste WhatsApp Schedule</strong> above, or click <strong>✨ Sample</strong> to preview real data.</p>
+    </div>
+
+    <!-- Schedule Content Container -->
+    <div id="scheduleContent" class="schedule-content">
+      
+      <!-- Category 1: Main Dining Rooms (Collapsed by Default) -->
+      <section class="category-card collapsed" id="catMainDining">
+        <div class="category-header" data-toggle-cat="catMainDining">
+          <div class="cat-title">
+            <span class="cat-icon">🍽️</span>
+            <h3>Main Dining Rooms</h3>
+          </div>
+          <div class="cat-header-right">
+            <span class="badge-count" id="countMainDining">0</span>
+            <span class="chevron-icon">▼</span>
+          </div>
+        </div>
+        <div class="category-body hidden" id="bodyMainDining">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+
+      <!-- Category 2: Buffet & Specialized Venues (Collapsed by Default) -->
+      <section class="category-card collapsed" id="catBuffet">
+        <div class="category-header" data-toggle-cat="catBuffet">
+          <div class="cat-title">
+            <span class="cat-icon">🥗</span>
+            <h3>Buffet & Specialty Venues</h3>
+          </div>
+          <div class="cat-header-right">
+            <span class="badge-count" id="countBuffet">0</span>
+            <span class="chevron-icon">▼</span>
+          </div>
+        </div>
+        <div class="category-body hidden" id="bodyBuffet">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+
+      <!-- Category 3: Side Duties & Logistics (Collapsed by Default) -->
+      <section class="category-card collapsed" id="catDuties">
+        <div class="category-header" data-toggle-cat="catDuties">
+          <div class="cat-title">
+            <span class="cat-icon">⚡</span>
+            <h3>Side Duties & Operations</h3>
+          </div>
+          <div class="cat-header-right">
+            <span class="badge-count" id="countDuties">0</span>
+            <span class="chevron-icon">▼</span>
+          </div>
+        </div>
+        <div class="category-body hidden" id="bodyDuties">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+
+      <!-- Category 4: Special Events & Uniforms (Collapsed by Default) -->
+      <section class="category-card collapsed" id="catSpecialEvents">
+        <div class="category-header" data-toggle-cat="catSpecialEvents">
+          <div class="cat-title">
+            <span class="cat-icon">🎭</span>
+            <h3>Special Events & Uniforms</h3>
+          </div>
+          <div class="cat-header-right">
+            <span class="badge-count" id="countSpecialEvents">0</span>
+            <span class="chevron-icon">▼</span>
+          </div>
+        </div>
+        <div class="category-body hidden" id="bodySpecialEvents">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+
+      <!-- Category 5: Sick Leave Personnel (Collapsed by Default) -->
+      <section class="category-card collapsed" id="catSickLeave">
+        <div class="category-header" data-toggle-cat="catSickLeave">
+          <div class="cat-title">
+            <span class="cat-icon">🏥</span>
+            <h3>Sick Leave Personnel</h3>
+          </div>
+          <div class="cat-header-right">
+            <span class="badge-count" id="countSickLeave">0</span>
+            <span class="chevron-icon">▼</span>
+          </div>
+        </div>
+        <div class="category-body hidden" id="bodySickLeave">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer Info -->
+  <footer class="app-footer">
+    <div class="footer-status">
+      <span class="status-dot"></span>
+      <span>100% Offline Ready &bull; Costa Smeralda</span>
+    </div>
+    <div class="retention-note">
+      Auto-retains 2 days (Today & Yesterday) &bull; Auto-cleanup enabled
+    </div>
+  </footer>
+
+  <!-- Modal: Paste WhatsApp Schedule -->
+  <div id="pasteModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📋 Paste WhatsApp Schedule</h3>
+        <button class="close-modal-btn" data-close="pasteModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Copy the schedule message from your WhatsApp group, then paste it below:
+        </p>
+        <button id="autoPasteClipboardBtn" class="btn-smart-paste">
+          <span>⚡ Auto-Paste from Clipboard</span>
+        </button>
+        <div class="divider"><span>OR PASTE MANUALLY</span></div>
+        <textarea id="pasteTextarea" rows="6" placeholder="Paste the WhatsApp message with [COSTA-DATA-START] here..."></textarea>
+        <div id="pasteError" class="modal-error hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" data-close="pasteModal">Cancel</button>
+        <button id="processPasteBtn" class="btn-primary">Decode & Load Schedule</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Settings (Profile & Alarm Configuration) -->
+  <div id="settingsModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="close-modal-btn" data-close="settingsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Section: Profile Configuration -->
+        <div class="settings-section">
+          <h4 class="settings-section-title">👤 Profile Configuration</h4>
+          <p class="modal-desc">
+            Enter your Full Name. The app will automatically highlight your assigned duty and calculate your alarm timings.
+          </p>
+          <div class="form-group">
+            <label for="profileNameInput">Full Name:</label>
+            <input type="text" id="profileNameInput" placeholder="e.g. JOSHI PREM or WIBOWO ANDRI" autocomplete="off">
+            <small class="form-helper">Smart match recognizes full names across schedule columns.</small>
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- Section: Alarm Set Toggle & Timing Options -->
+        <div class="settings-section">
+          <div class="settings-row-toggle">
+            <div>
+              <h4 class="settings-section-title" style="margin-bottom: 2px;">⏰ Alarm Set</h4>
+              <span class="settings-subtext">Automatic 3-consecutive alarms</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="alarmToggleInput" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <!-- Alarm Timing Pills Container (Visible when Alarm is ON) -->
+          <div id="alarmOptionsWrapper" class="alarm-options-wrapper">
+            <label class="settings-field-label">Alarm Trigger Time:</label>
+            <div class="alarm-pill-group" id="alarmPillGroup">
+              <button type="button" class="alarm-pill active" data-alarm-option="60">1 Hour</button>
+              <button type="button" class="alarm-pill" data-alarm-option="30">30 Min</button>
+              <button type="button" class="alarm-pill" data-alarm-option="custom">Custom</button>
+            </div>
+
+            <!-- Custom Input Row (Visible only when 'Custom' is selected) -->
+            <div id="customAlarmRow" class="custom-alarm-row hidden">
+              <div class="custom-time-inputs">
+                <div class="time-input-wrap">
+                  <input type="number" id="alarmCustomHours" min="0" max="23" value="1" placeholder="0">
+                  <span class="time-unit">hr</span>
+                </div>
+                <div class="time-input-wrap">
+                  <input type="number" id="alarmCustomMinutes" min="0" max="59" value="0" placeholder="0">
+                  <span class="time-unit">min</span>
+                </div>
+              </div>
+              <span class="before-duty-label">Before Duty</span>
+            </div>
+            <small class="form-helper" style="margin-top: 6px;">Sets 3 alarms with 5-minute intervals (e.g. 12:00, 12:05, 12:10).</small>
+          </div>
+        </div>
+
+        <!-- Accordion for Help Guide -->
+        <div class="settings-divider"></div>
+        <div class="help-accordion-wrapper">
+          <button type="button" class="help-accordion-toggle" id="helpAccordionToggle">
+            <span>ℹ️ How to Use & Install Guide</span>
+            <span id="helpChevron">▼</span>
+          </button>
+          <div class="help-accordion-body hidden" id="helpAccordionBody">
+            <h4>📲 Cara Pakai Offline (Tanpa Internet):</h4>
+            <ul>
+              <li><strong>iPhone (Safari):</strong> Buka <code>CostaSchedule.html</code> &rarr; Tap tombol Share &rarr; Pilih <strong>"Add to Home Screen"</strong>.</li>
+              <li><strong>Android (Chrome):</strong> Buka <code>CostaSchedule.html</code> &rarr; Tap menu titik tiga &rarr; Pilih <strong>"Tambahkan ke Layar Utama"</strong> (atau gunakan file APK jika diinstal).</li>
+            </ul>
+            <h4>⚡ WhatsApp Workflow:</h4>
+            <ol>
+              <li>Copy schedule message from WhatsApp.</li>
+              <li>Tap <strong>"Paste WhatsApp Schedule"</strong>.</li>
+              <li>Your duty will be automatically highlighted!</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" data-close="settingsModal">Cancel</button>
+        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Smart Alarm Assistant / Device Alarm Card -->
+  <div id="alarmConfirmModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header" style="background: linear-gradient(135deg, #00387a, #0b4d9c);">
+        <h3>⏰ Smart Alarm Assistant</h3>
+        <button class="close-modal-btn" data-close="alarmConfirmModal">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 18px 16px;">
+        <div style="font-size: 2.2rem; margin-bottom: 6px;">⏰</div>
+        <h4 id="alarmDutyVenue" style="font-size: 1.05rem; color: #00387a; font-weight: 800; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
+        <div id="alarmDutyReport" style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Report Time: 13:00</div>
+        
+        <!-- Active Configuration Pill -->
+        <div id="alarmConfigBadge" class="alarm-config-badge">
+          ⚙️ Config: 1 Hour Before Duty
+        </div>
+        
+        <!-- 3-Tier Alarm Schedule Card -->
+        <div class="alarm-schedule-list">
+          <div class="alarm-item">
+            <div>
+              <span class="alarm-item-title">🔔 1st Alarm <small>(Bangun / Wake Up)</small></span>
+              <span class="alarm-item-desc">Alarm utama untuk bangun tidur</span>
+            </div>
+            <span id="alarmTime1" class="alarm-item-time">12:00</span>
+          </div>
+          <div class="alarm-item">
+            <div>
+              <span class="alarm-item-title">🔔 2nd Alarm <small>(Siap-siap / +5m)</small></span>
+              <span class="alarm-item-desc">Pengingat seragam & perlengkapan</span>
+            </div>
+            <span id="alarmTime2" class="alarm-item-time">12:05</span>
+          </div>
+          <div class="alarm-item">
+            <div>
+              <span class="alarm-item-title">🔔 3rd Alarm <small>(Berangkat / +10m)</small></span>
+              <span class="alarm-item-desc">Waktu jalan menuju outlet restoran</span>
+            </div>
+            <span id="alarmTime3" class="alarm-item-time">12:10</span>
+          </div>
+        </div>
+
+        <!-- Android Platform Action -->
+        <div id="alarmAndroidActionWrap" class="alarm-platform-wrap hidden">
+          <a id="androidClockIntentBtn" class="btn-primary btn-alarm-action" href="#" role="button">
+            ⏰ Pasang di Jam Weker Android
+          </a>
+          <p class="alarm-platform-note">
+            Membuka aplikasi Jam bawaan Android langsung dengan waktu alarm terisi otomatis.
+          </p>
+        </div>
+
+        <!-- iPhone / iOS Smart Alarm Card Action -->
+        <div id="alarmIosActionWrap" class="alarm-platform-wrap hidden">
+          <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm">
+            📋 Salin Jam Alarm (<span id="copyAlarmTimeLabel">12:00</span>)
+          </button>
+          
+          <div class="siri-prompt-box">
+            <span class="siri-icon">🎙️</span>
+            <div class="siri-text">
+              <div class="siri-title">Perintah Siri (Bisa Offline):</div>
+              <code id="siriPromptCode">"Hey Siri, set alarm for 12:00"</code>
+            </div>
+          </div>
+          <p class="alarm-platform-note">
+            Atau geser Control Center iPhone untuk menyalakan jam weker dengan waktu di atas.
+          </p>
+        </div>
+
+        <!-- Desktop / Generic Platform Action -->
+        <div id="alarmGenericActionWrap" class="alarm-platform-wrap hidden">
+          <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm">
+            📋 Salin Waktu Alarm
+          </button>
+          <p class="alarm-platform-note">
+            Pasang jam weker HP Anda sesuai 3 waktu bertahap di atas.
+          </p>
+        </div>
+
+        <!-- Optional Calendar Export (Secondary) -->
+        <div class="alarm-secondary-wrap">
+          <button id="toggleCalendarExportBtn" class="btn-text-link" type="button">
+            📅 Opsi: Simpan ke Kalender HP
+          </button>
+          <div id="calendarExportWrap" class="hidden" style="margin-top: 8px;">
+            <button id="downloadIcsBtn" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem;">
+              Download Event Kalender (.ics)
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" data-close="alarmConfirmModal" style="width: 100%;">Tutup / Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
