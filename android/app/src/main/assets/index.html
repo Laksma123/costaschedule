@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#00387a">
+  <meta name="theme-color" content="#FFFFFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Costa Schedule">
   <title>Costa Smeralda Schedule</title>
   
@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="newspaper-theme">
   <!-- Splash Loading & Validation Overlay -->
   <div id="splashOverlay" class="splash-overlay">
     <div class="splash-content">
@@ -26,212 +26,435 @@
     </div>
   </div>
 
-  <!-- Top App Header -->
+  <!-- Minimalist Clean White Top App Header (The Shell Does Not Move) -->
   <header class="app-header">
-    <div class="header-top">
+    <div class="header-inner">
       <div class="brand">
         <div class="ship-icon-wrapper">
           <img src="logo.png" alt="Costa Logo" class="brand-logo-img">
         </div>
-        <div>
+        <div class="brand-titles">
           <h1 id="shipName">COSTA SMERALDA<span class="costa-dot">.</span></h1>
-          <span class="sub-brand">F&B RESTAURANT SCHEDULE</span>
+          <span class="sub-brand">RESTAURANT SCHEDULE</span>
         </div>
       </div>
       <div class="header-actions">
-        <button id="settingsBtn" class="icon-btn icon-btn-round" title="Settings" aria-label="Settings">
-          <span class="btn-icon" style="font-size: 1.15rem; line-height: 1;">⚙️</span>
+        <button id="quickProfileBtn" class="header-avatar-btn" title="Profile Settings" aria-label="Profile Settings">
+          <div class="header-avatar-circle" id="headerAvatarCircle">WA</div>
         </button>
-      </div>
-    </div>
-
-    <!-- User Profile Card (Costa App More-Tab Style with Initials & Gold Ring) -->
-    <div class="user-profile-pill hidden" id="userProfilePill" role="button" tabindex="0" title="Tap to configure profile and alarms">
-      <div class="pill-left">
-        <div class="pill-avatar-circle" id="userAvatarCircle">WA</div>
-        <div class="pill-info-col">
-          <span class="pill-name" id="userPillName">WIBOWO ANDRI</span>
-          <span class="pill-role-subtext">Crew Member &bull; Tap for Settings</span>
-        </div>
-      </div>
-      <div class="pill-right">
-        <span class="pill-arrow-chevron">&rsaquo;</span>
-      </div>
-    </div>
-
-    <!-- Active Schedule Banner -->
-    <div class="schedule-banner">
-      <div class="banner-info">
-        <div class="date-badge" id="displayDate">August 23, 2026</div>
-        <div class="port-badge" id="displayPort">📍 KAOHSIUNG</div>
-      </div>
-      <!-- Personal Report Time & Venue Pill (Tap to focus & expand duty) -->
-      <div class="shift-pill" id="displayShift" title="Tap to view & focus your assigned duty" role="button" tabindex="0">
-        <span id="shiftPillText">SET PROFILE</span>
-      </div>
-    </div>
-
-    <!-- Date & Meal Shift Filters -->
-    <div class="filter-controls">
-      <!-- Day Switcher (Today / Yesterday) -->
-      <div class="segmented-control" id="dayTabs">
-        <button class="seg-btn active" data-day="today">📅 Today</button>
-        <button class="seg-btn" data-day="yesterday">⏪ Yesterday</button>
-      </div>
-
-      <!-- Meal Shift Switcher -->
-      <div class="meal-tabs" id="mealTabs">
-        <button class="meal-btn" data-meal="BREAKFAST">🌅 Breakfast</button>
-        <button class="meal-btn active" data-meal="LUNCH">☀️ Lunch</button>
-        <button class="meal-btn" data-meal="DINNER">🌙 Dinner</button>
       </div>
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Main Container With 4 Tabs -->
   <main class="app-main">
-    
-    <!-- Primary Action Bar (Paste Schedule / Alarm) -->
-    <div class="action-bar">
-      <button id="openPasteModalBtn" class="primary-action-btn">
-        <span class="btn-icon">📋</span>
-        <span>Paste WhatsApp Schedule</span>
-      </button>
-      <button id="alarmBtn" class="secondary-action-btn alarm-action-btn" title="Set 3 Alarms for Duty">
-        <span class="btn-icon">⏰</span>
-        <span>Alarm</span>
-      </button>
-    </div>
 
-
-
-    <!-- Global Search & Expand/Collapse Toggle -->
-    <div class="search-box-wrapper">
-      <div class="search-input-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search Crew Name, Station, Table, Duty..." autocomplete="off">
-        <button id="clearSearchBtn" class="clear-btn hidden">&times;</button>
-      </div>
-      <div class="search-meta-bar">
-        <div class="search-count" id="searchCount"></div>
-        <button id="toggleAllAccordionBtn" class="btn-toggle-all">Expand All</button>
-      </div>
-    </div>
-
-    <!-- Empty State (When no schedule is loaded yet) -->
-    <div id="emptyState" class="empty-state">
-      <div class="empty-icon">📋</div>
-      <h2>No Schedule Loaded Yet</h2>
-      <p>Copy the schedule message from WhatsApp and tap <strong>Paste WhatsApp Schedule</strong> above, or click <strong>✨ Sample</strong> to preview real data.</p>
-    </div>
-
-    <!-- Schedule Content Container -->
-    <div id="scheduleContent" class="schedule-content">
+    <!-- ========================================== -->
+    <!-- TAB 1: SCHEDULE (DAILY EDITORIAL BRIEFING) -->
+    <!-- ========================================== -->
+    <section id="tabSchedule" class="tab-view active">
       
-      <!-- Category 1: Main Dining Rooms (Collapsed by Default) -->
-      <section class="category-card collapsed" id="catMainDining">
-        <div class="category-header" data-toggle-cat="catMainDining">
-          <div class="cat-title">
-            <span class="cat-icon">🍽️</span>
-            <h3>Main Dining Rooms</h3>
-          </div>
-          <div class="cat-header-right">
-            <span class="badge-count" id="countMainDining">0</span>
-            <span class="chevron-icon">▼</span>
-          </div>
+      <!-- Editorial Date & Destination Header -->
+      <div class="news-masthead">
+        <div class="news-date-row">
+          <span class="news-date-text" id="displayDate">August 23, 2026</span>
+          <span class="news-day-chip">DAILY ROSTER</span>
         </div>
-        <div class="category-body hidden" id="bodyMainDining">
-          <!-- Injected via JS -->
-        </div>
-      </section>
+        <h1 class="news-city-headline">
+          <span id="displayPortName">KAOHSIUNG</span><span class="costa-dot">.</span>
+        </h1>
+        <!-- Hidden elements for backward compatibility with app.js -->
+        <div id="displayPort" class="hidden">📍 KAOHSIUNG</div>
+        <div id="displayShift" class="hidden"><span id="shiftPillText">SET PROFILE</span></div>
+      </div>
 
-      <!-- Category 2: Buffet & Specialized Venues (Collapsed by Default) -->
-      <section class="category-card collapsed" id="catBuffet">
-        <div class="category-header" data-toggle-cat="catBuffet">
-          <div class="cat-title">
-            <span class="cat-icon">🥗</span>
-            <h3>Buffet & Specialty Venues</h3>
+      <!-- Newspaper Daily Briefing Card (Clean White, Subtle Hairline Dividers) -->
+      <div class="news-briefing-card">
+        <div class="briefing-row">
+          <div class="briefing-icon-wrap">
+            <svg class="news-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 20a4 4 0 0 0 8 0 4 4 0 0 0 8 0 4 4 0 0 0 4 0"/>
+              <path d="M4 18 3 13h18l-1 5"/>
+              <path d="M7 13V8h10v5"/>
+              <path d="M10 8V5h4v3"/>
+              <path d="M12 2v3"/>
+            </svg>
           </div>
-          <div class="cat-header-right">
-            <span class="badge-count" id="countBuffet">0</span>
-            <span class="chevron-icon">▼</span>
+          <div class="briefing-content">
+            <span class="briefing-label">Port of Call</span>
+            <span class="briefing-val" id="briefingPort">KAOHSIUNG</span>
           </div>
         </div>
-        <div class="category-body hidden" id="bodyBuffet">
-          <!-- Injected via JS -->
-        </div>
-      </section>
 
-      <!-- Category 3: Side Duties & Logistics (Collapsed by Default) -->
-      <section class="category-card collapsed" id="catDuties">
-        <div class="category-header" data-toggle-cat="catDuties">
-          <div class="cat-title">
-            <span class="cat-icon">⚡</span>
-            <h3>Side Duties & Operations</h3>
+        <div class="briefing-row">
+          <div class="briefing-icon-wrap">
+            <svg class="news-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
           </div>
-          <div class="cat-header-right">
-            <span class="badge-count" id="countDuties">0</span>
-            <span class="chevron-icon">▼</span>
+          <div class="briefing-content">
+            <span class="briefing-label">Your Assignment</span>
+            <span class="briefing-val" id="briefingDuty">Tap Profile to Set Name</span>
           </div>
         </div>
-        <div class="category-body hidden" id="bodyDuties">
-          <!-- Injected via JS -->
-        </div>
-      </section>
 
-      <!-- Category 4: Special Events & Uniforms (Collapsed by Default) -->
-      <section class="category-card collapsed" id="catSpecialEvents">
-        <div class="category-header" data-toggle-cat="catSpecialEvents">
-          <div class="cat-title">
-            <span class="cat-icon">🎭</span>
-            <h3>Special Events & Uniforms</h3>
+        <div class="briefing-row">
+          <div class="briefing-icon-wrap">
+            <svg class="news-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="M3 9h18"/>
+              <path d="M9 21V9"/>
+            </svg>
           </div>
-          <div class="cat-header-right">
-            <span class="badge-count" id="countSpecialEvents">0</span>
-            <span class="chevron-icon">▼</span>
+          <div class="briefing-content">
+            <span class="briefing-label">Station & Tables</span>
+            <span class="briefing-val" id="briefingStation">—</span>
           </div>
         </div>
-        <div class="category-body hidden" id="bodySpecialEvents">
-          <!-- Injected via JS -->
-        </div>
-      </section>
+      </div>
 
-      <!-- Category 5: Sick Leave Personnel (Collapsed by Default) -->
-      <section class="category-card collapsed" id="catSickLeave">
-        <div class="category-header" data-toggle-cat="catSickLeave">
-          <div class="cat-title">
-            <span class="cat-icon">🏥</span>
-            <h3>Sick Leave Personnel</h3>
-          </div>
-          <div class="cat-header-right">
-            <span class="badge-count" id="countSickLeave">0</span>
-            <span class="chevron-icon">▼</span>
+      <!-- Segmented Outline Switchers (Costa App "Bars & Rest" Style) -->
+      <div class="filter-section">
+        <div class="filter-row">
+          <span class="filter-label">View:</span>
+          <div class="outline-pill-group" id="dayTabs">
+            <button class="outline-pill-btn active" data-day="today">Today</button>
+            <button class="outline-pill-btn" data-day="yesterday">Yesterday</button>
           </div>
         </div>
-        <div class="category-body hidden" id="bodySickLeave">
-          <!-- Injected via JS -->
+        <div class="filter-row">
+          <span class="filter-label">Meal:</span>
+          <div class="outline-pill-group" id="mealTabs">
+            <button class="outline-pill-btn" data-meal="BREAKFAST">Breakfast</button>
+            <button class="outline-pill-btn active" data-meal="LUNCH">Lunch</button>
+            <button class="outline-pill-btn" data-meal="DINNER">Dinner</button>
+          </div>
         </div>
-      </section>
+      </div>
 
-    </div>
+      <!-- Action Bar (One Primary Yellow Button per Screen Rule) -->
+      <div class="action-bar">
+        <button id="openPasteModalBtn" class="costa-primary-btn">
+          <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/>
+          </svg>
+          <span>Paste WhatsApp Schedule</span>
+        </button>
+        <button id="alarmBtn" class="costa-outline-btn alarm-action-btn" title="Set 3 Alarms for Duty">
+          <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Alarm</span>
+        </button>
+      </div>
+
+      <!-- Search Box & Meta Bar -->
+      <div class="search-box-wrapper">
+        <div class="search-input-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search Crew Name, Station, Table, Duty..." autocomplete="off">
+          <button id="clearSearchBtn" class="clear-btn hidden">&times;</button>
+        </div>
+        <div class="search-meta-bar">
+          <div class="search-count" id="searchCount"></div>
+          <button id="toggleAllAccordionBtn" class="btn-toggle-all">Expand All</button>
+        </div>
+      </div>
+
+      <!-- Empty State (When no schedule is loaded yet) -->
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon-wrap">
+          <svg class="empty-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/>
+            <path d="M9 12h6"/>
+            <path d="M9 16h6"/>
+          </svg>
+        </div>
+        <h2>No Schedule Loaded Yet</h2>
+        <p>Copy the schedule message from WhatsApp and tap <strong>Paste WhatsApp Schedule</strong> above, or load sample data to preview.</p>
+        <button id="loadSampleScheduleBtn" class="sample-pill-btn">Load Sample Data</button>
+      </div>
+
+      <!-- Quick Outlets Overview Section -->
+      <div id="scheduleOverviewSection" class="schedule-overview-wrap">
+        <div class="section-subhead-row">
+          <h2 class="section-title">Today's Restaurant Lineup<span class="costa-dot">.</span></h2>
+          <button id="jumpToVenuesTabBtn" class="section-subhead-link">See All Venues &rarr;</button>
+        </div>
+        <div id="overviewVenuesList" class="overview-venues-list">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 2: VENUES (MAIN DINING & BUFFETS)     -->
+    <!-- ========================================== -->
+    <section id="tabVenues" class="tab-view hidden">
+      <div class="tab-header-masthead">
+        <h2 class="view-headline">Restaurants & Bars<span class="costa-dot">.</span></h2>
+        <p class="view-subheadline">Main dining rooms and specialty restaurant rosters</p>
+      </div>
+
+      <!-- Schedule Content Container (Preserved IDs for app.js) -->
+      <div id="scheduleContent" class="schedule-content">
+        
+        <!-- Category 1: Main Dining Rooms -->
+        <section class="category-card collapsed" id="catMainDining">
+          <div class="category-header" data-toggle-cat="catMainDining">
+            <div class="cat-title">
+              <svg class="cat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2v8a3 3 0 0 1-3 3h-1"/>
+                <path d="M18 13v9"/>
+                <path d="M3 2v6a3 3 0 0 0 3 3h1"/>
+                <path d="M6 11v11"/>
+                <path d="M7 2v4"/>
+                <path d="M5 2v4"/>
+              </svg>
+              <h3>Main Dining Rooms</h3>
+            </div>
+            <div class="cat-header-right">
+              <span class="badge-count" id="countMainDining">0</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="category-body hidden" id="bodyMainDining">
+            <!-- Injected via JS -->
+          </div>
+        </section>
+
+        <!-- Category 2: Buffet & Specialized Venues -->
+        <section class="category-card collapsed" id="catBuffet">
+          <div class="category-header" data-toggle-cat="catBuffet">
+            <div class="cat-title">
+              <svg class="cat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a10 10 0 0 1 10 10v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1a10 10 0 0 1 10-10z"/>
+                <path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
+              </svg>
+              <h3>Buffet & Specialty Venues</h3>
+            </div>
+            <div class="cat-header-right">
+              <span class="badge-count" id="countBuffet">0</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="category-body hidden" id="bodyBuffet">
+            <!-- Injected via JS -->
+          </div>
+        </section>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 3: OPERATIONS (SIDE DUTIES & EVENTS)   -->
+    <!-- ========================================== -->
+    <section id="tabOperations" class="tab-view hidden">
+      <div class="tab-header-masthead">
+        <h2 class="view-headline">Operations & Duties<span class="costa-dot">.</span></h2>
+        <p class="view-subheadline">Logistics, special event uniforms and medical leaves</p>
+      </div>
+
+      <div class="operations-content">
+        <!-- Category 3: Side Duties & Logistics -->
+        <section class="category-card collapsed" id="catDuties">
+          <div class="category-header" data-toggle-cat="catDuties">
+            <div class="cat-title">
+              <svg class="cat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <h3>Side Duties & Operations</h3>
+            </div>
+            <div class="cat-header-right">
+              <span class="badge-count" id="countDuties">0</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="category-body hidden" id="bodyDuties">
+            <!-- Injected via JS -->
+          </div>
+        </section>
+
+        <!-- Category 4: Special Events & Uniforms -->
+        <section class="category-card collapsed" id="catSpecialEvents">
+          <div class="category-header" data-toggle-cat="catSpecialEvents">
+            <div class="cat-title">
+              <svg class="cat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h20"/><path d="M20 12v8H4v-8"/><path d="m4 4 8 4 8-4"/>
+              </svg>
+              <h3>Special Events & Uniforms</h3>
+            </div>
+            <div class="cat-header-right">
+              <span class="badge-count" id="countSpecialEvents">0</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="category-body hidden" id="bodySpecialEvents">
+            <!-- Injected via JS -->
+          </div>
+        </section>
+
+        <!-- Category 5: Sick Leave Personnel -->
+        <section class="category-card collapsed" id="catSickLeave">
+          <div class="category-header" data-toggle-cat="catSickLeave">
+            <div class="cat-title">
+              <svg class="cat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                <path d="M12 8v8"/><path d="M8 12h8"/>
+              </svg>
+              <h3>Sick Leave Personnel</h3>
+            </div>
+            <div class="cat-header-right">
+              <span class="badge-count" id="countSickLeave">0</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="category-body hidden" id="bodySickLeave">
+            <!-- Injected via JS -->
+          </div>
+        </section>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 4: MORE (COSTA APP "MORE" SCREEN STYLE)-->
+    <!-- ========================================== -->
+    <section id="tabMore" class="tab-view hidden">
+      
+      <!-- Profile Row Card (Screenshot Match: White Circle with Yellow Border, Initials "WA") -->
+      <div class="more-profile-item" id="userProfilePill" role="button" tabindex="0" title="Tap to configure profile and alarms">
+        <div class="more-avatar-circle" id="userAvatarCircle">WA</div>
+        <div class="more-profile-info">
+          <span class="more-profile-title">Profile</span>
+          <span class="more-profile-subtext" id="moreProfileSubtext">WIBOWO ANDRI &bull; Settings and personal data</span>
+          <span id="userPillName" class="hidden">WIBOWO ANDRI</span>
+        </div>
+        <svg class="more-chevron-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <div class="more-menu-list">
+        <!-- Item 1: Profile Configuration -->
+        <div class="more-menu-item" id="moreItemProfile" role="button" tabindex="0">
+          <div class="more-item-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="more-item-text">Profile Configuration</span>
+          <svg class="more-chevron-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+
+        <!-- Item 2: Smart Alarm Assistant -->
+        <div class="more-menu-item" id="moreItemAlarm" role="button" tabindex="0">
+          <div class="more-item-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <span class="more-item-text">Smart Alarm Assistant</span>
+          <svg class="more-chevron-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+
+        <!-- Item 3: Paste WhatsApp Schedule -->
+        <div class="more-menu-item" id="moreItemPaste" role="button" tabindex="0">
+          <div class="more-item-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="more-item-text">Paste WhatsApp Schedule</span>
+          <svg class="more-chevron-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+
+        <!-- Item 4: How to Use & Installation Guide -->
+        <div class="more-menu-item" id="moreItemGuide" role="button" tabindex="0">
+          <div class="more-item-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+            </svg>
+          </div>
+          <span class="more-item-text">How to Use & Offline Guide</span>
+          <svg class="more-chevron-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+
+        <!-- Item 5: Offline System & Telemetry -->
+        <div class="more-menu-item" id="moreItemTelemetry" role="button" tabindex="0">
+          <div class="more-item-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="more-item-text">Offline Status & Retention</span>
+          <svg class="more-chevron-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Footer Info Inside More Tab -->
+      <footer class="more-footer">
+        <div class="more-footer-brand">COSTA SMERALDA<span class="costa-dot">.</span></div>
+        <div class="more-footer-sub">100% Offline Ready &bull; F&B Restaurant Department</div>
+        <div class="more-footer-retention">Auto-retains Today & Yesterday &bull; Zero Server Footprint</div>
+      </footer>
+
+    </section>
+
   </main>
 
-  <!-- Footer Info -->
-  <footer class="app-footer">
-    <div class="footer-status">
-      <span class="status-dot"></span>
-      <span>100% Offline Ready &bull; Costa Smeralda</span>
-    </div>
-    <div class="retention-note">
-      Auto-retains 2 days (Today & Yesterday) &bull; Auto-cleanup enabled
-    </div>
-  </footer>
+  <!-- ============================================================== -->
+  <!-- BOTTOM NAVIGATION BAR (MATCHES 100% COSTA GUEST APP TAB DESIGN) -->
+  <!-- ============================================================== -->
+  <nav class="bottom-nav-bar" id="bottomNavBar" aria-label="Main Navigation">
+    <button class="nav-tab-btn active" data-tab="tabSchedule" id="navBtnSchedule">
+      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+      </svg>
+      <span class="nav-tab-label">Schedule</span>
+    </button>
+
+    <button class="nav-tab-btn" data-tab="tabVenues" id="navBtnVenues">
+      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 2v8a3 3 0 0 1-3 3h-1"/><path d="M18 13v9"/><path d="M3 2v6a3 3 0 0 0 3 3h1"/><path d="M6 11v11"/><path d="M7 2v4"/><path d="M5 2v4"/>
+      </svg>
+      <span class="nav-tab-label">Venues</span>
+    </button>
+
+    <button class="nav-tab-btn" data-tab="tabOperations" id="navBtnOperations">
+      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>
+      </svg>
+      <span class="nav-tab-label">Operations</span>
+    </button>
+
+    <button class="nav-tab-btn" data-tab="tabMore" id="navBtnMore">
+      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/>
+      </svg>
+      <span class="nav-tab-label">More</span>
+    </button>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- MODALS (CLEAN WHITE EDITORIAL CARDS)       -->
+  <!-- ========================================== -->
 
   <!-- Modal: Paste WhatsApp Schedule -->
   <div id="pasteModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>📋 Paste WhatsApp Schedule</h3>
+        <h3>Paste WhatsApp Schedule</h3>
         <button class="close-modal-btn" data-close="pasteModal">&times;</button>
       </div>
       <div class="modal-body">
@@ -239,15 +462,15 @@
           Copy the schedule message from your WhatsApp group, then paste it below:
         </p>
         <button id="autoPasteClipboardBtn" class="btn-smart-paste">
-          <span>⚡ Auto-Paste from Clipboard</span>
+          <span>Auto-Paste from Clipboard</span>
         </button>
         <div class="divider"><span>OR PASTE MANUALLY</span></div>
-        <textarea id="pasteTextarea" rows="6" placeholder="Paste the WhatsApp message with [COSTA-DATA-START] here..."></textarea>
+        <textarea id="pasteTextarea" rows="6" placeholder="Paste WhatsApp message containing [COSTA-DATA-START] here..."></textarea>
         <div id="pasteError" class="modal-error hidden"></div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" data-close="pasteModal">Cancel</button>
-        <button id="processPasteBtn" class="btn-primary">Decode & Load Schedule</button>
+        <button id="processPasteBtn" class="btn-primary">Decode & Load</button>
       </div>
     </div>
   </div>
@@ -256,16 +479,16 @@
   <div id="settingsModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>⚙️ Settings</h3>
+        <h3>Settings</h3>
         <button class="close-modal-btn" data-close="settingsModal">&times;</button>
       </div>
       <div class="modal-body">
         
         <!-- Section: Profile Configuration -->
         <div class="settings-section">
-          <h4 class="settings-section-title">👤 Profile Configuration</h4>
+          <h4 class="settings-section-title">Profile Configuration</h4>
           <p class="modal-desc">
-            Enter your Full Name. The app will automatically highlight your assigned duty and calculate your alarm timings.
+            Enter your Full Name. The app will automatically highlight your assigned duty and calculate alarm timings.
           </p>
           <div class="form-group">
             <label for="profileNameInput">Full Name:</label>
@@ -280,7 +503,7 @@
         <div class="settings-section">
           <div class="settings-row-toggle">
             <div>
-              <h4 class="settings-section-title" style="margin-bottom: 2px;">⏰ Alarm Set</h4>
+              <h4 class="settings-section-title" style="margin-bottom: 2px;">Alarm Set</h4>
               <span class="settings-subtext">Automatic 3-consecutive alarms</span>
             </div>
             <label class="switch">
@@ -320,16 +543,16 @@
         <div class="settings-divider"></div>
         <div class="help-accordion-wrapper">
           <button type="button" class="help-accordion-toggle" id="helpAccordionToggle">
-            <span>ℹ️ How to Use & Install Guide</span>
+            <span>How to Use & Install Guide</span>
             <span id="helpChevron">▼</span>
           </button>
           <div class="help-accordion-body hidden" id="helpAccordionBody">
-            <h4>📲 Offline Setup Guide:</h4>
+            <h4>Offline Setup Guide:</h4>
             <ul>
-              <li><strong>iPhone (Safari):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap the Share button &rarr; Select <strong>"Add to Home Screen"</strong>.</li>
-              <li><strong>Android (Chrome):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap the three-dot menu &rarr; Select <strong>"Add to Home Screen"</strong> (or use installed APK).</li>
+              <li><strong>iPhone (Safari):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap Share button &rarr; Select <strong>"Add to Home Screen"</strong>.</li>
+              <li><strong>Android (Chrome):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap menu &rarr; Select <strong>"Add to Home Screen"</strong> (or use installed APK).</li>
             </ul>
-            <h4>⚡ WhatsApp Workflow:</h4>
+            <h4>WhatsApp Workflow:</h4>
             <ol>
               <li>Copy schedule message from WhatsApp.</li>
               <li>Tap <strong>"Paste WhatsApp Schedule"</strong>.</li>
@@ -350,38 +573,42 @@
   <div id="alarmConfirmModal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>⏰ Smart Alarm Assistant</h3>
+        <h3>Smart Alarm Assistant</h3>
         <button class="close-modal-btn" data-close="alarmConfirmModal">&times;</button>
       </div>
       <div class="modal-body" style="text-align: center; padding: 18px 16px;">
-        <div style="font-size: 2.2rem; margin-bottom: 6px;">⏰</div>
+        <div class="alarm-modal-icon-wrap">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
         <h4 id="alarmDutyVenue" style="font-size: 1.05rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
-        <div id="alarmDutyReport" style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Report Time: 13:00</div>
+        <div id="alarmDutyReport" style="font-size: 0.85rem; color: var(--costa-slate); margin-bottom: 8px; font-weight: 500;">Report Time: 13:00</div>
         
         <!-- Active Configuration Pill -->
         <div id="alarmConfigBadge" class="alarm-config-badge">
-          ⚙️ Config: 1 Hour Before Duty
+          Config: 1 Hour Before Duty
         </div>
         
         <!-- 3-Tier Alarm Schedule Card -->
         <div class="alarm-schedule-list">
           <div class="alarm-item">
             <div>
-              <span class="alarm-item-title">🔔 1st Alarm <small>(Wake Up)</small></span>
+              <span class="alarm-item-title">1st Alarm <small>(Wake Up)</small></span>
               <span class="alarm-item-desc">Primary wake up call for duty</span>
             </div>
             <span id="alarmTime1" class="alarm-item-time">12:00</span>
           </div>
           <div class="alarm-item">
             <div>
-              <span class="alarm-item-title">🔔 2nd Alarm <small>(Final Prep / +5m)</small></span>
+              <span class="alarm-item-title">2nd Alarm <small>(Final Prep / +5m)</small></span>
               <span class="alarm-item-desc">Uniform & equipment check</span>
             </div>
             <span id="alarmTime2" class="alarm-item-time">12:05</span>
           </div>
           <div class="alarm-item">
             <div>
-              <span class="alarm-item-title">🔔 3rd Alarm <small>(Depart / +10m)</small></span>
+              <span class="alarm-item-title">3rd Alarm <small>(Depart / +10m)</small></span>
               <span class="alarm-item-desc">Time to walk to restaurant outlet</span>
             </div>
             <span id="alarmTime3" class="alarm-item-time">12:10</span>
@@ -391,7 +618,7 @@
         <!-- Android Platform Action -->
         <div id="alarmAndroidActionWrap" class="alarm-platform-wrap hidden">
           <a id="androidClockIntentBtn" class="btn-primary btn-alarm-action" href="#" role="button">
-            ⏰ Set in Android Clock App
+            Set in Android Clock App
           </a>
           <p class="alarm-platform-note">
             Opens native Android Clock app directly with alarm time pre-filled.
@@ -401,25 +628,29 @@
         <!-- iPhone / iOS Smart Alarm Card Action -->
         <div id="alarmIosActionWrap" class="alarm-platform-wrap hidden">
           <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm">
-            📋 Copy Wake Up Time (<span id="copyAlarmTimeLabel">12:00</span>)
+            Copy Wake Up Time (<span id="copyAlarmTimeLabel">12:00</span>)
           </button>
           
           <div class="siri-prompt-box">
-            <span class="siri-icon">🎙️</span>
+            <div class="siri-icon-wrap">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
+              </svg>
+            </div>
             <div class="siri-text">
               <div class="siri-title">Siri Voice Command (Works Offline):</div>
               <code id="siriPromptCode">"Hey Siri, set alarm for 12:00"</code>
             </div>
           </div>
           <p class="alarm-platform-note">
-            Or swipe down iPhone Control Center to turn on alarm with the time above.
+            Or swipe down iPhone Control Center to set alarm with the time above.
           </p>
         </div>
 
         <!-- Desktop / Generic Platform Action -->
         <div id="alarmGenericActionWrap" class="alarm-platform-wrap hidden">
           <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm">
-            📋 Copy Alarm Times
+            Copy Alarm Times
           </button>
           <p class="alarm-platform-note">
             Set your device alarm according to the 3 timings above.
@@ -429,7 +660,7 @@
         <!-- Optional Calendar Export (Secondary) -->
         <div class="alarm-secondary-wrap">
           <button id="toggleCalendarExportBtn" class="btn-text-link" type="button">
-            📅 Optional: Save to Calendar
+            Optional: Save to Calendar
           </button>
           <div id="calendarExportWrap" class="hidden" style="margin-top: 8px;">
             <button id="downloadIcsBtn" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem;">
@@ -444,6 +675,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Hidden button for settingsBtn to maintain backward compatibility with app.js -->
+  <button id="settingsBtn" class="hidden"></button>
 
   <!-- Toast Notification Container -->
   <div id="toast" class="toast hidden"></div>

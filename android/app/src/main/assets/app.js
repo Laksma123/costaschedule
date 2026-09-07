@@ -477,7 +477,7 @@ function matchesSearchQuery(query, name, extra1, extra2, extra3) {
 }
 
 // ==========================================
-// RENDER ENGINE
+// RENDER ENGINE (Newspaper Editorial System)
 // ==========================================
 function renderSchedule() {
   const schedule = state.schedules[state.currentDay][state.currentMeal];
@@ -485,31 +485,52 @@ function renderSchedule() {
 
   const emptyState = document.getElementById('emptyState');
   const scheduleContent = document.getElementById('scheduleContent');
+  const overviewWrap = document.getElementById('scheduleOverviewSection');
 
   // Update Profile & Alarm Button Visibility
   updateUserProfilePill();
   updateAlarmButtonVisibility();
 
   if (!schedule) {
-    emptyState.classList.remove('hidden');
-    scheduleContent.classList.add('hidden');
-    document.getElementById('displayDate').innerText = 'No Date';
-    document.getElementById('displayPort').innerText = '📍 No Port';
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (scheduleContent) scheduleContent.classList.add('hidden');
+    if (overviewWrap) overviewWrap.classList.add('hidden');
+    const dDate = document.getElementById('displayDate');
+    if (dDate) dDate.innerText = 'No Date';
+    const dPortName = document.getElementById('displayPortName');
+    if (dPortName) dPortName.innerText = 'AT SEA';
+    const bPort = document.getElementById('briefingPort');
+    if (bPort) bPort.innerText = 'AT SEA';
+    const bDuty = document.getElementById('briefingDuty');
+    if (bDuty) bDuty.innerText = hasUserProfile() ? `Not Scheduled for ${state.currentMeal}` : 'Tap Profile in More tab';
+    const bStn = document.getElementById('briefingStation');
+    if (bStn) bStn.innerText = '—';
+    const spotlight = document.getElementById('personalDutySpotlight');
+    if (spotlight) spotlight.classList.add('hidden');
     updatePillDisplay(null);
     return;
   }
 
-  emptyState.classList.add('hidden');
-  scheduleContent.classList.remove('hidden');
+  if (emptyState) emptyState.classList.add('hidden');
+  if (scheduleContent) scheduleContent.classList.remove('hidden');
+  if (overviewWrap) overviewWrap.classList.remove('hidden');
 
-  // Update Header Badges
-  document.getElementById('shipName').innerText = "COSTA SMERALDA";
-  document.getElementById('displayDate').innerText = schedule.date || 'Today';
-  document.getElementById('displayPort').innerText = '📍 ' + (schedule.port || 'AT SEA');
+  // Update Newspaper Masthead & Port Headline
+  const portUpper = (schedule.port || 'KAOHSIUNG').toUpperCase();
+  const dDate = document.getElementById('displayDate');
+  if (dDate) dDate.innerText = schedule.date || 'Today';
+  const dPortName = document.getElementById('displayPortName');
+  if (dPortName) dPortName.innerText = portUpper;
+  const dPort = document.getElementById('displayPort');
+  if (dPort) dPort.innerText = '📍 ' + portUpper;
+  const bPort = document.getElementById('briefingPort');
+  if (bPort) bPort.innerText = portUpper;
 
-  // Find User Assigned Duty & Update Personal Shift Pill
+  // Find User Assigned Duty & Update Personal Shift Spotlight
   const userDuty = findUserDuty(schedule);
   updatePillDisplay(userDuty, schedule.shift);
+  updatePersonalBriefingAndSpotlight(userDuty, schedule);
+  renderQuickVenuesOverview(schedule);
 
   // Render Sections with Search Query Filter
   let matchCount = 0;
@@ -521,15 +542,106 @@ function renderSchedule() {
 
   // Update Search Counter
   const countEl = document.getElementById('searchCount');
-  if (query) {
-    countEl.innerText = `Found ${matchCount} matches`;
-    autoExpandOnSearch(true);
-  } else {
-    countEl.innerText = '';
-    if (!state.allExpanded) {
-      applyDefaultCollapseState();
+  if (countEl) {
+    if (query) {
+      countEl.innerText = `Found ${matchCount} matches`;
+      autoExpandOnSearch(true);
+    } else {
+      countEl.innerText = '';
+      if (!state.allExpanded) {
+        applyDefaultCollapseState();
+      }
     }
   }
+}
+
+function updatePersonalBriefingAndSpotlight(userDuty, schedule) {
+  const bDuty = document.getElementById('briefingDuty');
+  const bStn = document.getElementById('briefingStation');
+  const spotlight = document.getElementById('personalDutySpotlight');
+  const sTime = document.getElementById('spotlightReportTime');
+  const sVenue = document.getElementById('spotlightVenueName');
+  const sDetails = document.getElementById('spotlightDetailsText');
+
+  if (!hasUserProfile()) {
+    if (bDuty) bDuty.innerText = 'Tap Profile to Set Name';
+    if (bStn) bStn.innerText = '—';
+    if (spotlight) spotlight.classList.add('hidden');
+    return;
+  }
+
+  if (userDuty) {
+    const venueName = userDuty.venue || userDuty.sideDuty || 'Assigned Duty';
+    const reportTime = formatDutyTimeForPill(userDuty.time) || userDuty.time || '11:00';
+    if (bDuty) bDuty.innerText = `${venueName} at ${reportTime}`;
+
+    let stnText = '—';
+    if (userDuty.station) {
+      stnText = `STN ${userDuty.station}` + (userDuty.tables ? ` • Tables: ${userDuty.tables}` : '');
+    } else if (userDuty.lead) {
+      stnText = `Lead: ${userDuty.lead}`;
+    } else if (userDuty.sideDuty) {
+      stnText = `Side Duty Assignment`;
+    }
+    if (bStn) bStn.innerText = stnText;
+
+    if (spotlight) {
+      spotlight.classList.remove('hidden');
+      if (sTime) sTime.innerText = reportTime;
+      if (sVenue) sVenue.innerText = venueName;
+      if (sDetails) {
+        if (userDuty.station) {
+          sDetails.innerHTML = `Station: <strong>STN ${userDuty.station}</strong> &bull; Tables: <strong>${userDuty.tables || 'Assigned'}</strong>`;
+        } else if (userDuty.lead) {
+          sDetails.innerHTML = `Team Lead: <strong>${userDuty.lead}</strong>`;
+        } else {
+          sDetails.innerHTML = `Operation: <strong>${userDuty.sideDuty || 'Scheduled Task'}</strong>`;
+        }
+      }
+    }
+  } else {
+    if (bDuty) bDuty.innerText = `Not scheduled for ${state.currentMeal}`;
+    if (bStn) bStn.innerText = 'Standby / Off Duty';
+    if (spotlight) spotlight.classList.add('hidden');
+  }
+}
+
+function renderQuickVenuesOverview(schedule) {
+  const listEl = document.getElementById('overviewVenuesList');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  const allVenues = [
+    ...(schedule.venues || []).map(v => ({ name: v.name, time: v.reportTime, count: (v.assignments || []).length })),
+    ...(schedule.buffetAndVenues || []).map(b => ({ name: b.name, time: b.timing, count: (b.crew || []).length }))
+  ];
+
+  if (allVenues.length === 0) {
+    listEl.innerHTML = '<div style="font-size:0.82rem; color:var(--costa-slate); padding:10px 0;">No active venues for this meal shift.</div>';
+    return;
+  }
+
+  allVenues.slice(0, 5).forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'overview-venue-card';
+    card.innerHTML = `
+      <div>
+        <div class="overview-venue-name">${escapeHtml(v.name)}</div>
+        <div class="overview-venue-meta">Report Time: <strong>${escapeHtml(v.time || 'Standard')}</strong></div>
+      </div>
+      <span class="overview-badge">${v.count} Crew</span>
+    `;
+    card.onclick = () => {
+      switchTab('tabVenues');
+      const cat = document.getElementById('catMainDining');
+      if (cat) {
+        cat.classList.remove('collapsed');
+        const b = document.getElementById('bodyMainDining');
+        if (b) b.classList.remove('hidden');
+      }
+    };
+    listEl.appendChild(card);
+  });
 }
 
 function getShortVenueName(userDuty) {
@@ -605,29 +717,34 @@ function updatePillDisplay(userDuty, defaultShiftText) {
   }
 }
 
-// Update User Profile Pill in Header
+// Update User Profile Pill in Header & More Screen
 function updateUserProfilePill() {
   const pill = document.getElementById('userProfilePill');
   const nameEl = document.getElementById('userPillName');
   const avatarEl = document.getElementById('userAvatarCircle');
+  const headerAvatar = document.getElementById('headerAvatarCircle');
+  const moreSubtext = document.getElementById('moreProfileSubtext');
 
-  if (hasUserProfile()) {
-    pill.classList.remove('hidden');
-    const fullName = state.profile.name ? state.profile.name.toUpperCase().trim() : 'CREW MEMBER';
-    if (nameEl) nameEl.innerText = fullName;
+  const fullName = state.profile.name ? state.profile.name.toUpperCase().trim() : 'CREW MEMBER';
+  const words = fullName.split(/\s+/).filter(Boolean);
+  let initials = 'CR';
+  if (words.length >= 2) {
+    initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  } else if (words.length === 1 && words[0].length >= 2) {
+    initials = words[0].substring(0, 2).toUpperCase();
+  }
 
-    if (avatarEl) {
-      const words = fullName.split(/\s+/).filter(Boolean);
-      let initials = 'CR';
-      if (words.length >= 2) {
-        initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
-      } else if (words.length === 1 && words[0].length >= 2) {
-        initials = words[0].substring(0, 2).toUpperCase();
-      }
-      avatarEl.innerText = initials;
-    }
-  } else {
-    pill.classList.add('hidden');
+  if (headerAvatar) headerAvatar.innerText = initials;
+  if (avatarEl) avatarEl.innerText = initials;
+  if (nameEl) nameEl.innerText = fullName;
+  if (moreSubtext) {
+    moreSubtext.innerHTML = hasUserProfile() 
+      ? `<strong>${escapeHtml(fullName)}</strong> &bull; Settings and personal data`
+      : `Tap to configure your full name & alarms`;
+  }
+
+  if (pill) {
+    pill.classList.remove('hidden'); // Always visible in Tab 4 More so crew can configure
   }
 }
 
@@ -1164,7 +1281,7 @@ function handleAlarmButtonClick() {
       alarms.h3, alarms.m3,
       `Costa Duty: ${venueTitle}`
     );
-    showToast(`⏰ 3 Alarms set in Clock: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
+    showToast(`3 Alarms set in Clock: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
   }
 
   // 2. Populate Smart Alarm Modal
@@ -1314,32 +1431,119 @@ function downloadIcsFile(venueTitle, scheduleDateStr, hour, minute, alarms) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast('📅 Calendar event with 3 alerts downloaded!');
+  showToast('Calendar event with 3 alerts downloaded!');
 }
 
 // ==========================================
 // EVENT LISTENERS & UI LOGIC
 // ==========================================
+// ==========================================
+// TAB NAVIGATION CONTROLLER (Costa App 4-Tab System)
+// ==========================================
+function switchTab(targetTabId) {
+  document.querySelectorAll('.tab-view').forEach(view => {
+    if (view.id === targetTabId) {
+      view.classList.remove('hidden');
+      view.classList.add('active');
+    } else {
+      view.classList.add('hidden');
+      view.classList.remove('active');
+    }
+  });
+
+  document.querySelectorAll('#bottomNavBar .nav-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === targetTabId);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function setupEventListeners() {
-  // Day Selector
-  document.querySelectorAll('#dayTabs .seg-btn').forEach(btn => {
+  // Day Selector (Outline Pills)
+  document.querySelectorAll('#dayTabs button').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#dayTabs .seg-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#dayTabs button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.currentDay = btn.dataset.day;
       renderSchedule();
     });
   });
 
-  // Meal Shift Selector
-  document.querySelectorAll('#mealTabs .meal-btn').forEach(btn => {
+  // Meal Shift Selector (Outline Pills)
+  document.querySelectorAll('#mealTabs button').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#mealTabs .meal-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#mealTabs button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.currentMeal = btn.dataset.meal;
       renderSchedule();
     });
   });
+
+  // Bottom Navigation Bar Tabs
+  document.querySelectorAll('#bottomNavBar .nav-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchTab(btn.dataset.tab);
+    });
+  });
+
+  // Header Avatar Quick Jump to More tab
+  const quickProfile = document.getElementById('quickProfileBtn');
+  if (quickProfile) {
+    quickProfile.addEventListener('click', () => switchTab('tabMore'));
+  }
+
+  // Jump to Venues tab buttons
+  const jumpVenuesBtn = document.getElementById('jumpToVenuesTabBtn');
+  if (jumpVenuesBtn) {
+    jumpVenuesBtn.addEventListener('click', () => switchTab('tabVenues'));
+  }
+  const spotlightVenuesBtn = document.getElementById('spotlightViewVenuesBtn');
+  if (spotlightVenuesBtn) {
+    spotlightVenuesBtn.addEventListener('click', () => switchTab('tabVenues'));
+  }
+
+  // More Tab Navigation Actions
+  const moreProfile = document.getElementById('userProfilePill');
+  if (moreProfile) {
+    moreProfile.addEventListener('click', () => openModal('settingsModal'));
+  }
+  const moreItemProfile = document.getElementById('moreItemProfile');
+  if (moreItemProfile) {
+    moreItemProfile.addEventListener('click', () => openModal('settingsModal'));
+  }
+  const moreItemAlarm = document.getElementById('moreItemAlarm');
+  if (moreItemAlarm) {
+    moreItemAlarm.addEventListener('click', handleAlarmButtonClick);
+  }
+  const moreItemPaste = document.getElementById('moreItemPaste');
+  if (moreItemPaste) {
+    moreItemPaste.addEventListener('click', () => openModal('pasteModal'));
+  }
+  const moreItemGuide = document.getElementById('moreItemGuide');
+  if (moreItemGuide) {
+    moreItemGuide.addEventListener('click', () => {
+      openModal('settingsModal');
+      const helpBody = document.getElementById('helpAccordionBody');
+      if (helpBody) helpBody.classList.remove('hidden');
+    });
+  }
+  const moreItemTelemetry = document.getElementById('moreItemTelemetry');
+  if (moreItemTelemetry) {
+    moreItemTelemetry.addEventListener('click', () => {
+      showToast("100% Offline Ready • Costa Smeralda • 2-Day Retention Active");
+    });
+  }
+
+  // Sample Data Loading Button in Empty State
+  const loadSampleBtn = document.getElementById('loadSampleScheduleBtn');
+  if (loadSampleBtn) {
+    loadSampleBtn.addEventListener('click', () => {
+      state.schedules.today[state.currentMeal] = JSON.parse(JSON.stringify(SAMPLE_SCHEDULE));
+      saveStoredSchedules();
+      renderSchedule();
+      showToast("Loaded sample Costa Smeralda roster");
+    });
+  }
 
   // Category Accordion Header Click
   document.addEventListener('click', (e) => {
@@ -1602,7 +1806,7 @@ function processSchedulePaste(text) {
     saveStoredSchedules();
     document.getElementById('pasteModal').classList.add('hidden');
     document.getElementById('pasteTextarea').value = '';
-    showToast(`🎉 Decoded ${schedule.meal} schedule successfully!`);
+    showToast(`Decoded ${schedule.meal} schedule successfully!`);
     renderSchedule();
   } catch (err) {
     errorEl.innerText = '❌ Error: ' + err.message;
