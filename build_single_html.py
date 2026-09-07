@@ -24,6 +24,7 @@ def sync_assets_to_android():
 def build_single_html():
     sync_assets_to_android()
 
+    fonts_path = os.path.join(WEB_DIR, "fonts.css")
     index_path = os.path.join(WEB_DIR, "index.html")
     css_path = os.path.join(WEB_DIR, "style.css")
     js_path = os.path.join(WEB_DIR, "app.js")
@@ -31,6 +32,11 @@ def build_single_html():
 
     with open(index_path, "r", encoding="utf-8") as f:
         html = f.read()
+
+    fonts_css = ""
+    if os.path.exists(fonts_path):
+        with open(fonts_path, "r", encoding="utf-8") as f:
+            fonts_css = f.read()
 
     with open(css_path, "r", encoding="utf-8") as f:
         css = f.read()
@@ -42,7 +48,9 @@ def build_single_html():
         logo_b64 = base64.b64encode(f.read()).decode("utf-8")
         logo_data_uri = f"data:image/png;base64,{logo_b64}"
 
-    # Replace CSS
+    # Replace Fonts CSS & Main CSS
+    if fonts_css:
+        html = html.replace('<link rel="stylesheet" href="fonts.css">', f'<style>\n{fonts_css}\n</style>')
     html = html.replace('<link rel="stylesheet" href="style.css">', f'<style>\n{css}\n</style>')
     
     # Replace logo image

@@ -609,10 +609,23 @@ function updatePillDisplay(userDuty, defaultShiftText) {
 function updateUserProfilePill() {
   const pill = document.getElementById('userProfilePill');
   const nameEl = document.getElementById('userPillName');
+  const avatarEl = document.getElementById('userAvatarCircle');
 
   if (hasUserProfile()) {
     pill.classList.remove('hidden');
-    nameEl.innerText = state.profile.name ? state.profile.name.toUpperCase() : 'CREW MEMBER';
+    const fullName = state.profile.name ? state.profile.name.toUpperCase().trim() : 'CREW MEMBER';
+    if (nameEl) nameEl.innerText = fullName;
+
+    if (avatarEl) {
+      const words = fullName.split(/\s+/).filter(Boolean);
+      let initials = 'CR';
+      if (words.length >= 2) {
+        initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
+      } else if (words.length === 1 && words[0].length >= 2) {
+        initials = words[0].substring(0, 2).toUpperCase();
+      }
+      avatarEl.innerText = initials;
+    }
   } else {
     pill.classList.add('hidden');
   }

@@ -10,6 +10,7 @@
   <title>Costa Smeralda Schedule</title>
   
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,7 +21,7 @@
         <img src="logo.png" alt="Costa Logo" class="splash-logo-img">
       </div>
       <div class="splash-spinner"></div>
-      <div class="splash-text">COSTA SMERALDA</div>
+      <div class="splash-text">COSTA SMERALDA<span class="costa-dot">.</span></div>
       <div class="splash-subtext">Validating Schedule & Profile...</div>
     </div>
   </div>
@@ -33,7 +34,7 @@
           <img src="logo.png" alt="Costa Logo" class="brand-logo-img">
         </div>
         <div>
-          <h1 id="shipName">COSTA SMERALDA</h1>
+          <h1 id="shipName">COSTA SMERALDA<span class="costa-dot">.</span></h1>
           <span class="sub-brand">F&B RESTAURANT SCHEDULE</span>
         </div>
       </div>
@@ -44,11 +45,17 @@
       </div>
     </div>
 
-    <!-- User Profile Pill (Only visible when user is registered) -->
-    <div class="user-profile-pill hidden" id="userProfilePill">
+    <!-- User Profile Card (Costa App More-Tab Style with Initials & Gold Ring) -->
+    <div class="user-profile-pill hidden" id="userProfilePill" role="button" tabindex="0" title="Tap to configure profile and alarms">
       <div class="pill-left">
-        <span class="pill-avatar">👤</span>
-        <span class="pill-name" id="userPillName">DIAN JULIE</span>
+        <div class="pill-avatar-circle" id="userAvatarCircle">WA</div>
+        <div class="pill-info-col">
+          <span class="pill-name" id="userPillName">WIBOWO ANDRI</span>
+          <span class="pill-role-subtext">Crew Member &bull; Tap for Settings</span>
+        </div>
+      </div>
+      <div class="pill-right">
+        <span class="pill-arrow-chevron">&rsaquo;</span>
       </div>
     </div>
 
@@ -342,13 +349,13 @@
   <!-- Modal: Smart Alarm Assistant / Device Alarm Card -->
   <div id="alarmConfirmModal" class="modal-backdrop hidden">
     <div class="modal-card">
-      <div class="modal-header" style="background: linear-gradient(135deg, #00387a, #0b4d9c);">
+      <div class="modal-header">
         <h3>⏰ Smart Alarm Assistant</h3>
         <button class="close-modal-btn" data-close="alarmConfirmModal">&times;</button>
       </div>
       <div class="modal-body" style="text-align: center; padding: 18px 16px;">
         <div style="font-size: 2.2rem; margin-bottom: 6px;">⏰</div>
-        <h4 id="alarmDutyVenue" style="font-size: 1.05rem; color: #00387a; font-weight: 800; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
+        <h4 id="alarmDutyVenue" style="font-size: 1.05rem; color: var(--costa-navy); font-weight: 700; margin-bottom: 2px;">CERES MAIN RESTAURANT</h4>
         <div id="alarmDutyReport" style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Report Time: 13:00</div>
         
         <!-- Active Configuration Pill -->

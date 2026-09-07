@@ -27,35 +27,35 @@ ctk.set_default_color_theme("blue")
 
 TK = {
     # ── Backgrounds (light, dark) ──
-    "bg_deep":        ("#F5F5F7", "#020203"),
-    "bg_base":        ("#FAFAFA", "#050506"),
-    "bg_elevated":    ("#FFFFFF", "#09090C"),
-    "surface":        ("#FFFFFF", "#0F0F14"),
-    "surface_card":   ("#FFFFFF", "#121218"),
-    "surface_inner":  ("#F0F0F3", "#08080B"),
-    "surface_hover":  ("#E8E8EC", "#181822"),
-    "surface_active": ("#DDDDE3", "#1F1F2B"),
-    "surface_badge":  ("#EDEDF2", "#151620"),
+    "bg_deep":        ("#F4F6F8", "#001824"),
+    "bg_base":        ("#FFFFFF", "#002235"),
+    "bg_elevated":    ("#FFFFFF", "#002B40"),
+    "surface":        ("#FFFFFF", "#00324A"),
+    "surface_card":   ("#FFFFFF", "#003852"),
+    "surface_inner":  ("#F8FAFC", "#00263B"),
+    "surface_hover":  ("#EBF3F8", "#00415E"),
+    "surface_active": ("#D5E8F3", "#004A6B"),
+    "surface_badge":  ("#EBF3F8", "#003B57"),
 
     # ── Borders ──
-    "border_subtle":  ("#E2E2E8", "#15151C"),
-    "border_card":    ("#D5D5DD", "#1E1E28"),
-    "border_hover":   ("#C0C0CC", "#2D2D3E"),
-    "border_focus":   ("#5E6AD2", "#5E6AD2"),
-    "border_accent":  ("#B0B5E0", "#3B427D"),
+    "border_subtle":  ("#E2E8F0", "#003B57"),
+    "border_card":    ("#CBD5E1", "#004766"),
+    "border_hover":   ("#94A6AE", "#005E85"),
+    "border_focus":   ("#0071A3", "#0071A3"),
+    "border_accent":  ("#BAE6FD", "#00557A"),
 
-    # ── Accent Indigo ──
-    "accent":         ("#5E6AD2", "#5E6AD2"),
-    "accent_hover":   ("#4F5ABF", "#6872D9"),
-    "accent_dim":     ("#D5D8F2", "#2E3466"),
-    "accent_bg":      ("#EDEEF8", "#121326"),
-    "accent_glow":    ("#E0E2F5", "#1E2248"),
+    # ── Accent Brand Blue (Costa #0071A3) ──
+    "accent":         ("#0071A3", "#0071A3"),
+    "accent_hover":   ("#005F8A", "#0088C4"),
+    "accent_dim":     ("#D1E9F5", "#00324A"),
+    "accent_bg":      ("#EBF5FA", "#002235"),
+    "accent_glow":    ("#D0E8F5", "#003A55"),
 
-    # ── Status Colors ──
-    "gold_accent":    ("#D97706", "#F59E0B"),
-    "gold_hover":     ("#B45309", "#D97706"),
-    "gold_dim":       ("#FEF3C7", "#2B1D08"),
-    "cyan_accent":    ("#0284C7", "#38BDF8"),
+    # ── Status Colors (Costa Yellow #F9B000) ──
+    "gold_accent":    ("#F9B000", "#F9B000"),
+    "gold_hover":     ("#E09E00", "#FFBE1A"),
+    "gold_dim":       ("#FEF8E7", "#332400"),
+    "cyan_accent":    ("#0071A3", "#38BDF8"),
     "cyan_dim":       ("#E0F2FE", "#092535"),
     "green_success":  ("#059669", "#10B981"),
     "green_hover":    ("#047857", "#059669"),
@@ -66,10 +66,10 @@ TK = {
     "coral_dim":      ("#FFE4E6", "#2E0E15"),
 
     # ── Typography ──
-    "fg_primary":     ("#1A1A2E", "#EDEDEF"),
-    "fg_secondary":   ("#555566", "#8A8F98"),
-    "fg_subtle":      ("#8E8E9E", "#525660"),
-    "fg_accent":      ("#5E6AD2", "#7B85E6"),
+    "fg_primary":     ("#0A2A38", "#FFFFFF"),
+    "fg_secondary":   ("#5F7079", "#B2C1C9"),
+    "fg_subtle":      ("#94A6AE", "#7A8F99"),
+    "fg_accent":      ("#0071A3", "#38BDF8"),
 }
 
 
@@ -93,7 +93,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
                 print(f"[Warning] TkinterDnD initialization error: {e}")
 
         # ── Window Setup & Frame Metrics ──
-        self.title("Costa Cruises — Schedule Exporter (Linear Edition)")
+        self.title("Costa Cruises — Schedule Exporter")
         self.geometry("1180x840")
         self.minsize(980, 720)
         self.configure(fg_color=TK["bg_base"])
@@ -169,7 +169,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             title_box,
             text="COSTA",
-            font=ctk.CTkFont(family="Inter", size=17, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=17, weight="bold"),
             text_color=TK["fg_primary"],
             anchor="w"
         ).pack(fill="x")
@@ -186,7 +186,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             tag_pill,
             text=" PRECISION ENGINE v2.6 ",
-            font=ctk.CTkFont(family="Inter", size=8, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=8, weight="bold"),
             text_color=TK["fg_accent"]
         ).pack(padx=2, pady=1)
 
@@ -197,7 +197,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             sidebar,
             text="WORKFLOW ACTIONS",
-            font=ctk.CTkFont(family="Inter", size=9, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
             text_color=TK["fg_subtle"],
             anchor="w"
         ).pack(fill="x", padx=18, pady=(4, 6))
@@ -208,7 +208,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.btn_browse = ctk.CTkButton(
             nav_frame,
             text=" 📂   Browse Roster (.xlsx)",
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             fg_color=TK["surface"],
             hover_color=TK["surface_hover"],
             border_width=1,
@@ -224,7 +224,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.btn_refresh = ctk.CTkButton(
             nav_frame,
             text=" 🔄   Reload Active File",
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             fg_color=TK["surface"],
             hover_color=TK["surface_hover"],
             border_width=1,
@@ -240,7 +240,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             nav_frame,
             text="💡 Tip: Drag & Drop .xlsx here",
-            font=ctk.CTkFont(family="Inter", size=9, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
             text_color=TK["fg_subtle"],
             anchor="center"
         ).pack(fill="x", pady=(2, 0))
@@ -252,7 +252,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             sidebar,
             text="TELEMETRY SUMMARY",
-            font=ctk.CTkFont(family="Inter", size=9, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
             text_color=TK["fg_subtle"],
             anchor="w"
         ).pack(fill="x", padx=18, pady=(2, 6))
@@ -283,7 +283,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             theme_row,
             text="Appearance Mode",
-            font=ctk.CTkFont(family="Inter", size=10),
+            font=ctk.CTkFont(family="Poppins", size=10),
             text_color=TK["fg_subtle"]
         ).pack(side="left")
 
@@ -297,7 +297,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             button_color=TK["border_card"],
             button_hover_color=TK["accent"],
             text_color=TK["fg_primary"],
-            font=ctk.CTkFont(family="Inter", size=10),
+            font=ctk.CTkFont(family="Poppins", size=10),
             command=self._on_theme_changed
         )
         self.theme_menu.pack(side="right")
@@ -315,7 +315,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.lbl_system_status = ctk.CTkLabel(
             status_box,
             text="● Engine Ready (0% CPU)",
-            font=ctk.CTkFont(family="Inter", size=11, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
             text_color=TK["green_success"],
             pady=6
         )
@@ -328,14 +328,14 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             row,
             text=label,
-            font=ctk.CTkFont(family="Inter", size=10),
+            font=ctk.CTkFont(family="Poppins", size=10),
             text_color=TK["fg_subtle"]
         ).pack(side="left")
 
         val_lbl = ctk.CTkLabel(
             row,
             text=value,
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             text_color=TK["fg_secondary"]
         )
         val_lbl.pack(side="right")
@@ -374,14 +374,14 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             title_box,
             text="Costa Schedule Exporter",
-            font=ctk.CTkFont(family="Inter", size=22, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=22, weight="bold"),
             text_color=TK["fg_primary"]
         ).pack(anchor="w")
 
         ctk.CTkLabel(
             title_box,
             text="Extract rosters, map multi-venue stations & generate encrypted WhatsApp payloads.",
-            font=ctk.CTkFont(family="Inter", size=12),
+            font=ctk.CTkFont(family="Poppins", size=12),
             text_color=TK["fg_secondary"]
         ).pack(anchor="w", pady=(2, 0))
 
@@ -406,7 +406,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         lbl = ctk.CTkLabel(
             card,
             text=f"{icon}  {text}",
-            font=ctk.CTkFont(family="Inter", size=11, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
             text_color=fg_color,
             padx=10,
             pady=5
@@ -441,7 +441,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             file_box,
             text="SOURCE ROSTER FILE",
-            font=ctk.CTkFont(family="Inter", size=9, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
             text_color=TK["fg_subtle"]
         ).pack(anchor="w")
 
@@ -459,7 +459,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.lbl_file_display = ctk.CTkLabel(
             file_pill,
             text=self._format_file_display_text(),
-            font=ctk.CTkFont(family="Inter", size=11),
+            font=ctk.CTkFont(family="Poppins", size=11),
             text_color=TK["fg_secondary"],
             anchor="w",
             padx=10
@@ -469,7 +469,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         btn_browse_inline = ctk.CTkButton(
             file_pill,
             text="Browse...",
-            font=ctk.CTkFont(family="Inter", size=11, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
             fg_color=TK["surface_hover"],
             hover_color=TK["surface_active"],
             border_width=1,
@@ -489,14 +489,14 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             shift_box,
             text="MEAL SHIFT",
-            font=ctk.CTkFont(family="Inter", size=9, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
             text_color=TK["fg_subtle"]
         ).pack(anchor="w")
 
         self.shift_selector = ctk.CTkSegmentedButton(
             shift_box,
             values=["BREAKFAST", "LUNCH", "DINNER"],
-            font=ctk.CTkFont(family="Inter", size=11, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
             height=34,
             corner_radius=20,
             border_width=2,
@@ -530,7 +530,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             search_wrap,
             text=" 🔍",
-            font=ctk.CTkFont(family="Inter", size=11),
+            font=ctk.CTkFont(family="Poppins", size=11),
             text_color=TK["fg_subtle"]
         ).pack(side="left", padx=(8, 2))
 
@@ -540,7 +540,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             placeholder_text_color=TK["fg_subtle"],
             fg_color="transparent",
             border_width=0,
-            font=ctk.CTkFont(family="Inter", size=11),
+            font=ctk.CTkFont(family="Poppins", size=11),
             text_color=TK["fg_primary"],
             height=28
         )
@@ -556,7 +556,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             fg_color="transparent",
             hover_color=TK["surface_hover"],
             text_color=TK["fg_subtle"],
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             command=self._clear_search
         )
         btn_clear.pack(side="right", padx=4)
@@ -565,7 +565,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.filter_selector = ctk.CTkSegmentedButton(
             r2,
             values=["ALL", "MAIN DINING", "BUFFET & OUTLETS", "SIDE DUTIES"],
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             height=30,
             corner_radius=20,
             border_width=2,
@@ -603,7 +603,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             segmented_button_unselected_color=TK["surface_inner"]
         )
         tabview._segmented_button.configure(
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             corner_radius=20,
             border_width=2,
             height=36,
@@ -640,7 +640,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.lbl_bento_empty = ctk.CTkLabel(
             self.bento_scroll,
             text="No schedule loaded. Click 'Browse Roster' to open an Excel file.",
-            font=ctk.CTkFont(family="Inter", size=13),
+            font=ctk.CTkFont(family="Poppins", size=13),
             text_color=TK["fg_secondary"],
             pady=40
         )
@@ -655,7 +655,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             self.lbl_bento_empty = ctk.CTkLabel(
                 self.bento_scroll,
                 text="No schedule loaded. Click 'Browse Roster' to open an Excel file.",
-                font=ctk.CTkFont(family="Inter", size=13),
+                font=ctk.CTkFont(family="Poppins", size=13),
                 text_color=TK["fg_secondary"],
                 pady=40
             )
@@ -774,14 +774,14 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             tag_row,
             text=tag,
-            font=ctk.CTkFont(family="Inter", size=9, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
             text_color=TK["fg_subtle"]
         ).pack(side="left")
 
         ctk.CTkLabel(
             inner,
             text=title,
-            font=ctk.CTkFont(family="Inter", size=14, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=14, weight="bold"),
             text_color=TK["fg_primary"],
             anchor="w"
         ).pack(fill="x", pady=(6, 2))
@@ -789,7 +789,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             inner,
             text=subtitle,
-            font=ctk.CTkFont(family="Inter", size=10),
+            font=ctk.CTkFont(family="Poppins", size=10),
             text_color=TK["fg_secondary"],
             anchor="w"
         ).pack(fill="x")
@@ -810,7 +810,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             hdr,
             text=f"🏛️  {venue_name}",
-            font=ctk.CTkFont(family="Inter", size=13, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=13, weight="bold"),
             text_color=TK["fg_primary"]
         ).pack(side="left")
 
@@ -826,7 +826,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             pill,
             text=f"⏰ Report: {report_time}  •  {len(assignments)} Stations",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             text_color=TK["fg_accent"]
         ).pack(padx=8, pady=3)
 
@@ -856,7 +856,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 stn_pill,
                 text=a.get("station", "—"),
-                font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+                font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
                 text_color=TK["cyan_accent"]
             ).pack(padx=6, pady=2)
 
@@ -864,7 +864,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 row,
                 text=waiter_text,
-                font=ctk.CTkFont(family="Inter", size=11, weight="bold"),
+                font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
                 text_color=TK["fg_primary"],
                 anchor="w"
             ).pack(side="left", padx=8)
@@ -874,7 +874,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
                 ctk.CTkLabel(
                     row,
                     text=att_text,
-                    font=ctk.CTkFont(family="Inter", size=11),
+                    font=ctk.CTkFont(family="Poppins", size=11),
                     text_color=TK["fg_secondary"],
                     anchor="w"
                 ).pack(side="left", padx=8)
@@ -892,7 +892,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
                 ctk.CTkLabel(
                     tbl_pill,
                     text=f"🪑 {a.get('tables')}",
-                    font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+                    font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
                     text_color=TK["gold_accent"]
                 ).pack(padx=6, pady=2)
 
@@ -912,7 +912,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             hdr,
             text=f"🥗  {name}",
-            font=ctk.CTkFont(family="Inter", size=13, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=13, weight="bold"),
             text_color=TK["fg_primary"]
         ).pack(side="left")
 
@@ -929,7 +929,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 lead_pill,
                 text=f"⭐ Lead: {lead}",
-                font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+                font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
                 text_color=TK["gold_accent"]
             ).pack(padx=8, pady=2)
 
@@ -945,7 +945,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             pill,
             text=f"⏰ {timing}  •  {len(crew)} Crew",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             text_color=TK["fg_secondary"]
         ).pack(padx=8, pady=3)
 
@@ -969,7 +969,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 chip,
                 text=f"{c.get('name', '')}{role_suffix}",
-                font=ctk.CTkFont(family="Inter", size=10),
+                font=ctk.CTkFont(family="Poppins", size=10),
                 text_color=TK["fg_primary"]
             ).pack(padx=6, pady=3)
 
@@ -989,7 +989,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             hdr,
             text=f"⚡  {name}",
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             text_color=TK["fg_primary"]
         ).pack(side="left")
 
@@ -1005,7 +1005,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             pill,
             text=f"⏰ {timing}  •  {len(crew)} Crew",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             text_color=TK["purple_accent"]
         ).pack(padx=8, pady=2)
 
@@ -1025,7 +1025,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 chip,
                 text=f"{c.get('name', '')}",
-                font=ctk.CTkFont(family="Inter", size=10),
+                font=ctk.CTkFont(family="Poppins", size=10),
                 text_color=TK["fg_secondary"]
             ).pack(padx=6, pady=2)
 
@@ -1045,7 +1045,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             hdr,
             text="🎭  SPECIAL EVENTS & TRAVEL TALK",
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             text_color=TK["gold_accent"]
         ).pack(side="left")
 
@@ -1059,7 +1059,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 ev_box,
                 text=f"📌 {ev.get('title')}  —  {ev.get('location')}",
-                font=ctk.CTkFont(family="Inter", size=11, weight="bold"),
+                font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
                 text_color=TK["fg_primary"],
                 anchor="w"
             ).pack(fill="x", padx=8, pady=(6, 4))
@@ -1074,7 +1074,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
                 ctk.CTkLabel(
                     chip,
                     text=f"{p.get('name')} [{p.get('uniform')}]",
-                    font=ctk.CTkFont(family="Inter", size=9),
+                    font=ctk.CTkFont(family="Poppins", size=9),
                     text_color=TK["fg_secondary"]
                 ).pack(padx=5, pady=2)
 
@@ -1094,7 +1094,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             hdr,
             text="🏥  SICK LEAVE / OFF DUTY",
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             text_color=TK["coral_accent"]
         ).pack(side="left")
 
@@ -1108,7 +1108,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             ctk.CTkLabel(
                 chip,
                 text=f"{sk.get('name')}",
-                font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+                font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
                 text_color=TK["coral_accent"]
             ).pack(padx=6, pady=2)
 
@@ -1125,7 +1125,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             tag_box,
             text="● ENCRYPTED TRANSMISSION STREAM",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             text_color=TK["accent"]
         ).pack(side="left")
 
@@ -1143,7 +1143,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         btn_copy_tab2 = ctk.CTkButton(
             right_bar,
             text="📋 Copy Stream",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             fg_color=TK["surface_hover"],
             hover_color=TK["accent"],
             text_color=TK["fg_primary"],
@@ -1176,7 +1176,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkLabel(
             top_bar,
             text="STRUCTURED PARSED TEXT STREAM",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             text_color=TK["fg_subtle"]
         ).pack(side="left")
 
@@ -1186,7 +1186,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         btn_copy_text = ctk.CTkButton(
             actions_bar,
             text="📋 Copy Text",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             fg_color=TK["surface_hover"],
             hover_color=TK["accent"],
             text_color=TK["fg_primary"],
@@ -1200,7 +1200,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         btn_backup = ctk.CTkButton(
             actions_bar,
             text="💾 Save Backup (Timestamp)",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             fg_color=TK["green_success"],
             hover_color=TK["green_hover"],
             text_color="#FFFFFF",
@@ -1214,7 +1214,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         btn_export = ctk.CTkButton(
             actions_bar,
             text="📁 Export As...",
-            font=ctk.CTkFont(family="Inter", size=10, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
             fg_color=TK["surface_hover"],
             hover_color=TK["accent"],
             text_color=TK["fg_primary"],
@@ -1247,7 +1247,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.btn_primary_copy = ctk.CTkButton(
             action_bar,
             text="📋  COPY ENCRYPTED SCHEDULE TO CLIPBOARD",
-            font=ctk.CTkFont(family="Inter", size=13, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=13, weight="bold"),
             fg_color=TK["accent"],
             hover_color=TK["accent_hover"],
             text_color="#FFFFFF",
@@ -1260,7 +1260,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.btn_secondary_web = ctk.CTkButton(
             action_bar,
             text="🌐 Open WebApp Viewer",
-            font=ctk.CTkFont(family="Inter", size=12, weight="bold"),
+            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
             fg_color=TK["surface"],
             hover_color=TK["surface_hover"],
             border_width=1,
