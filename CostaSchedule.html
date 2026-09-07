@@ -2723,7 +2723,7 @@ input:checked + .slider:before {
       </div>
       <div class="modal-body guide-modal-body">
         <div class="guide-intro">
-          <p>Panduan lengkap penggunaan aplikasi jadwal restoran <strong>Costa Smeralda</strong> secara 100% offline saat kapal berlayar (At Sea).</p>
+          <p>Complete operational guide for <strong>Costa Smeralda</strong> Restaurant Schedule app &mdash; 100% offline ready while At Sea.</p>
         </div>
 
         <!-- Guide Section 1: Offline Setup (Install PWA) -->
@@ -2735,14 +2735,16 @@ input:checked + .slider:before {
                 <path d="M12 18h.01"/>
               </svg>
             </div>
-            <h4>Pasang ke Layar Utama (Home Screen)</h4>
+            <h4>Add to Home Screen / Installation</h4>
           </div>
           <div class="guide-card-content">
-            <p>Simpan aplikasi agar dapat langsung dibuka tanpa internet:</p>
+            <p>Save this app to your phone for instant, offline 1-tap access:</p>
             <ul class="guide-list">
-              <li><strong>iPhone (Safari):</strong> Buka di Safari &rarr; Tekan ikon <strong>Share</strong> (kotak panah ke atas) &rarr; Pilih <strong>"Add to Home Screen"</strong>.</li>
-              <li><strong>Android (Chrome):</strong> Buka di Chrome &rarr; Tekan menu titik tiga (&vellip;) &rarr; Pilih <strong>"Install app"</strong> atau <strong>"Add to Home screen"</strong> (atau gunakan file APK).</li>
+              <li><strong>Android (Recommended):</strong> Install the native <code>CostaSchedule.apk</code> for direct home screen launch and automatic clock alarms.</li>
+              <li><strong>iPhone (Safari):</strong> Open in Safari &rarr; Tap the <strong>Share</strong> button (box with upward arrow) &rarr; Tap <strong>"Add to Home Screen"</strong>.</li>
+              <li><strong>Android (Chrome):</strong> If opened from web/online link, tap menu (&vellip;) &rarr; Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
             </ul>
+            <p class="guide-subnote">Note: If opened directly as a WhatsApp media attachment (<code>content://...</code>), Chrome restricts the "Add to Home screen" option due to browser security policies. Please use the APK or save the file to device storage first.</p>
           </div>
         </div>
 
@@ -2755,13 +2757,13 @@ input:checked + .slider:before {
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/>
               </svg>
             </div>
-            <h4>Alur Update Jadwal dari WhatsApp</h4>
+            <h4>WhatsApp Schedule Import</h4>
           </div>
           <div class="guide-card-content">
             <ol class="guide-ordered-list">
-              <li>Salin (copy) seluruh teks pesan jadwal dari grup WhatsApp restoran.</li>
-              <li>Buka aplikasi, tekan tombol kuning <strong>"Paste WhatsApp Schedule"</strong>.</li>
-              <li>Jadwal otomatis tervalidasi dan nama kru Anda akan ditandai dengan garis kuning Costa!</li>
+              <li>Copy the full schedule announcement from your WhatsApp department group.</li>
+              <li>Open this app and tap the yellow <strong>"Paste WhatsApp Schedule"</strong> button.</li>
+              <li>The roster is parsed instantly and your assigned duty will be highlighted with the Costa yellow accent!</li>
             </ol>
           </div>
         </div>
@@ -2774,16 +2776,16 @@ input:checked + .slider:before {
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
-            <h4>Asisten Alarm Weker (3 Peringatan)</h4>
+            <h4>Smart Alarm Assistant (3 Timings)</h4>
           </div>
           <div class="guide-card-content">
-            <p>Alarm menghitung 3 waktu berurutan menjelang jam lapor tugas:</p>
+            <p>Calculates 3 sequential alarms before duty report time:</p>
             <ul class="guide-list">
-              <li><strong>Alarm 1:</strong> Bangun & persiapan awal (1 jam sebelum tugas).</li>
-              <li><strong>Alarm 2:</strong> Pengecekan seragam & nametag (+5 menit).</li>
-              <li><strong>Alarm 3:</strong> Waktu berangkat menuju outlet tugas (+10 menit).</li>
+              <li><strong>1st Alarm:</strong> Primary wake up call (default 1 hr before duty).</li>
+              <li><strong>2nd Alarm:</strong> Uniform, grooming & equipment check (+5 min).</li>
+              <li><strong>3rd Alarm:</strong> Departure walk to restaurant outlet (+10 min).</li>
             </ul>
-            <p class="guide-subnote">Di Android, tekan <em>"Set Primary Alarm in Clock"</em> untuk membuka aplikasi Jam secara otomatis.</p>
+            <p class="guide-subnote">On Android, tap <em>"Set Primary Alarm in Clock"</em> to pre-fill the native Clock app.</p>
           </div>
         </div>
 
@@ -2798,16 +2800,16 @@ input:checked + .slider:before {
                 <line x1="3" x2="21" y1="10" y2="10"/>
               </svg>
             </div>
-            <h4>Retensi 2 Hari & Keamanan Data</h4>
+            <h4>2-Day Retention & 100% Privacy</h4>
           </div>
           <div class="guide-card-content">
-            <p>Jadwal tersimpan otomatis selama 2 hari (<strong>Today</strong> & <strong>Yesterday</strong>). Seluruh data diproses 100% lokal di perangkat tanpa server luar.</p>
+            <p>Automatically retains rosters for 2 days (<strong>Today</strong> & <strong>Yesterday</strong>). All data is stored strictly on your device with zero server tracking.</p>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
-        <button class="btn-primary" data-close="guideModal" style="width: 100%;">Tutup / Mengerti</button>
+        <button class="btn-primary" data-close="guideModal" style="width: 100%;">Close / Got it</button>
       </div>
     </div>
   </div>
@@ -2876,7 +2878,7 @@ input:checked + .slider:before {
             📋 Copy Alarm Times
           </button>
           <p class="alarm-platform-note">
-            Membuka aplikasi Jam bawaan Android dengan jam alarm yang telah diisi otomatis.
+            Opens native Android Clock app directly with wake-up time pre-filled.
           </p>
         </div>
 
@@ -4265,10 +4267,10 @@ function handleAlarmButtonClick() {
 
     try {
       window.location.href = intentUrl;
-      showToast(`⏰ Membuka Alarm Jam ${pad(hour)}:${pad(minute)}...`);
+      showToast(`⏰ Opening Clock for ${pad(hour)}:${pad(minute)}...`);
     } catch (e) {
       navigator.clipboard.writeText(`${pad(hour)}:${pad(minute)}`).catch(() => {});
-      showToast(`📋 Jam Alarm disalin: ${pad(hour)}:${pad(minute)}`);
+      showToast(`📋 Alarm time copied: ${pad(hour)}:${pad(minute)}`);
     }
   };
 
@@ -4287,7 +4289,7 @@ function handleAlarmButtonClick() {
           const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
           try {
             await navigator.clipboard.writeText(textToCopy);
-            showToast(`📋 Waktu alarm disalin! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
+            showToast(`📋 Alarm times copied! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
           } catch (e) {
             showToast(`⏰ 1st Alarm: ${alarms.str1}`);
           }

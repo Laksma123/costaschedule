@@ -1325,10 +1325,10 @@ function handleAlarmButtonClick() {
 
     try {
       window.location.href = intentUrl;
-      showToast(`⏰ Membuka Alarm Jam ${pad(hour)}:${pad(minute)}...`);
+      showToast(`⏰ Opening Clock for ${pad(hour)}:${pad(minute)}...`);
     } catch (e) {
       navigator.clipboard.writeText(`${pad(hour)}:${pad(minute)}`).catch(() => {});
-      showToast(`📋 Jam Alarm disalin: ${pad(hour)}:${pad(minute)}`);
+      showToast(`📋 Alarm time copied: ${pad(hour)}:${pad(minute)}`);
     }
   };
 
@@ -1347,7 +1347,7 @@ function handleAlarmButtonClick() {
           const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
           try {
             await navigator.clipboard.writeText(textToCopy);
-            showToast(`📋 Waktu alarm disalin! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
+            showToast(`📋 Alarm times copied! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
           } catch (e) {
             showToast(`⏰ 1st Alarm: ${alarms.str1}`);
           }

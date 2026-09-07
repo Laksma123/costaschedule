@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "Tidak dapat membuka aplikasi Jam: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Cannot open Clock app: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }
@@ -100,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     triggerAlarmIntent(hour, minute, message, skipUi);
                     String timeStr = String.format("%02d:%02d", hour, minute);
-                    Toast.makeText(mContext, "⏰ Membuka Jam untuk alarm " + timeStr, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "⏰ Opening Clock for alarm " + timeStr, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(mContext, "Gagal menyetel alarm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Failed to set alarm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     // 1st alarm (with UI so user sees and confirms the alarm)
                     triggerAlarmIntent(h1, m1, title + " (Alarm 1 - " + timeStr1 + ")", false);
 
-                    Toast.makeText(mContext, "⏰ Waktu Alarm 1: " + timeStr1 + " (Juga salin: " + timeStr2 + ", " + timeStr3 + ")", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "⏰ 1st Alarm: " + timeStr1 + " (Copied: " + timeStr2 + ", " + timeStr3 + ")", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(mContext, "Error setting alarms: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 mContext.startActivity(intent);
             } catch (Exception e) {
                 e.printStackTrace();
-                mainHandler.post(() -> Toast.makeText(mContext, "Gagal membuka Jam: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                mainHandler.post(() -> Toast.makeText(mContext, "Failed to open Clock: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }
     }
