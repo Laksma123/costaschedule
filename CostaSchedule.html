@@ -1728,10 +1728,10 @@ input:checked + .slider:before {
             <span id="helpChevron">▼</span>
           </button>
           <div class="help-accordion-body hidden" id="helpAccordionBody">
-            <h4>📲 Cara Pakai Offline (Tanpa Internet):</h4>
+            <h4>📲 Offline Setup Guide:</h4>
             <ul>
-              <li><strong>iPhone (Safari):</strong> Buka <code>CostaSchedule.html</code> &rarr; Tap tombol Share &rarr; Pilih <strong>"Add to Home Screen"</strong>.</li>
-              <li><strong>Android (Chrome):</strong> Buka <code>CostaSchedule.html</code> &rarr; Tap menu titik tiga &rarr; Pilih <strong>"Tambahkan ke Layar Utama"</strong> (atau gunakan file APK jika diinstal).</li>
+              <li><strong>iPhone (Safari):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap the Share button &rarr; Select <strong>"Add to Home Screen"</strong>.</li>
+              <li><strong>Android (Chrome):</strong> Open <code>CostaSchedule.html</code> &rarr; Tap the three-dot menu &rarr; Select <strong>"Add to Home Screen"</strong> (or use installed APK).</li>
             </ul>
             <h4>⚡ WhatsApp Workflow:</h4>
             <ol>
@@ -1771,22 +1771,22 @@ input:checked + .slider:before {
         <div class="alarm-schedule-list">
           <div class="alarm-item">
             <div>
-              <span class="alarm-item-title">🔔 1st Alarm <small>(Bangun / Wake Up)</small></span>
-              <span class="alarm-item-desc">Alarm utama untuk bangun tidur</span>
+              <span class="alarm-item-title">🔔 1st Alarm <small>(Wake Up)</small></span>
+              <span class="alarm-item-desc">Primary wake up call for duty</span>
             </div>
             <span id="alarmTime1" class="alarm-item-time">12:00</span>
           </div>
           <div class="alarm-item">
             <div>
-              <span class="alarm-item-title">🔔 2nd Alarm <small>(Siap-siap / +5m)</small></span>
-              <span class="alarm-item-desc">Pengingat seragam & perlengkapan</span>
+              <span class="alarm-item-title">🔔 2nd Alarm <small>(Final Prep / +5m)</small></span>
+              <span class="alarm-item-desc">Uniform & equipment check</span>
             </div>
             <span id="alarmTime2" class="alarm-item-time">12:05</span>
           </div>
           <div class="alarm-item">
             <div>
-              <span class="alarm-item-title">🔔 3rd Alarm <small>(Berangkat / +10m)</small></span>
-              <span class="alarm-item-desc">Waktu jalan menuju outlet restoran</span>
+              <span class="alarm-item-title">🔔 3rd Alarm <small>(Depart / +10m)</small></span>
+              <span class="alarm-item-desc">Time to walk to restaurant outlet</span>
             </div>
             <span id="alarmTime3" class="alarm-item-time">12:10</span>
           </div>
@@ -1795,56 +1795,56 @@ input:checked + .slider:before {
         <!-- Android Platform Action -->
         <div id="alarmAndroidActionWrap" class="alarm-platform-wrap hidden">
           <a id="androidClockIntentBtn" class="btn-primary btn-alarm-action" href="#" role="button">
-            ⏰ Pasang di Jam Weker Android
+            ⏰ Set in Android Clock App
           </a>
           <p class="alarm-platform-note">
-            Membuka aplikasi Jam bawaan Android langsung dengan waktu alarm terisi otomatis.
+            Opens native Android Clock app directly with alarm time pre-filled.
           </p>
         </div>
 
         <!-- iPhone / iOS Smart Alarm Card Action -->
         <div id="alarmIosActionWrap" class="alarm-platform-wrap hidden">
           <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm">
-            📋 Salin Jam Alarm (<span id="copyAlarmTimeLabel">12:00</span>)
+            📋 Copy Wake Up Time (<span id="copyAlarmTimeLabel">12:00</span>)
           </button>
           
           <div class="siri-prompt-box">
             <span class="siri-icon">🎙️</span>
             <div class="siri-text">
-              <div class="siri-title">Perintah Siri (Bisa Offline):</div>
+              <div class="siri-title">Siri Voice Command (Works Offline):</div>
               <code id="siriPromptCode">"Hey Siri, set alarm for 12:00"</code>
             </div>
           </div>
           <p class="alarm-platform-note">
-            Atau geser Control Center iPhone untuk menyalakan jam weker dengan waktu di atas.
+            Or swipe down iPhone Control Center to turn on alarm with the time above.
           </p>
         </div>
 
         <!-- Desktop / Generic Platform Action -->
         <div id="alarmGenericActionWrap" class="alarm-platform-wrap hidden">
           <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm">
-            📋 Salin Waktu Alarm
+            📋 Copy Alarm Times
           </button>
           <p class="alarm-platform-note">
-            Pasang jam weker HP Anda sesuai 3 waktu bertahap di atas.
+            Set your device alarm according to the 3 timings above.
           </p>
         </div>
 
         <!-- Optional Calendar Export (Secondary) -->
         <div class="alarm-secondary-wrap">
           <button id="toggleCalendarExportBtn" class="btn-text-link" type="button">
-            📅 Opsi: Simpan ke Kalender HP
+            📅 Optional: Save to Calendar
           </button>
           <div id="calendarExportWrap" class="hidden" style="margin-top: 8px;">
             <button id="downloadIcsBtn" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem;">
-              Download Event Kalender (.ics)
+              Download Calendar Event (.ics)
             </button>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
-        <button class="btn-primary" data-close="alarmConfirmModal" style="width: 100%;">Tutup / Selesai</button>
+        <button class="btn-primary" data-close="alarmConfirmModal" style="width: 100%;">Done / Close</button>
       </div>
     </div>
   </div>
@@ -2959,35 +2959,35 @@ function calculate3Alarms(dutyHour, dutyMinute) {
 
 function getAlarmConfigLabel() {
   if (state.alarm.option === '30') {
-    return '⚙️ Config: 30 Menit Sebelum Tugas (30 Min)';
+    return '⚙️ Config: 30 Min Before Duty';
   } else if (state.alarm.option === 'custom') {
     const h = state.alarm.customHours || 0;
     const m = state.alarm.customMinutes || 0;
     const parts = [];
-    if (h > 0) parts.push(`${h}j`);
-    if (m > 0 || parts.length === 0) parts.push(`${m}m`);
-    return `⚙️ Config: Custom (${parts.join(' ')}) Sebelum Tugas`;
+    if (h > 0) parts.push(`${h} hr`);
+    if (m > 0 || parts.length === 0) parts.push(`${m} min`);
+    return `⚙️ Config: Custom (${parts.join(' ')}) Before Duty`;
   }
-  return '⚙️ Config: 1 Jam Sebelum Tugas (1 Hour)';
+  return '⚙️ Config: 1 Hour Before Duty';
 }
 
 function handleAlarmButtonClick() {
   if (!hasUserProfile()) {
-    showToast('⚠️ Mohon atur Nama Profil Kru Anda di Settings terlebih dahulu.');
+    showToast('⚠️ Please configure your Crew Profile in Settings first.');
     openSettingsModal();
     return;
   }
 
   const schedule = state.schedules[state.currentDay][state.currentMeal];
   if (!schedule) {
-    showToast(`⚠️ Belum ada jadwal ${state.currentMeal} yang dimuat.`);
+    showToast(`⚠️ No ${state.currentMeal} schedule loaded.`);
     return;
   }
 
   const userDuty = findUserDuty(schedule);
   if (!userDuty) {
     const profileLabel = (state.profile.name || state.profile.id).toUpperCase();
-    showToast(`⚠️ ${profileLabel} tidak terjadwal untuk tugas ${state.currentMeal}.`);
+    showToast(`⚠️ ${profileLabel} is NOT scheduled for ${state.currentMeal} duty.`);
     return;
   }
 
@@ -3006,7 +3006,7 @@ function handleAlarmButtonClick() {
       alarms.h3, alarms.m3,
       `Costa Duty: ${venueTitle}`
     );
-    showToast(`⏰ 3 Alarm disetel di Jam HP: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
+    showToast(`⏰ 3 Alarms set in Clock: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
   }
 
   // 2. Populate Smart Alarm Modal
@@ -3059,9 +3059,9 @@ function handleAlarmButtonClick() {
         copyBtn.onclick = async () => {
           try {
             await navigator.clipboard.writeText(alarms.str1);
-            showToast(`📋 Jam alarm ${alarms.str1} disalin! Buka Jam Weker untuk menyalakan.`);
+            showToast(`📋 Alarm time ${alarms.str1} copied! Open Clock app to turn on.`);
           } catch (e) {
-            showToast(`⏰ Jam Alarm: ${alarms.str1}`);
+            showToast(`⏰ Alarm Time: ${alarms.str1}`);
           }
         };
       }
@@ -3075,7 +3075,7 @@ function handleAlarmButtonClick() {
           const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
           try {
             await navigator.clipboard.writeText(textToCopy);
-            showToast('📋 Waktu alarm disalin ke clipboard!');
+            showToast('📋 Alarm times copied to clipboard!');
           } catch (e) {
             showToast(`⏰ 1st Alarm: ${alarms.str1}`);
           }

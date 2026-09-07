@@ -1104,35 +1104,35 @@ function calculate3Alarms(dutyHour, dutyMinute) {
 
 function getAlarmConfigLabel() {
   if (state.alarm.option === '30') {
-    return '⚙️ Config: 30 Menit Sebelum Tugas (30 Min)';
+    return '⚙️ Config: 30 Min Before Duty';
   } else if (state.alarm.option === 'custom') {
     const h = state.alarm.customHours || 0;
     const m = state.alarm.customMinutes || 0;
     const parts = [];
-    if (h > 0) parts.push(`${h}j`);
-    if (m > 0 || parts.length === 0) parts.push(`${m}m`);
-    return `⚙️ Config: Custom (${parts.join(' ')}) Sebelum Tugas`;
+    if (h > 0) parts.push(`${h} hr`);
+    if (m > 0 || parts.length === 0) parts.push(`${m} min`);
+    return `⚙️ Config: Custom (${parts.join(' ')}) Before Duty`;
   }
-  return '⚙️ Config: 1 Jam Sebelum Tugas (1 Hour)';
+  return '⚙️ Config: 1 Hour Before Duty';
 }
 
 function handleAlarmButtonClick() {
   if (!hasUserProfile()) {
-    showToast('⚠️ Mohon atur Nama Profil Kru Anda di Settings terlebih dahulu.');
+    showToast('⚠️ Please configure your Crew Profile in Settings first.');
     openSettingsModal();
     return;
   }
 
   const schedule = state.schedules[state.currentDay][state.currentMeal];
   if (!schedule) {
-    showToast(`⚠️ Belum ada jadwal ${state.currentMeal} yang dimuat.`);
+    showToast(`⚠️ No ${state.currentMeal} schedule loaded.`);
     return;
   }
 
   const userDuty = findUserDuty(schedule);
   if (!userDuty) {
     const profileLabel = (state.profile.name || state.profile.id).toUpperCase();
-    showToast(`⚠️ ${profileLabel} tidak terjadwal untuk tugas ${state.currentMeal}.`);
+    showToast(`⚠️ ${profileLabel} is NOT scheduled for ${state.currentMeal} duty.`);
     return;
   }
 
@@ -1151,7 +1151,7 @@ function handleAlarmButtonClick() {
       alarms.h3, alarms.m3,
       `Costa Duty: ${venueTitle}`
     );
-    showToast(`⏰ 3 Alarm disetel di Jam HP: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
+    showToast(`⏰ 3 Alarms set in Clock: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}`);
   }
 
   // 2. Populate Smart Alarm Modal
@@ -1204,9 +1204,9 @@ function handleAlarmButtonClick() {
         copyBtn.onclick = async () => {
           try {
             await navigator.clipboard.writeText(alarms.str1);
-            showToast(`📋 Jam alarm ${alarms.str1} disalin! Buka Jam Weker untuk menyalakan.`);
+            showToast(`📋 Alarm time ${alarms.str1} copied! Open Clock app to turn on.`);
           } catch (e) {
-            showToast(`⏰ Jam Alarm: ${alarms.str1}`);
+            showToast(`⏰ Alarm Time: ${alarms.str1}`);
           }
         };
       }
@@ -1220,7 +1220,7 @@ function handleAlarmButtonClick() {
           const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
           try {
             await navigator.clipboard.writeText(textToCopy);
-            showToast('📋 Waktu alarm disalin ke clipboard!');
+            showToast('📋 Alarm times copied to clipboard!');
           } catch (e) {
             showToast(`⏰ 1st Alarm: ${alarms.str1}`);
           }
