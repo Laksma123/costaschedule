@@ -27,7 +27,13 @@ const state = {
     customMinutes: parseInt(localStorage.getItem('costa_alarm_custom_m') || '0', 10)
   },
   schedules: loadStoredSchedules(),
-  allExpanded: false
+  allExpanded: false,
+  bedside: {
+    timer: null,
+    wakeLock: null,
+    alarmInterval: null,
+    isRinging: false
+  }
 };
 
 // ==========================================
@@ -544,7 +550,11 @@ function renderSchedule() {
   const countEl = document.getElementById('searchCount');
   if (countEl) {
     if (query) {
-      countEl.innerText = `Found ${matchCount} matches`;
+      countEl.innerHTML = `Found ${matchCount} matches <span id="searchJumpVenuesLink" style="cursor:pointer;color:var(--costa-blue);text-decoration:underline;font-weight:600;margin-left:4px;">(View &rarr;)</span>`;
+      const jumpLink = document.getElementById('searchJumpVenuesLink');
+      if (jumpLink) {
+        jumpLink.onclick = () => switchTab('tabVenues');
+      }
       autoExpandOnSearch(true);
     } else {
       countEl.innerText = '';
@@ -1116,8 +1126,46 @@ function renderSickLeave(list, query) {
 }
 
 // ==========================================
-// ACCORDION TOGGLE FUNCTIONS
+// ACCORDION TOGGLE FUNCTIONS & MULTI-TAB CONTROLLER
 // ==========================================
+function setCardExpansion(card, expand) {
+  const body = card.querySelector('.category-body');
+  if (expand) {
+    card.classList.remove('collapsed');
+    if (body) body.classList.remove('hidden');
+  } else {
+    card.classList.add('collapsed');
+    if (body) body.classList.add('hidden');
+  }
+}
+
+function updateToggleBtnLabels() {
+  // Check Tab 2 (Venues)
+  const venuesCards = document.querySelectorAll('#tabVenues .category-card');
+  const venuesCollapsed = Array.from(venuesCards).some(c => c.classList.contains('collapsed'));
+  const btnVenues = document.getElementById('toggleVenuesAccordionBtn');
+  if (btnVenues) {
+    btnVenues.innerText = venuesCollapsed ? 'Expand All' : 'Collapse All';
+  }
+
+  // Check Tab 3 (Operations)
+  const opsCards = document.querySelectorAll('#tabOperations .category-card');
+  const opsCollapsed = Array.from(opsCards).some(c => c.classList.contains('collapsed'));
+  const btnOps = document.getElementById('toggleOperationsAccordionBtn');
+  if (btnOps) {
+    btnOps.innerText = opsCollapsed ? 'Expand All' : 'Collapse All';
+  }
+
+  // Check Tab 1 / Global
+  const allCards = document.querySelectorAll('.category-card');
+  const anyCollapsed = Array.from(allCards).some(c => c.classList.contains('collapsed'));
+  const btnAll = document.getElementById('toggleAllAccordionBtn');
+  if (btnAll) {
+    btnAll.innerText = anyCollapsed ? 'Expand All' : 'Collapse All';
+  }
+  state.allExpanded = !anyCollapsed;
+}
+
 function applyDefaultCollapseState() {
   document.querySelectorAll('.category-card').forEach(card => {
     card.classList.add('collapsed');
@@ -1127,9 +1175,7 @@ function applyDefaultCollapseState() {
   document.querySelectorAll('.venue-group').forEach(grp => {
     grp.classList.add('sub-collapsed');
   });
-  const toggleBtn = document.getElementById('toggleAllAccordionBtn');
-  if (toggleBtn) toggleBtn.innerText = 'Expand All';
-  state.allExpanded = false;
+  updateToggleBtnLabels();
 }
 
 function autoExpandOnSearch(shouldExpand) {
@@ -1290,149 +1336,101 @@ function handleAlarmButtonClick() {
   if (t2) t2.innerText = alarms.str2;
   if (t3) t3.innerText = alarms.str3;
 
-  // Platform Detection
-  const isAndroid = /Android/i.test(navigator.userAgent) || Boolean(window.AndroidBridge);
-  const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const copySpan = document.getElementById('copyPrimaryAlarmTimeSpan');
+  if (copySpan) copySpan.innerText = alarms.str1;
+  const voiceSpan = document.getElementById('voiceAlarmTimeSpan');
+  if (voiceSpan) voiceSpan.innerText = alarms.str1;
 
-  const androidWrap = document.getElementById('alarmAndroidActionWrap');
-  const iosWrap = document.getElementById('alarmIosActionWrap');
-  const genericWrap = document.getElementById('alarmGenericActionWrap');
-
-  if (androidWrap) androidWrap.classList.add('hidden');
-  if (iosWrap) iosWrap.classList.add('hidden');
-  if (genericWrap) genericWrap.classList.add('hidden');
-
-  // Trigger Android Alarm Function
-  const triggerAndroidAlarm = (hour, minute, label) => {
-    // A. Native APK AndroidBridge
+  // 1. APK Native Mode Button (Visible only when opened inside Android APK)
+  const apkWrap = document.getElementById('alarmApkWrap');
+  if (apkWrap) {
     if (window.AndroidBridge) {
-      try {
-        if (typeof window.AndroidBridge.setAlarm === 'function') {
-          window.AndroidBridge.setAlarm(hour, minute, label, false);
-          return;
-        } else if (typeof window.AndroidBridge.setThreeAlarms === 'function') {
-          window.AndroidBridge.setThreeAlarms(alarms.h1, alarms.m1, alarms.h2, alarms.m2, alarms.h3, alarms.m3, label);
-          return;
-        }
-      } catch (err) {
-        console.error('Native bridge error:', err);
-      }
-    }
-
-    // B. Standard Android Clock Intent URI
-    const msg = encodeURIComponent(label);
-    const intentUrl = `intent://#Intent;action=android.intent.action.SET_ALARM;S.android.intent.extra.alarm.MESSAGE=${msg};i.android.intent.extra.alarm.HOUR=${hour};i.android.intent.extra.alarm.MINUTES=${minute};b.android.intent.extra.alarm.SKIP_UI=false;end`;
-
-    try {
-      window.location.href = intentUrl;
-      showToast(`⏰ Opening Clock for ${pad(hour)}:${pad(minute)}...`);
-    } catch (e) {
-      navigator.clipboard.writeText(`${pad(hour)}:${pad(minute)}`).catch(() => {});
-      showToast(`📋 Alarm time copied: ${pad(hour)}:${pad(minute)}`);
-    }
-  };
-
-  if (isAndroid) {
-    if (androidWrap) {
-      androidWrap.classList.remove('hidden');
-      const intentBtn = document.getElementById('androidClockIntentBtn');
-      if (intentBtn) {
-        intentBtn.onclick = () => {
-          triggerAndroidAlarm(alarms.h1, alarms.m1, `Costa Duty: ${venueTitle}`);
-        };
-      }
-      const copyBtn = document.getElementById('androidCopyAlarmBtn');
-      if (copyBtn) {
-        copyBtn.onclick = async () => {
-          const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
+      apkWrap.classList.remove('hidden');
+      const apkBtn = document.getElementById('apkNativeClockBtn');
+      if (apkBtn) {
+        apkBtn.onclick = () => {
           try {
-            await navigator.clipboard.writeText(textToCopy);
-            showToast(`📋 Alarm times copied! 1st: ${alarms.str1}, 2nd: ${alarms.str2}, 3rd: ${alarms.str3}`);
-          } catch (e) {
-            showToast(`⏰ 1st Alarm: ${alarms.str1}`);
+            if (typeof window.AndroidBridge.setThreeAlarms === 'function') {
+              window.AndroidBridge.setThreeAlarms(alarms.h1, alarms.m1, alarms.h2, alarms.m2, alarms.h3, alarms.m3, `Costa Duty: ${venueTitle}`);
+            } else if (typeof window.AndroidBridge.setAlarm === 'function') {
+              window.AndroidBridge.setAlarm(alarms.h1, alarms.m1, `Costa Duty: ${venueTitle}`, false);
+            }
+          } catch (err) {
+            console.error('AndroidBridge error:', err);
           }
         };
       }
-    }
-  } else if (isIos) {
-    if (iosWrap) {
-      iosWrap.classList.remove('hidden');
-      const copyLabel = document.getElementById('copyAlarmTimeLabel');
-      if (copyLabel) copyLabel.innerText = alarms.str1;
-      const siriPrompt = document.getElementById('siriPromptCode');
-      if (siriPrompt) siriPrompt.innerText = `"Hey Siri, set alarm for ${alarms.str1}"`;
-
-      const copyBtn = document.getElementById('copyAlarmTimeBtn');
-      if (copyBtn) {
-        copyBtn.onclick = async () => {
-          try {
-            await navigator.clipboard.writeText(alarms.str1);
-            showToast(`📋 Alarm time ${alarms.str1} copied! Open Clock app to turn on.`);
-          } catch (e) {
-            showToast(`⏰ Alarm Time: ${alarms.str1}`);
-          }
-        };
-      }
-    }
-  } else {
-    if (genericWrap) {
-      genericWrap.classList.remove('hidden');
-      const genericBtn = document.getElementById('copyAlarmGenericBtn');
-      if (genericBtn) {
-        genericBtn.onclick = async () => {
-          const textToCopy = `Costa Duty: ${venueTitle}\nReport: ${reportFormatted}\n1st Alarm: ${alarms.str1}\n2nd Alarm: ${alarms.str2}\n3rd Alarm: ${alarms.str3}`;
-          try {
-            await navigator.clipboard.writeText(textToCopy);
-            showToast('📋 Alarm times copied to clipboard!');
-          } catch (e) {
-            showToast(`⏰ 1st Alarm: ${alarms.str1}`);
-          }
-        };
-      }
+    } else {
+      apkWrap.classList.add('hidden');
     }
   }
 
-  // Bind single alarm trigger buttons in list
+  // 2. Option 1: Calendar Event (.ics) with 3 Pre-set Alarms (Automated for HTML)
+  const calBtn = document.getElementById('calendarExportPrimaryBtn');
+  if (calBtn) {
+    calBtn.onclick = () => {
+      saveDutyCalendarEvent(venueTitle, schedule.date, startTime.hour, startTime.minute, alarms);
+    };
+  }
+
+  // 3. Option 2: Bedside Nightstand Alarm (In-Page Audio Chime & Wake Lock)
+  const bedsideBtn = document.getElementById('activateBedsideAlarmBtn');
+  if (bedsideBtn) {
+    bedsideBtn.onclick = () => {
+      document.getElementById('alarmConfirmModal').classList.add('hidden');
+      startBedsideNightstandMode(venueTitle, alarms.h1, alarms.m1, alarms.str1);
+    };
+  }
+
+  // 4. Option 3: Copy Wake-Up Time & Voice Assistant
+  const copyVoiceBtn = document.getElementById('copyAlarmVoiceBtn');
+  if (copyVoiceBtn) {
+    copyVoiceBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(alarms.str1);
+        showToast(`📋 Wake-up time ${alarms.str1} copied!`);
+      } catch (e) {
+        showToast(`⏰ Wake-up time: ${alarms.str1}`);
+      }
+
+      // Try opening general clock if running in Android Chrome
+      if (/Android/i.test(navigator.userAgent) && !window.AndroidBridge) {
+        setTimeout(() => {
+          window.location.href = 'intent:#Intent;action=android.intent.action.SHOW_ALARMS;end';
+        }, 400);
+      }
+    };
+  }
+
+  // 5. Individual Single Alarm Copy / Set Buttons in 3-Tier Card
   document.querySelectorAll('.alarm-set-single-btn').forEach(btn => {
-    btn.onclick = (e) => {
+    btn.onclick = async (e) => {
       e.stopPropagation();
       const idx = btn.dataset.alarmIdx;
       let targetH = alarms.h1, targetM = alarms.m1, targetStr = alarms.str1;
       if (idx === '2') { targetH = alarms.h2; targetM = alarms.m2; targetStr = alarms.str2; }
       if (idx === '3') { targetH = alarms.h3; targetM = alarms.m3; targetStr = alarms.str3; }
 
-      if (isAndroid) {
-        triggerAndroidAlarm(targetH, targetM, `Costa Duty (Alarm ${idx}): ${venueTitle}`);
+      if (window.AndroidBridge && typeof window.AndroidBridge.setAlarm === 'function') {
+        window.AndroidBridge.setAlarm(targetH, targetM, `Costa Duty (Alarm ${idx}): ${venueTitle}`, false);
       } else {
-        navigator.clipboard.writeText(targetStr).then(() => {
+        try {
+          await navigator.clipboard.writeText(targetStr);
           showToast(`📋 Alarm ${idx} (${targetStr}) copied!`);
-        }).catch(() => {
+        } catch (err) {
           showToast(`⏰ Alarm ${idx}: ${targetStr}`);
-        });
+        }
       }
     };
   });
 
-  // Setup toggle for optional calendar export
-  const toggleCalBtn = document.getElementById('toggleCalendarExportBtn');
-  const calWrap = document.getElementById('calendarExportWrap');
-  if (toggleCalBtn && calWrap) {
-    calWrap.classList.add('hidden');
-    toggleCalBtn.onclick = () => {
-      calWrap.classList.toggle('hidden');
-    };
-    const downloadBtn = document.getElementById('downloadIcsBtn');
-    if (downloadBtn) {
-      downloadBtn.onclick = () => {
-        downloadIcsFile(venueTitle, schedule.date, startTime.hour, startTime.minute, alarms);
-      };
-    }
-  }
-
   document.getElementById('alarmConfirmModal').classList.remove('hidden');
 }
 
-function downloadIcsFile(venueTitle, scheduleDateStr, hour, minute, alarms) {
+// ==========================================
+// CALENDAR (.ICS) EXPORT WITH 3 NATIVE ALARMS
+// ==========================================
+function saveDutyCalendarEvent(venueTitle, scheduleDateStr, hour, minute, alarms) {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -1456,36 +1454,243 @@ function downloadIcsFile(venueTitle, scheduleDateStr, hour, minute, alarms) {
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `SUMMARY:Costa Duty - ${venueTitle}`,
-    `DESCRIPTION:Costa Smeralda Shift Duty. 3 Alarms: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}.`,
+    `DESCRIPTION:Costa Smeralda Shift Duty. 3 Alarms Pre-set: ${alarms.str1}, ${alarms.str2}, ${alarms.str3}.`,
     `DTSTART:${dateFormatted}T${startHour}${startMin}00`,
     `DTEND:${dateFormatted}T${endHour}${startMin}00`,
     'BEGIN:VALARM',
     `TRIGGER:-PT${off1}M`,
-    'ACTION:DISPLAY',
-    'DESCRIPTION:1st Duty Alarm',
+    'ACTION:AUDIO',
+    'DESCRIPTION:1st Duty Alarm (Wake Up)',
     'END:VALARM',
     'BEGIN:VALARM',
     `TRIGGER:-PT${off2}M`,
-    'ACTION:DISPLAY',
+    'ACTION:AUDIO',
     'DESCRIPTION:2nd Duty Alarm (+5m)',
     'END:VALARM',
     'BEGIN:VALARM',
     `TRIGGER:-PT${off3}M`,
-    'ACTION:DISPLAY',
+    'ACTION:AUDIO',
     'DESCRIPTION:3rd Duty Alarm (+10m)',
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\r\n');
 
+  const fileName = `costa_duty_${dateFormatted}.ics`;
+
+  // Try Web Share API for 1-tap direct import into Calendar apps
+  if (navigator.canShare) {
+    try {
+      const file = new File([icsContent], fileName, { type: 'text/calendar' });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: `Costa Duty: ${venueTitle}`,
+          text: `Duty shift at ${venueTitle} with 3 alarms.`
+        }).then(() => {
+          showToast('📅 Duty event saved to calendar with 3 alarms!');
+        }).catch((err) => {
+          if (err.name !== 'AbortError') {
+            fallbackDownloadIcs(icsContent, fileName);
+          }
+        });
+        return;
+      }
+    } catch (e) {
+      console.warn('Web Share file error:', e);
+    }
+  }
+
+  fallbackDownloadIcs(icsContent, fileName);
+}
+
+function fallbackDownloadIcs(icsContent, fileName) {
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = `costa_duty_${dateFormatted}.ics`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast('Calendar event with 3 alerts downloaded!');
+  showToast('📅 Calendar event downloaded! Tap to save 3 alarms to phone.');
+}
+
+// ==========================================
+// BEDSIDE NIGHTSTAND ALARM (AUDIO + WAKELOCK)
+// ==========================================
+function playChimeSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+
+    // Dual-tone nautical ship bell wake chime
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, ctx.currentTime);       // A5
+    osc1.frequency.exponentialRampToValueAtTime(587.33, ctx.currentTime + 0.35); // D5
+
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1046.5, ctx.currentTime);     // C6
+    osc2.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.35);
+
+    gainNode.gain.setValueAtTime(0.8, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc1.start();
+    osc2.start();
+    osc1.stop(ctx.currentTime + 0.8);
+    osc2.stop(ctx.currentTime + 0.8);
+  } catch (err) {
+    console.warn('Web Audio error:', err);
+  }
+}
+
+function startBedsideNightstandMode(venueTitle, targetHour, targetMin, targetStr) {
+  const pad = (n) => String(n).padStart(2, '0');
+  const targetVenueEl = document.getElementById('bedsideTargetVenue');
+  if (targetVenueEl) targetVenueEl.innerText = `Duty: ${venueTitle}`;
+
+  const targetTimeEl = document.getElementById('bedsideTargetTime');
+  if (targetTimeEl) targetTimeEl.innerText = targetStr;
+
+  const standbyWrap = document.getElementById('bedsideStandbyControls');
+  const ringingWrap = document.getElementById('bedsideRingingControls');
+  if (standbyWrap) standbyWrap.classList.remove('hidden');
+  if (ringingWrap) ringingWrap.classList.add('hidden');
+
+  state.bedside.isRinging = false;
+  if (state.bedside.alarmInterval) {
+    clearInterval(state.bedside.alarmInterval);
+    state.bedside.alarmInterval = null;
+  }
+
+  // Request Wake Lock
+  const dot = document.getElementById('bedsideWakeLockDot');
+  const status = document.getElementById('bedsideWakeLockStatus');
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').then(lock => {
+      state.bedside.wakeLock = lock;
+      if (dot) dot.classList.add('active');
+      if (status) status.innerText = 'Screen Keep-Awake Active';
+    }).catch(() => {
+      if (dot) dot.classList.remove('active');
+      if (status) status.innerText = 'Keep screen plugged into charger';
+    });
+  } else {
+    if (dot) dot.classList.remove('active');
+    if (status) status.innerText = 'Keep phone unlocked while resting';
+  }
+
+  // Live Clock & Countdown Loop
+  if (state.bedside.timer) clearInterval(state.bedside.timer);
+  const updateBedsideClock = () => {
+    const now = new Date();
+    const currH = now.getHours();
+    const currM = now.getMinutes();
+    const currS = now.getSeconds();
+
+    const currTimeEl = document.getElementById('bedsideCurrentTime');
+    if (currTimeEl) {
+      currTimeEl.innerText = `${pad(currH)}:${pad(currM)}:${pad(currS)}`;
+    }
+
+    // Calculate time difference to target
+    const targetDate = new Date(now);
+    targetDate.setHours(targetHour, targetMin, 0, 0);
+    if (targetDate.getTime() <= now.getTime()) {
+      targetDate.setDate(targetDate.getDate() + 1);
+    }
+
+    const diffMs = targetDate.getTime() - now.getTime();
+    const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+
+    const countdownEl = document.getElementById('bedsideCountdown');
+    if (countdownEl) {
+      countdownEl.innerText = `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    }
+
+    // Trigger Ringing when reached
+    if (totalSec <= 0 && !state.bedside.isRinging) {
+      triggerBedsideAlarmRinging();
+    }
+  };
+
+  updateBedsideClock();
+  state.bedside.timer = setInterval(updateBedsideClock, 1000);
+
+  // Wire Test Sound Button
+  const testBtn = document.getElementById('testAlarmSoundBtn');
+  if (testBtn) {
+    testBtn.onclick = () => playChimeSound();
+  }
+
+  // Wire Dismiss Button
+  const dismissBtn = document.getElementById('dismissAlarmBtn');
+  if (dismissBtn) {
+    dismissBtn.onclick = () => stopBedsideAlarmRinging();
+  }
+
+  // Open Bedside Modal
+  document.getElementById('bedsideAlarmModal').classList.remove('hidden');
+}
+
+function triggerBedsideAlarmRinging() {
+  state.bedside.isRinging = true;
+  const standbyWrap = document.getElementById('bedsideStandbyControls');
+  const ringingWrap = document.getElementById('bedsideRingingControls');
+  if (standbyWrap) standbyWrap.classList.add('hidden');
+  if (ringingWrap) ringingWrap.classList.remove('hidden');
+
+  playChimeSound();
+  if ('vibrate' in navigator) navigator.vibrate([600, 300, 600, 300, 1000]);
+
+  // Repeat sound every 2 seconds until dismissed
+  state.bedside.alarmInterval = setInterval(() => {
+    if (!state.bedside.isRinging) {
+      clearInterval(state.bedside.alarmInterval);
+      return;
+    }
+    playChimeSound();
+    if ('vibrate' in navigator) navigator.vibrate([600, 300, 600, 300, 1000]);
+  }, 2000);
+}
+
+function stopBedsideAlarmRinging() {
+  state.bedside.isRinging = false;
+  if (state.bedside.alarmInterval) {
+    clearInterval(state.bedside.alarmInterval);
+    state.bedside.alarmInterval = null;
+  }
+  const standbyWrap = document.getElementById('bedsideStandbyControls');
+  const ringingWrap = document.getElementById('bedsideRingingControls');
+  if (standbyWrap) standbyWrap.classList.remove('hidden');
+  if (ringingWrap) ringingWrap.classList.add('hidden');
+  showToast('⏰ Duty alarm dismissed. Have a great shift!');
+}
+
+function exitBedsideNightstandMode() {
+  stopBedsideAlarmRinging();
+  if (state.bedside.timer) {
+    clearInterval(state.bedside.timer);
+    state.bedside.timer = null;
+  }
+  if (state.bedside.wakeLock) {
+    state.bedside.wakeLock.release().catch(() => {});
+    state.bedside.wakeLock = null;
+  }
+  const modal = document.getElementById('bedsideAlarmModal');
+  if (modal) modal.classList.add('hidden');
 }
 
 // ==========================================
@@ -1615,10 +1820,12 @@ function setupEventListeners() {
     if (catHeader) {
       const catId = catHeader.getAttribute('data-toggle-cat');
       const card = document.getElementById(catId);
-      const body = card.querySelector('.category-body');
-      
-      card.classList.toggle('collapsed');
-      body.classList.toggle('hidden');
+      if (card) {
+        const body = card.querySelector('.category-body');
+        card.classList.toggle('collapsed');
+        if (body) body.classList.toggle('hidden');
+        updateToggleBtnLabels();
+      }
       return;
     }
 
@@ -1633,32 +1840,68 @@ function setupEventListeners() {
     }
   });
 
-  // Toggle All Button (Expand All / Collapse All)
-  document.getElementById('toggleAllAccordionBtn').addEventListener('click', () => {
-    state.allExpanded = !state.allExpanded;
-    const btn = document.getElementById('toggleAllAccordionBtn');
-    
-    document.querySelectorAll('.category-card').forEach(card => {
-      const body = card.querySelector('.category-body');
-      if (state.allExpanded) {
-        card.classList.remove('collapsed');
-        if (body) body.classList.remove('hidden');
+  // 1. Toggle All Button in Schedule Tab (Tab 1)
+  const btnToggleAll = document.getElementById('toggleAllAccordionBtn');
+  if (btnToggleAll) {
+    btnToggleAll.addEventListener('click', () => {
+      const allCards = document.querySelectorAll('.category-card');
+      const anyCollapsed = Array.from(allCards).some(c => c.classList.contains('collapsed'));
+      const shouldExpand = anyCollapsed;
+
+      allCards.forEach(card => setCardExpansion(card, shouldExpand));
+      document.querySelectorAll('.venue-group').forEach(grp => {
+        if (shouldExpand) grp.classList.remove('sub-collapsed');
+        else grp.classList.add('sub-collapsed');
+      });
+
+      updateToggleBtnLabels();
+
+      if (shouldExpand) {
+        switchTab('tabVenues');
+        showToast('Expanded all sections & opened Venues');
       } else {
-        card.classList.add('collapsed');
-        if (body) body.classList.add('hidden');
+        showToast('Collapsed all sections');
       }
     });
+  }
 
-    document.querySelectorAll('.venue-group').forEach(grp => {
-      if (state.allExpanded) {
-        grp.classList.remove('sub-collapsed');
-      } else {
-        grp.classList.add('sub-collapsed');
-      }
+  // 2. Toggle Button in Venues Tab (Tab 2)
+  const btnToggleVenues = document.getElementById('toggleVenuesAccordionBtn');
+  if (btnToggleVenues) {
+    btnToggleVenues.addEventListener('click', () => {
+      const cards = document.querySelectorAll('#tabVenues .category-card');
+      const anyCollapsed = Array.from(cards).some(c => c.classList.contains('collapsed'));
+      const shouldExpand = anyCollapsed;
+
+      cards.forEach(card => setCardExpansion(card, shouldExpand));
+      document.querySelectorAll('#tabVenues .venue-group').forEach(grp => {
+        if (shouldExpand) grp.classList.remove('sub-collapsed');
+        else grp.classList.add('sub-collapsed');
+      });
+
+      updateToggleBtnLabels();
+      showToast(shouldExpand ? 'Expanded all restaurant rosters' : 'Collapsed restaurant rosters');
     });
+  }
 
-    btn.innerText = state.allExpanded ? 'Collapse All' : 'Expand All';
-  });
+  // 3. Toggle Button in Operations Tab (Tab 3)
+  const btnToggleOps = document.getElementById('toggleOperationsAccordionBtn');
+  if (btnToggleOps) {
+    btnToggleOps.addEventListener('click', () => {
+      const cards = document.querySelectorAll('#tabOperations .category-card');
+      const anyCollapsed = Array.from(cards).some(c => c.classList.contains('collapsed'));
+      const shouldExpand = anyCollapsed;
+
+      cards.forEach(card => setCardExpansion(card, shouldExpand));
+      document.querySelectorAll('#tabOperations .venue-group').forEach(grp => {
+        if (shouldExpand) grp.classList.remove('sub-collapsed');
+        else grp.classList.add('sub-collapsed');
+      });
+
+      updateToggleBtnLabels();
+      showToast(shouldExpand ? 'Expanded all operations' : 'Collapsed operations');
+    });
+  }
 
   // Search Input
   const searchInput = document.getElementById('searchInput');
@@ -1700,6 +1943,9 @@ function setupEventListeners() {
       if (modal) modal.classList.add('hidden');
       const err = document.getElementById('pasteError');
       if (err) err.classList.add('hidden');
+      if (modalId === 'bedsideAlarmModal') {
+        exitBedsideNightstandMode();
+      }
     });
   });
 

@@ -201,8 +201,11 @@
     <!-- ========================================== -->
     <section id="tabVenues" class="tab-view hidden">
       <div class="tab-header-masthead">
-        <h2 class="view-headline">Restaurants & Bars<span class="costa-dot">.</span></h2>
-        <p class="view-subheadline">Main dining rooms and specialty restaurant rosters</p>
+        <div class="tab-header-titles">
+          <h2 class="view-headline">Restaurants & Bars<span class="costa-dot">.</span></h2>
+          <p class="view-subheadline">Main dining rooms and specialty restaurant rosters</p>
+        </div>
+        <button id="toggleVenuesAccordionBtn" class="btn-toggle-all">Expand All</button>
       </div>
 
       <!-- Schedule Content Container (Preserved IDs for app.js) -->
@@ -261,8 +264,11 @@
     <!-- ========================================== -->
     <section id="tabOperations" class="tab-view hidden">
       <div class="tab-header-masthead">
-        <h2 class="view-headline">Operations & Duties<span class="costa-dot">.</span></h2>
-        <p class="view-subheadline">Logistics, special event uniforms and medical leaves</p>
+        <div class="tab-header-titles">
+          <h2 class="view-headline">Operations & Duties<span class="costa-dot">.</span></h2>
+          <p class="view-subheadline">Logistics, special event uniforms and medical leaves</p>
+        </div>
+        <button id="toggleOperationsAccordionBtn" class="btn-toggle-all">Expand All</button>
       </div>
 
       <div class="operations-content">
@@ -669,66 +675,91 @@
           </div>
         </div>
 
-        <!-- Android Platform Action -->
-        <div id="alarmAndroidActionWrap" class="alarm-platform-wrap hidden">
-          <button id="androidClockIntentBtn" class="btn-primary btn-alarm-action" type="button">
-            ⏰ Set Primary Alarm in Clock
-          </button>
-          <button id="androidCopyAlarmBtn" class="btn-secondary btn-alarm-action" type="button" style="margin-top: 8px;">
-            📋 Copy Alarm Times
-          </button>
-          <p class="alarm-platform-note">
-            Opens native Android Clock app directly with wake-up time pre-filled.
-          </p>
-        </div>
+        <!-- Universal Alarm Action Options -->
+        <div class="alarm-actions-container">
+          <!-- Native APK Button (Only visible if running inside Android APK) -->
+          <div id="alarmApkWrap" class="hidden" style="margin-bottom: 8px;">
+            <button id="apkNativeClockBtn" class="btn-primary btn-alarm-action" type="button" style="background: #0284C7;">
+              ⏰ Set in Android Clock (APK Mode)
+            </button>
+          </div>
 
-        <!-- iPhone / iOS Smart Alarm Card Action -->
-        <div id="alarmIosActionWrap" class="alarm-platform-wrap hidden">
-          <button id="copyAlarmTimeBtn" class="btn-smart-copy-alarm" type="button">
-            Copy Wake Up Time (<span id="copyAlarmTimeLabel">12:00</span>)
+          <!-- Option 1: Calendar Event with 3 Automated Alarms (Recommended for Standalone HTML) -->
+          <button id="calendarExportPrimaryBtn" class="btn-primary btn-alarm-action" type="button">
+            📅 Add to Calendar (Auto 3 Alarms)
+          </button>
+          <div class="alarm-feature-hint">
+            Directly imports duty into Google/Samsung Calendar with 3 pre-set audio alerts.
+          </div>
+
+          <!-- Option 2: Bedside Nightstand Alarm (In-Page Audio & Screen Wake Lock) -->
+          <button id="activateBedsideAlarmBtn" class="btn-secondary btn-alarm-action" type="button" style="margin-top: 8px;">
+            🔔 Open Bedside Nightstand Alarm
+          </button>
+          <div class="alarm-feature-hint">
+            Interactive bedside clock with countdown, screen wake lock & loud ship chimes.
+          </div>
+
+          <!-- Option 3: Copy Wake-Up Time & Voice Assistant -->
+          <button id="copyAlarmVoiceBtn" class="btn-smart-copy-alarm" type="button" style="margin-top: 8px;">
+            📋 Copy Wake-Up Time (<span id="copyPrimaryAlarmTimeSpan">12:00</span>)
           </button>
           
-          <div class="siri-prompt-box">
-            <div class="siri-icon-wrap">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
-              </svg>
-            </div>
-            <div class="siri-text">
-              <div class="siri-title">Siri Voice Command (Works Offline):</div>
-              <code id="siriPromptCode">"Hey Siri, set alarm for 12:00"</code>
-            </div>
-          </div>
-          <p class="alarm-platform-note">
-            Or swipe down iPhone Control Center to set alarm with the time above.
-          </p>
-        </div>
-
-        <!-- Desktop / Generic Platform Action -->
-        <div id="alarmGenericActionWrap" class="alarm-platform-wrap hidden">
-          <button id="copyAlarmGenericBtn" class="btn-smart-copy-alarm" type="button">
-            Copy Alarm Times
-          </button>
-          <p class="alarm-platform-note">
-            Set your device alarm according to the 3 timings above.
-          </p>
-        </div>
-
-        <!-- Optional Calendar Export (Secondary) -->
-        <div class="alarm-secondary-wrap">
-          <button id="toggleCalendarExportBtn" class="btn-text-link" type="button">
-            Optional: Save to Calendar
-          </button>
-          <div id="calendarExportWrap" class="hidden" style="margin-top: 8px;">
-            <button id="downloadIcsBtn" class="btn-secondary" type="button" style="width: 100%; padding: 8px; font-size: 0.8rem;">
-              Download Calendar Event (.ics)
-            </button>
+          <div class="voice-assistant-tip">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+            <span>Voice prompt: <strong>"Hey Google / Siri, set alarm for <span id="voiceAlarmTimeSpan">12:00</span>"</strong></span>
           </div>
         </div>
 
       </div>
       <div class="modal-footer">
         <button class="btn-primary" data-close="alarmConfirmModal" style="width: 100%;">Done / Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bedside Nightstand Alarm Modal -->
+  <div id="bedsideAlarmModal" class="modal-backdrop hidden">
+    <div class="modal-card bedside-modal-card">
+      <div class="bedside-header">
+        <span class="bedside-tag">🌙 BEDSIDE NIGHTSTAND ALARM</span>
+        <button class="close-modal-btn bedside-close-btn" data-close="bedsideAlarmModal">&times;</button>
+      </div>
+      <div class="bedside-body">
+        <div class="bedside-current-time" id="bedsideCurrentTime">00:00:00</div>
+        <div class="bedside-current-label">CURRENT TIME</div>
+        
+        <div class="bedside-target-card">
+          <div class="bedside-target-label">WAKE-UP TARGET</div>
+          <div class="bedside-target-time" id="bedsideTargetTime">12:00</div>
+          <div class="bedside-target-venue" id="bedsideTargetVenue">Ceres Restaurant Duty</div>
+        </div>
+
+        <div class="bedside-countdown-wrap">
+          <div class="bedside-countdown-label">ALARM RINGS IN</div>
+          <div class="bedside-countdown-digits" id="bedsideCountdown">00h 00m 00s</div>
+        </div>
+
+        <div class="bedside-status-row">
+          <span class="bedside-status-dot active" id="bedsideWakeLockDot"></span>
+          <span id="bedsideWakeLockStatus">Screen Keep-Awake Active</span>
+        </div>
+
+        <!-- Ringing Active Controls (shown when alarm fires) -->
+        <div id="bedsideRingingControls" class="bedside-ringing-wrap hidden">
+          <div class="ringing-headline">⏰ TIME FOR DUTY!</div>
+          <button id="dismissAlarmBtn" class="btn-dismiss-alarm">STOP ALARM</button>
+        </div>
+
+        <!-- Standby Controls -->
+        <div id="bedsideStandbyControls" class="bedside-standby-wrap">
+          <button id="testAlarmSoundBtn" class="btn-bedside-test">🔊 Test Chime Sound</button>
+          <button class="btn-secondary" data-close="bedsideAlarmModal" style="width: 100%; margin-top: 8px;">Exit Nightstand Mode</button>
+        </div>
       </div>
     </div>
   </div>

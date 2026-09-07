@@ -240,9 +240,17 @@ html, body {
 
 /* Tab Header Mastheads */
 .tab-header-masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 18px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.tab-header-titles {
+  flex: 1;
 }
 
 .view-headline {
@@ -1716,6 +1724,211 @@ input:checked + .slider:before {
   line-height: 1.35;
   margin-top: 6px;
   margin-bottom: 2px;
+}
+
+.alarm-feature-hint {
+  font-size: 0.73rem;
+  color: var(--costa-slate);
+  margin-top: 3px;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.voice-assistant-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #F8FAFC;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 8px;
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--costa-slate);
+}
+
+.voice-assistant-tip svg {
+  color: var(--costa-blue);
+  flex-shrink: 0;
+}
+
+.voice-assistant-tip strong {
+  color: var(--costa-navy);
+}
+
+/* =============================================================
+   BEDSIDE NIGHTSTAND ALARM MODAL
+   ============================================================= */
+.bedside-modal-card {
+  background: #0B192C !important;
+  color: #F8FAFC !important;
+  border: 1px solid #1E3E62 !important;
+  text-align: center;
+  max-width: 380px;
+}
+
+.bedside-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1E3E62;
+  padding: 12px 16px;
+}
+
+.bedside-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--costa-yellow);
+}
+
+.bedside-close-btn {
+  color: #94A3B8 !important;
+}
+.bedside-close-btn:hover {
+  color: #FFFFFF !important;
+}
+
+.bedside-body {
+  padding: 16px 14px;
+}
+
+.bedside-current-time {
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+}
+
+.bedside-current-label {
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.bedside-target-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #1E3E62;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 14px;
+}
+
+.bedside-target-label {
+  font-size: 0.65rem;
+  color: var(--costa-yellow);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.bedside-target-time {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #38BDF8;
+  margin: 2px 0;
+}
+
+.bedside-target-venue {
+  font-size: 0.8rem;
+  color: #E2E8F0;
+  font-weight: 500;
+}
+
+.bedside-countdown-wrap {
+  background: rgba(249, 176, 0, 0.1);
+  border: 1.5px solid var(--costa-yellow);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.bedside-countdown-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--costa-yellow);
+}
+
+.bedside-countdown-digits {
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-top: 4px;
+}
+
+.bedside-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #94A3B8;
+  margin-bottom: 14px;
+}
+
+.bedside-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #64748B;
+}
+
+.bedside-status-dot.active {
+  background-color: #22C55E;
+  box-shadow: 0 0 8px #22C55E;
+}
+
+.btn-bedside-test {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #F8FAFC;
+  border: 1px solid #334155;
+  border-radius: var(--radius-md);
+  padding: 9px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-bedside-test:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bedside-ringing-wrap {
+  background: #DC2626;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  animation: pulseRinging 1s infinite alternate;
+}
+
+@keyframes pulseRinging {
+  from { transform: scale(1); box-shadow: 0 0 10px #DC2626; }
+  to { transform: scale(1.02); box-shadow: 0 0 25px #EF4444; }
+}
+
+.ringing-headline {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.btn-dismiss-alarm {
+  background: #FFFFFF;
+  color: #DC2626;
+  border: none;
+  font-size: 1rem;
+  font-weight: 900;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .alarm-secondary-wrap {
