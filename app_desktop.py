@@ -72,6 +72,11 @@ TK = {
     "fg_accent":      ("#0071A3", "#38BDF8"),
 }
 
+def get_active_tokens():
+    mode = ctk.get_appearance_mode().lower()
+    idx = 1 if mode == "dark" else 0
+    return {k: v[idx] if isinstance(v, (tuple, list)) else v for k, v in TK.items()}
+
 
 try:
     from tkinterdnd2 import DND_FILES, TkinterDnD
