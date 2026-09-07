@@ -182,84 +182,44 @@
         <button id="loadSampleScheduleBtn" class="sample-pill-btn">Load Sample Data</button>
       </div>
 
-      <!-- Restaurant Service Command Hub (Replaces redundant Lineup) -->
+      <!-- Crew Companion Bot Message (Warm & Supportive Assistant) -->
       <div id="scheduleOverviewSection" class="schedule-overview-wrap">
-        
-        <!-- Hub Widget 1: Interactive Table & Station Finder -->
-        <div class="hub-card table-finder-card">
-          <div class="hub-card-header">
-            <div class="hub-card-title-group">
-              <span class="hub-card-icon">🔍</span>
-              <div>
-                <h3 class="hub-card-title">Table &amp; Station Finder</h3>
-                <p class="hub-card-desc">Find any table's deck, station &amp; assigned waiter</p>
+        <div class="crew-tweet-card" id="crewCompanionTweet">
+          <!-- Tweet Author Header -->
+          <div class="tweet-header">
+            <div class="tweet-author-info">
+              <div class="tweet-avatar">
+                <span>🚢</span>
+                <span class="tweet-verified-badge" title="Costa Companion Bot">✓</span>
+              </div>
+              <div class="tweet-author-text">
+                <div class="tweet-name-line">
+                  <strong class="tweet-name">Costa Crew Companion</strong>
+                  <span class="tweet-handle">@costa_crew</span>
+                </div>
+                <span class="tweet-mood-badge" id="tweetMoodBadge">☀️ Rest &amp; Recharge</span>
               </div>
             </div>
-            <button id="jumpToVenuesTabBtn" class="section-subhead-link">Venues &rarr;</button>
-          </div>
-          
-          <div class="table-finder-search-row">
-            <div class="table-finder-input-wrap">
-              <svg class="table-finder-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
+            <button id="refreshTweetBtn" class="btn-refresh-tweet" title="Shuffle message" type="button" aria-label="Refresh message">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
               </svg>
-              <input type="text" id="tableFinderInput" placeholder="Enter table # (e.g. 314, 402, 62)..." autocomplete="off">
-              <button id="clearTableFinderBtn" class="clear-btn hidden" type="button">&times;</button>
-            </div>
+            </button>
           </div>
 
-          <!-- Quick Suggest Chips -->
-          <div class="table-finder-chips" id="tableFinderChips">
-            <span class="table-chip-label">Quick:</span>
-            <button type="button" class="table-chip-btn" data-tbl="314">T-314</button>
-            <button type="button" class="table-chip-btn" data-tbl="326">T-326</button>
-            <button type="button" class="table-chip-btn" data-tbl="402">T-402</button>
-            <button type="button" class="table-chip-btn" data-tbl="65">Stn 65</button>
-            <button type="button" class="table-chip-btn" data-tbl="SE-1">Suite</button>
+          <!-- Tweet Message Body -->
+          <div class="tweet-content-box" id="tweetMessageContent">
+            <!-- Dynamically generated via JS -->
           </div>
 
-          <!-- Result Container -->
-          <div id="tableFinderResult" class="table-finder-result-box">
-            <!-- Dynamically populated via JS -->
+          <!-- Tweet Footer Actions -->
+          <div class="tweet-footer">
+            <button id="tweetAlarmBtn" class="tweet-alarm-pill" type="button">
+              ⏰ Set Bedside Alarm
+            </button>
+            <span class="tweet-date-text" id="tweetDateText">Today</span>
           </div>
         </div>
-
-        <!-- Hub Widget 2: Shift Service Milestones -->
-        <div class="hub-card shift-milestones-card">
-          <div class="hub-card-header">
-            <div class="hub-card-title-group">
-              <span class="hub-card-icon">⏱️</span>
-              <div>
-                <h3 class="hub-card-title">Shift Service Milestones</h3>
-                <p class="hub-card-desc" id="milestonesSubtitle">Service Roadmap</p>
-              </div>
-            </div>
-            <span class="milestone-dress-badge" id="milestoneDressBadge">👔 White Jacket</span>
-          </div>
-
-          <div class="milestones-track" id="milestonesTrack">
-            <!-- Dynamically populated via JS -->
-          </div>
-        </div>
-
-        <!-- Hub Widget 3: Key Station Support Leads -->
-        <div class="hub-card support-leads-card">
-          <div class="hub-card-header">
-            <div class="hub-card-title-group">
-              <span class="hub-card-icon">⚡</span>
-              <div>
-                <h3 class="hub-card-title">Station Support Leads</h3>
-                <p class="hub-card-desc">Cutlery (CT), Trash (TR), Linen &amp; Floor Coordination</p>
-              </div>
-            </div>
-            <button id="jumpToOpsTabBtn" class="section-subhead-link">Operations &rarr;</button>
-          </div>
-          <div class="support-leads-grid" id="supportLeadsGrid">
-            <!-- Dynamically populated via JS -->
-          </div>
-        </div>
-
       </div>
 
     </section>

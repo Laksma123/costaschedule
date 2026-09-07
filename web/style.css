@@ -675,385 +675,212 @@ html, body {
 }
 
 /* =============================================================
-   RESTAURANT SERVICE COMMAND HUB (TAB 1 DASHBOARD)
+   CREW COMPANION TWEET BOT (TAB 1 DASHBOARD)
+   Warm, empathetic, human assistant message for tired crew
    ============================================================= */
 .schedule-overview-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
   margin-top: 10px;
 }
 
-.hub-card {
-  background-color: #FFFFFF;
+.crew-tweet-card {
+  background: #FFFFFF;
   border: 1px solid var(--border-color);
+  border-left: 4px solid var(--costa-yellow);
   border-radius: var(--radius-lg);
-  padding: 14px;
-  box-shadow: 0 1px 4px rgba(0, 50, 74, 0.04);
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 50, 74, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.hub-card-header {
+.crew-tweet-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 50, 74, 0.08);
+}
+
+.tweet-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 12px;
 }
 
-.hub-card-title-group {
+.tweet-author-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.hub-card-icon {
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.hub-card-title {
-  font-size: 0.96rem;
-  font-weight: 700;
-  color: var(--costa-navy);
-  margin: 0;
-}
-
-.hub-card-desc {
-  font-size: 0.74rem;
-  color: var(--costa-slate);
-  margin: 1px 0 0 0;
-}
-
-/* 1. Table & Station Quick Finder */
-.table-finder-search-row {
-  margin-bottom: 8px;
-}
-
-.table-finder-input-wrap {
+.tweet-avatar {
   position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--costa-blue-faint);
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  border: 1.5px solid var(--costa-blue);
+  flex-shrink: 0;
 }
 
-.table-finder-svg {
+.tweet-verified-badge {
   position: absolute;
-  left: 11px;
+  bottom: -2px;
+  right: -2px;
   width: 15px;
   height: 15px;
-  color: var(--costa-slate);
-  pointer-events: none;
+  border-radius: 50%;
+  background: var(--costa-blue);
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #FFFFFF;
 }
 
-#tableFinderInput {
-  width: 100%;
-  padding: 8px 32px 8px 34px;
-  font-size: 0.84rem;
-  font-family: inherit;
-  border: 1px solid var(--border-input);
-  border-radius: var(--radius-md);
-  background: #F8FAFC;
-  color: var(--costa-navy);
-  outline: none;
-  transition: border-color 0.15s, background-color 0.15s;
+.tweet-author-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-#tableFinderInput:focus {
-  border-color: var(--costa-blue);
-  background: #FFFFFF;
-}
-
-.table-finder-chips {
+.tweet-name-line {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
 }
 
-.table-chip-label {
-  font-size: 0.72rem;
-  font-weight: 600;
+.tweet-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--costa-navy);
+}
+
+.tweet-handle {
+  font-size: 0.74rem;
   color: var(--costa-slate);
 }
 
-.table-chip-btn {
-  background: var(--costa-blue-faint);
-  color: var(--costa-blue);
-  border: 1px solid rgba(0, 102, 179, 0.2);
-  border-radius: 12px;
+.tweet-mood-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #065F46;
+  background: #D1FAE5;
   padding: 2px 8px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
+  border-radius: 10px;
+  width: fit-content;
 }
 
-.table-chip-btn:hover {
-  background: var(--costa-blue);
-  color: #FFFFFF;
+.tweet-mood-badge.night {
+  color: #1E3A8A;
+  background: #DBEAFE;
 }
 
-.table-finder-hint-box {
+.tweet-mood-badge.break {
+  color: #92400E;
+  background: #FEF3C7;
+}
+
+.tweet-mood-badge.party {
+  color: #701A75;
+  background: #FCE7F3;
+}
+
+.btn-refresh-tweet {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: #F8FAFC;
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  font-size: 0.76rem;
+  align-items: center;
+  justify-content: center;
   color: var(--costa-slate);
-  line-height: 1.4;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
-.table-finder-placeholder,
-.table-finder-not-found {
-  padding: 12px;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--costa-slate);
-  background: #F8FAFC;
-  border-radius: var(--radius-md);
+.btn-refresh-tweet:hover {
+  background: #E2E8F0;
+  color: var(--costa-blue);
+  transform: rotate(30deg);
 }
 
-.table-found-card {
-  background: #FFFFFF;
-  border: 1.5px solid var(--costa-yellow-dark);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  box-shadow: 0 2px 6px rgba(255, 199, 44, 0.12);
-  margin-top: 6px;
+.tweet-content-box {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #1E293B;
+  padding: 4px 0 12px 0;
 }
 
-.table-found-header {
+.tweet-content-box strong {
+  color: var(--costa-navy);
+}
+
+.tweet-content-box .highlight-time {
+  color: #B45309;
+  background: #FFFBEB;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #FDE68A;
+}
+
+.tweet-content-box .highlight-venue {
+  color: var(--costa-blue);
+  font-weight: 700;
+}
+
+.tweet-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #F1F5F9;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
 }
 
-.table-found-tags {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.badge-station {
+.tweet-alarm-pill {
   background: var(--costa-yellow);
   color: var(--costa-navy);
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 6px;
-  letter-spacing: 0.4px;
-}
-
-.badge-venue {
-  background: #F1F5F9;
-  color: var(--costa-navy);
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-
-.btn-jump-table-station {
-  background: none;
-  border: none;
-  color: var(--costa-blue);
-  font-size: 0.76rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-jump-table-station:hover {
-  text-decoration: underline;
-}
-
-.table-found-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.table-found-row {
-  display: flex;
-  align-items: baseline;
+  border: 1px solid var(--costa-yellow-dark);
   font-size: 0.78rem;
-  gap: 6px;
-}
-
-.tbl-label {
-  color: var(--costa-slate);
-  min-width: 95px;
-  font-size: 0.74rem;
-}
-
-.tbl-val {
-  color: var(--costa-navy);
-}
-
-.tables-highlight {
   font-weight: 700;
-  color: var(--costa-blue);
-  letter-spacing: 0.3px;
-}
-
-/* 2. Shift Service Milestones */
-.milestone-dress-badge {
-  background: var(--costa-blue-faint);
-  color: var(--costa-blue);
-  border: 1px solid rgba(0, 102, 179, 0.2);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 10px;
-  white-space: nowrap;
-}
-
-.milestone-dress-badge.gala {
-  background: #FFFBEB;
-  color: #92400E;
-  border-color: #FDE68A;
-}
-
-.milestones-track {
-  display: flex;
-  flex-direction: column;
-  padding-left: 2px;
-  margin-top: 4px;
-}
-
-.milestone-item {
-  display: flex;
-  align-items: flex-start;
-  min-height: 42px;
-}
-
-.milestone-time-col {
-  width: 44px;
-  flex-shrink: 0;
-  padding-top: 1px;
-}
-
-.milestone-time {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: var(--costa-navy);
-  letter-spacing: 0.2px;
-}
-
-.milestone-marker {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 20px;
-  flex-shrink: 0;
-  padding-top: 4px;
-}
-
-.milestone-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--costa-yellow);
-  border: 1.5px solid var(--costa-navy);
-  z-index: 2;
-}
-
-.milestone-line {
-  position: absolute;
-  top: 12px;
-  bottom: -4px;
-  width: 2px;
-  background: #E2E8F0;
-  z-index: 1;
-}
-
-.milestone-content {
-  padding-left: 6px;
-  padding-bottom: 12px;
-}
-
-.milestone-step-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--costa-navy);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.milestone-step-desc {
-  font-size: 0.72rem;
-  color: var(--costa-slate);
-  margin: 2px 0 0 0;
-  line-height: 1.3;
-}
-
-/* 3. Station Support Leads */
-.support-leads-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-@media (max-width: 420px) {
-  .support-leads-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.support-lead-item {
-  background: #F8FAFC;
-  border: 1px solid var(--border-color);
+  padding: 6px 12px;
   border-radius: var(--radius-md);
-  padding: 8px 10px;
-}
-
-.support-lead-head {
-  display: flex;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.76rem;
-  color: var(--costa-navy);
-  margin-bottom: 6px;
+  box-shadow: 0 1px 3px rgba(255, 199, 44, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.support-badge {
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 1px 5px;
-  border-radius: 4px;
-  color: #FFFFFF;
+.tweet-alarm-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(255, 199, 44, 0.35);
 }
 
-.support-badge.ct { background: #2563EB; }
-.support-badge.tr { background: #D97706; }
-.support-badge.ln { background: #059669; }
-.support-badge.dr { background: #7C3AED; }
-
-.support-tag-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.support-crew-tag {
-  font-size: 0.72rem;
-  color: var(--costa-navy);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.support-empty {
-  font-size: 0.7rem;
+.tweet-date-text {
+  font-size: 0.74rem;
   color: var(--costa-slate);
-  font-style: italic;
+}
+
+.search-jump-btn {
+  cursor: pointer;
+  color: var(--costa-blue);
+  text-decoration: underline;
+  font-weight: 700;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.search-jump-btn:hover {
+  color: var(--costa-navy);
 }
 
 /* =============================================================

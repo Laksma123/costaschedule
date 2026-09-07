@@ -39,8 +39,7 @@ const state = {
 };
 
 // Module Level State
-var currentTableFinderSchedule = null;
-var isTableFinderInitialized = false;
+var currentTweetIndex = 0;
 
 // ==========================================
 // REAL SAMPLE DATA (Costa Smeralda Schedule Format)
@@ -557,24 +556,40 @@ function renderSchedule() {
   const userDuty = findUserDuty(schedule);
   updatePillDisplay(userDuty, schedule.shift);
   updatePersonalBriefingAndSpotlight(userDuty, schedule);
-  renderRestaurantCommandHub(schedule);
+  renderCrewCompanionTweet(schedule);
 
   // Render Sections with Search Query Filter
-  let matchCount = 0;
-  matchCount += renderMainDining(schedule.venues || [], query);
-  matchCount += renderBuffetAndVenues(schedule.buffetAndVenues || [], query);
-  matchCount += renderSideDuties(schedule.sideDuties || [], query);
-  matchCount += renderSpecialEvents(schedule.specialEvents || [], query);
-  matchCount += renderSickLeave(schedule.sickLeave || [], query);
+  let venuesMatches = 0;
+  venuesMatches += renderMainDining(schedule.venues || [], query);
+  venuesMatches += renderBuffetAndVenues(schedule.buffetAndVenues || [], query);
 
-  // Update Search Counter
+  let opsMatches = 0;
+  opsMatches += renderSideDuties(schedule.sideDuties || [], query);
+  opsMatches += renderSpecialEvents(schedule.specialEvents || [], query);
+  opsMatches += renderSickLeave(schedule.sickLeave || [], query);
+
+  const totalMatches = venuesMatches + opsMatches;
+
+  // Update Search Counter with Intelligent Tab Routing
   const countEl = document.getElementById('searchCount');
   if (countEl) {
     if (query) {
-      countEl.innerHTML = `Found ${matchCount} matches <span id="searchJumpVenuesLink" style="cursor:pointer;color:var(--costa-blue);text-decoration:underline;font-weight:600;margin-left:4px;">(View &rarr;)</span>`;
-      const jumpLink = document.getElementById('searchJumpVenuesLink');
-      if (jumpLink) {
-        jumpLink.onclick = () => switchTab('tabVenues');
+      if (totalMatches === 0) {
+        countEl.innerHTML = `<span style="color:var(--costa-slate);">No matches found for "${escapeHtml(query)}"</span>`;
+      } else if (venuesMatches > 0 && opsMatches === 0) {
+        countEl.innerHTML = `Found ${venuesMatches} in Venues <span id="searchJumpBtn" class="search-jump-btn">(View &rarr;)</span>`;
+        const btn = document.getElementById('searchJumpBtn');
+        if (btn) btn.onclick = () => { switchTab('tabVenues'); autoExpandOnSearch(true); };
+      } else if (opsMatches > 0 && venuesMatches === 0) {
+        countEl.innerHTML = `Found ${opsMatches} in Operations <span id="searchJumpBtn" class="search-jump-btn">(View &rarr;)</span>`;
+        const btn = document.getElementById('searchJumpBtn');
+        if (btn) btn.onclick = () => { switchTab('tabOperations'); autoExpandOnSearch(true); };
+      } else {
+        countEl.innerHTML = `Found ${totalMatches} &bull; <span id="searchJumpVenuesBtn" class="search-jump-btn">Venues (${venuesMatches}) &rarr;</span> <span id="searchJumpOpsBtn" class="search-jump-btn" style="margin-left:6px;">Operations (${opsMatches}) &rarr;</span>`;
+        const vBtn = document.getElementById('searchJumpVenuesBtn');
+        if (vBtn) vBtn.onclick = () => { switchTab('tabVenues'); autoExpandOnSearch(true); };
+        const oBtn = document.getElementById('searchJumpOpsBtn');
+        if (oBtn) oBtn.onclick = () => { switchTab('tabOperations'); autoExpandOnSearch(true); };
       }
       autoExpandOnSearch(true);
     } else {
@@ -638,337 +653,189 @@ function updatePersonalBriefingAndSpotlight(userDuty, schedule) {
 }
 
 // ==========================================
-// RESTAURANT SERVICE COMMAND HUB (Schedule Tab)
-// Replaces redundant venue list with Table Finder, Milestones, and Station Leads
+// CREW COMPANION TWEET BOT ENGINE (Schedule Tab)
+// Warm, empathetic, human assistant message for tired crew
 // ==========================================
-function renderRestaurantCommandHub(schedule) {
-  currentTableFinderSchedule = schedule;
-  initTableFinderEvents();
+function renderCrewCompanionTweet(schedule) {
+  const tweetWrap = document.getElementById('crewCompanionTweet');
+  if (!tweetWrap) return;
 
-  const input = document.getElementById('tableFinderInput');
-  const val = input ? input.value : '';
-  searchAndDisplayTable(val);
-  renderShiftMilestones(schedule);
-  renderStationSupportLeads(schedule);
-}
+  initCrewTweetEvents();
 
-function initTableFinderEvents() {
-  if (isTableFinderInitialized) return;
-  isTableFinderInitialized = true;
+  const userDuty = findUserDuty(schedule);
+  const rawName = state.profile.name || '';
+  const firstName = rawName ? cleanNameString(rawName).split(' ')[0] : '';
+  const displayName = firstName ? (firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()) : '';
 
-  const input = document.getElementById('tableFinderInput');
-  const clearBtn = document.getElementById('clearTableFinderBtn');
+  const now = new Date();
+  const currH = now.getHours();
+  const currM = now.getMinutes();
 
-  if (input) {
-    input.addEventListener('input', () => {
-      const val = input.value.trim();
-      if (clearBtn) clearBtn.classList.toggle('hidden', !val);
-      searchAndDisplayTable(val);
-    });
+  // Determine current time period and corresponding meal
+  let timePeriod = 'afternoon'; // 'morning' | 'afternoon' | 'evening' | 'night'
+  let mealType = 'lunch';
+  if (currH >= 5 && currH < 11) {
+    timePeriod = 'morning';
+    mealType = 'breakfast';
+  } else if (currH >= 11 && currH < 16) {
+    timePeriod = 'afternoon';
+    mealType = 'lunch';
+  } else if (currH >= 16 && currH < 21) {
+    timePeriod = 'evening';
+    mealType = 'dinner';
+  } else {
+    timePeriod = 'night';
+    mealType = 'dinner';
   }
 
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      if (input) {
-        input.value = '';
-        clearBtn.classList.add('hidden');
-        searchAndDisplayTable('');
-        input.focus();
-      }
-    });
-  }
+  // Check if checking morning duty late at night / after dinner
+  const isNightOrLate = (currH >= 20 || currH < 5);
+  const isCheckingMorning = (state.currentMeal === 'BREAKFAST' || (userDuty && extractDutyStartTime(userDuty.time, state.currentMeal).hour < 11));
+  const isPostDinnerMorningCheck = isNightOrLate && isCheckingMorning;
 
-  // Quick Suggest Table Chips
-  const chipsContainer = document.getElementById('tableFinderChips');
-  if (chipsContainer) {
-    chipsContainer.addEventListener('click', (e) => {
-      const chip = e.target.closest('.table-chip-btn');
-      if (chip && chip.dataset.tbl) {
-        if (input) {
-          input.value = chip.dataset.tbl;
-          if (clearBtn) clearBtn.classList.remove('hidden');
-          searchAndDisplayTable(chip.dataset.tbl);
-        }
-      }
-    });
-  }
+  // Calculate remaining time to duty
+  let diffH = 0;
+  let diffM = 0;
+  let isUpcoming = false;
+  let isOngoing = false;
+  let reportFormatted = '11:00';
+  let venueName = 'Restaurant Duty';
 
-  // Jump to Venues link
-  const jumpVenues = document.getElementById('jumpToVenuesTabBtn');
-  if (jumpVenues) {
-    jumpVenues.onclick = () => {
-      switchTab('tabVenues');
-      const cat = document.getElementById('catMainDining');
-      if (cat) {
-        cat.classList.remove('collapsed');
-        const b = document.getElementById('bodyMainDining');
-        if (b) b.classList.remove('hidden');
-      }
-    };
-  }
+  if (userDuty && userDuty.time) {
+    venueName = userDuty.venue || (userDuty.station ? `Station ${userDuty.station}` : (userDuty.sideDuty || 'Duty'));
+    const st = extractDutyStartTime(userDuty.time, state.currentMeal);
+    reportFormatted = `${String(st.hour).padStart(2, '0')}:${String(st.minute).padStart(2, '0')}`;
 
-  // Jump to Operations link
-  const jumpOps = document.getElementById('jumpToOpsTabBtn');
-  if (jumpOps) {
-    jumpOps.onclick = () => {
-      switchTab('tabOperations');
-    };
-  }
-}
+    const dutyDate = new Date(now);
+    dutyDate.setHours(st.hour, st.minute, 0, 0);
+    let diffMs = dutyDate.getTime() - now.getTime();
 
-function searchAndDisplayTable(query) {
-  const resultBox = document.getElementById('tableFinderResult');
-  if (!resultBox) return;
+    // If duty is on tomorrow morning while checking tonight
+    if (diffMs < 0 && isNightOrLate) {
+      dutyDate.setDate(dutyDate.getDate() + 1);
+      diffMs = dutyDate.getTime() - now.getTime();
+    }
 
-  const schedule = currentTableFinderSchedule;
-  if (!schedule) {
-    resultBox.innerHTML = '<div class="table-finder-placeholder">No schedule loaded for this shift.</div>';
-    return;
-  }
-
-  const q = (query || '').trim().toLowerCase();
-  if (!q) {
-    resultBox.innerHTML = `
-      <div class="table-finder-hint-box">
-        <span class="hint-icon">💡</span>
-        <span>Enter any table number to instantly locate its dining room, station &amp; assigned waiter.</span>
-      </div>
-    `;
-    return;
-  }
-
-  const matches = [];
-  (schedule.venues || []).forEach(venue => {
-    (venue.assignments || []).forEach(assign => {
-      const stn = String(assign.station || '').toLowerCase();
-      const tablesStr = String(assign.tables || '').toLowerCase();
-      const waiter = String(assign.waiterName || '').toLowerCase();
-      const attendant = String(assign.attendantName || '').toLowerCase();
-
-      const tableTokens = tablesStr.split(/[\s,]+/).filter(Boolean);
-      const isExactTable = tableTokens.includes(q) || tableTokens.some(t => t === q || t.replace(/^t-?/i, '') === q);
-      const isPartialTable = tablesStr.includes(q);
-      const isStationMatch = stn === q || stn === q.replace(/^stn\s*/i, '') || stn === q.replace(/^station\s*/i, '');
-      const isWaiterMatch = waiter.includes(q) || attendant.includes(q);
-
-      if (isExactTable || isStationMatch || isPartialTable || isWaiterMatch) {
-        matches.push({
-          venue: venue.name,
-          reportTime: venue.reportTime,
-          station: assign.station,
-          waiterName: cleanCrewName(assign.waiterName),
-          rawWaiter: assign.waiterName,
-          attendantName: assign.attendantName ? cleanCrewName(assign.attendantName) : '',
-          tables: assign.tables,
-          priority: isExactTable ? 1 : isStationMatch ? 2 : 3
-        });
-      }
-    });
-  });
-
-  if (matches.length === 0) {
-    resultBox.innerHTML = `
-      <div class="table-finder-not-found">
-        <span>No match found for "<strong>${escapeHtml(query)}</strong>" in dining room stations.</span>
-        <small>Try another table number or check Buffet in the Venues tab.</small>
-      </div>
-    `;
-    return;
-  }
-
-  matches.sort((a, b) => a.priority - b.priority);
-  const best = matches.slice(0, 3);
-
-  let html = '';
-  best.forEach(m => {
-    html += `
-      <div class="table-found-card">
-        <div class="table-found-header">
-          <div class="table-found-tags">
-            <span class="badge-station">STATION ${escapeHtml(m.station)}</span>
-            <span class="badge-venue">${escapeHtml(m.venue)}</span>
-          </div>
-          <button class="btn-jump-table-station" type="button">View &rarr;</button>
-        </div>
-        <div class="table-found-body">
-          <div class="table-found-row">
-            <span class="tbl-label">Assigned Waiter:</span>
-            <strong class="tbl-val">${escapeHtml(m.waiterName)}</strong>
-          </div>
-          ${m.attendantName ? `
-          <div class="table-found-row">
-            <span class="tbl-label">Attendant:</span>
-            <span class="tbl-val">${escapeHtml(m.attendantName)}</span>
-          </div>` : ''}
-          <div class="table-found-row">
-            <span class="tbl-label">Station Tables:</span>
-            <span class="tbl-val tables-highlight">${escapeHtml(m.tables || 'Not specified')}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-
-  if (matches.length > 3) {
-    html += `<div style="text-align:center; font-size:0.75rem; color:var(--costa-slate); margin-top:4px;">+${matches.length - 3} more matching stations in Venues</div>`;
-  }
-
-  resultBox.innerHTML = html;
-
-  resultBox.querySelectorAll('.btn-jump-table-station').forEach(btn => {
-    btn.onclick = () => {
-      switchTab('tabVenues');
-      const cat = document.getElementById('catMainDining');
-      if (cat) {
-        cat.classList.remove('collapsed');
-        const b = document.getElementById('bodyMainDining');
-        if (b) b.classList.remove('hidden');
-      }
-    };
-  });
-}
-
-function renderShiftMilestones(schedule) {
-  const subtitleEl = document.getElementById('milestonesSubtitle');
-  const dressBadge = document.getElementById('milestoneDressBadge');
-  const trackEl = document.getElementById('milestonesTrack');
-  if (!trackEl) return;
-
-  const meal = state.currentMeal || 'LUNCH';
-  let baseReport = '11:00';
-  if (schedule.venues && schedule.venues[0] && schedule.venues[0].reportTime) {
-    baseReport = schedule.venues[0].reportTime;
-  } else if (meal === 'BREAKFAST') {
-    baseReport = '06:30';
-  } else if (meal === 'DINNER') {
-    baseReport = '18:00';
-  }
-
-  const parts = baseReport.split(':');
-  let bH = parseInt(parts[0], 10) || 11;
-  let bM = parseInt(parts[1], 10) || 0;
-
-  const addMins = (h, m, add) => {
-    const d = new Date();
-    d.setHours(h, m + add, 0, 0);
-    const pad = (n) => String(n).padStart(2, '0');
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
-
-  const tReport = `${String(bH).padStart(2, '0')}:${String(bM).padStart(2, '0')}`;
-  const tBriefing = addMins(bH, bM, 15);
-  const tDoors = addMins(bH, bM, 30);
-  let tLastCall = meal === 'BREAKFAST' ? '09:30' : meal === 'LUNCH' ? '13:30' : '21:30';
-  let tClosing = meal === 'BREAKFAST' ? '10:15' : meal === 'LUNCH' ? '14:00' : '22:15';
-
-  if (subtitleEl) {
-    subtitleEl.innerText = `${meal.charAt(0) + meal.slice(1).toLowerCase()} Service Roadmap • ${tReport} Report`;
-  }
-
-  if (dressBadge) {
-    if (meal === 'DINNER') {
-      dressBadge.innerText = '👔 Evening / Gala Service';
-      dressBadge.className = 'milestone-dress-badge gala';
-    } else {
-      dressBadge.innerText = '👔 Standard White Jacket';
-      dressBadge.className = 'milestone-dress-badge';
+    if (diffMs > 0) {
+      isUpcoming = true;
+      const totalMin = Math.floor(diffMs / (60 * 1000));
+      diffH = Math.floor(totalMin / 60);
+      diffM = totalMin % 60;
+    } else if (diffMs >= -3 * 3600 * 1000) {
+      isOngoing = true;
     }
   }
 
-  const milestones = [
-    { time: tReport, title: 'Crew Report & Setup', desc: 'Mise-en-place, cutlery polish & grooming check' },
-    { time: tBriefing, title: 'Line-up Briefing', desc: 'Maitre D’ service briefing, specials & VIP alerts' },
-    { time: tDoors, title: 'Doors Open', desc: 'Guest seating, beverage service & food orders' },
-    { time: tLastCall, title: 'Kitchen Last Call', desc: 'Galley closing for main courses & desserts' },
-    { time: tClosing, title: 'Reset & Sanitizing', desc: 'Linen collection, table sanitize & handover' }
-  ];
+  // Format time remaining string
+  let timeStr = '';
+  if (diffH > 0 && diffM > 0) {
+    timeStr = `${diffH} hours ${diffM} minutes more`;
+  } else if (diffH > 0) {
+    timeStr = `${diffH} hours more`;
+  } else if (diffM > 0) {
+    timeStr = `${diffM} minutes more`;
+  } else {
+    timeStr = 'less than a minute';
+  }
 
-  let trackHtml = '';
-  milestones.forEach((m, idx) => {
-    trackHtml += `
-      <div class="milestone-item">
-        <div class="milestone-time-col">
-          <span class="milestone-time">${m.time}</span>
-        </div>
-        <div class="milestone-marker">
-          <span class="milestone-dot"></span>
-          ${idx < milestones.length - 1 ? '<span class="milestone-line"></span>' : ''}
-        </div>
-        <div class="milestone-content">
-          <h4 class="milestone-step-title">${m.title}</h4>
-          <p class="milestone-step-desc">${m.desc}</p>
-        </div>
-      </div>
-    `;
-  });
+  // Update Mood Badge
+  const moodBadge = document.getElementById('tweetMoodBadge');
+  if (moodBadge) {
+    if (isPostDinnerMorningCheck) {
+      moodBadge.innerText = '🍻 Crew Bar & Party Time';
+      moodBadge.className = 'tweet-mood-badge party';
+    } else if (timePeriod === 'night') {
+      moodBadge.innerText = '🌙 Night Rest & Chill';
+      moodBadge.className = 'tweet-mood-badge night';
+    } else if (isUpcoming && diffH >= 2) {
+      moodBadge.innerText = '☕ Break & Recharge';
+      moodBadge.className = 'tweet-mood-badge break';
+    } else {
+      moodBadge.innerText = '☀️ Rest & Duty Tracker';
+      moodBadge.className = 'tweet-mood-badge';
+    }
+  }
 
-  trackEl.innerHTML = trackHtml;
+  // Date Tag
+  const dateTag = document.getElementById('tweetDateText');
+  if (dateTag) {
+    dateTag.innerText = schedule.date || 'Today';
+  }
+
+  const mealNoun = mealType;
+  const greeting = displayName ? `Hey <strong>${escapeHtml(displayName)}</strong>!` : `Hey shipmate!`;
+
+  const templates = [];
+
+  // SPECIAL CASE: After dinner shift, checking morning schedule (Crew Bar / Crew Party focus!)
+  if (isPostDinnerMorningCheck) {
+    templates.push(
+      `${greeting} Dinner rush is finally over! You've earned a cold beer or cocktail at the <strong>Crew Bar</strong> 🍻. Or if there's a <strong>Crew Party</strong> tonight, go dance and laugh with friends! Just remember tomorrow's morning duty is in <span class="highlight-time">${timeStr}</span> (Report at <strong>${reportFormatted}</strong>). Don't party too late, and make sure to hit the <strong>Alarm</strong> button before you sleep! 🎉🍹⏰`
+    );
+    templates.push(
+      `${greeting} Great job conquering dinner service! Head down to the <strong>Crew Bar</strong> or check out the <strong>Crew Party</strong> tonight to blow off some steam. Tomorrow's breakfast shift reports in <span class="highlight-time">${timeStr}</span> at <strong>${reportFormatted}</strong> (<span class="highlight-venue">${escapeHtml(venueName)}</span>). Have fun, recharge with your crew mates, and tap the <strong>Alarm</strong> button below before hitting your bunk! 🕺🍻🛌`
+    );
+    templates.push(
+      `${greeting} Hard work tonight done! Whether you're heading to the <strong>Crew Bar</strong> for a drink, socializing at the <strong>Crew Party</strong>, or going straight to your cabin for phone time and a hot shower — you've got <span class="highlight-time">${timeStr}</span> until morning duty. Rest well and don't forget to press the <strong>Alarm</strong> button! 🎶🥂🛌`
+    );
+    templates.push(
+      `${greeting} Dinner is conquered, time to unwind! Meet your crew mates at the <strong>Crew Bar</strong>, check if the <strong>Crew Party</strong> is rolling, or enjoy some quiet phone time in your cabin. Tomorrow's morning call is in <span class="highlight-time">${timeStr}</span> at <strong>${reportFormatted}</strong>. Have a great night and set your bedside alarm below! ⭐🚢🎉`
+    );
+  } else if (isUpcoming) {
+    // Regular upcoming duty: Day / Afternoon / Evening
+    templates.push(
+      `${greeting} Your next duty is in <span class="highlight-time">${timeStr}</span> (Report at <strong>${reportFormatted}</strong> for <span class="highlight-venue">${escapeHtml(venueName)}</span>). You can sleep, have your ${mealNoun} at the crew mess, enjoy the outside breeze on deck a while, or play on your phone in your cabin bunk. Don't forget to press the <strong>Alarm</strong> button! ⏰`
+    );
+    templates.push(
+      `${greeting} You have <span class="highlight-time">${timeStr}</span> to rest before reporting to <span class="highlight-venue">${escapeHtml(venueName)}</span> at <strong>${reportFormatted}</strong>. You've worked hard! Grab some food, stretch your legs, kick back in your cabin bunk, and tap the <strong>Alarm</strong> button so you wake up on time! 🛌☕`
+    );
+    templates.push(
+      `${greeting} Nice work out there! Your next shift starts in <span class="highlight-time">${timeStr}</span>. Plenty of time to eat your ${mealNoun}, video call your family back home, take a quiet nap in your cabin, or enjoy the ocean air. Be sure to hit the <strong>Alarm</strong> button below! 🚢📱`
+    );
+    templates.push(
+      `${greeting} Take a well-deserved breather! Next duty is in <span class="highlight-time">${timeStr}</span> at <strong>${reportFormatted}</strong> (<span class="highlight-venue">${escapeHtml(venueName)}</span>). Catch a refreshing power nap, enjoy your ${mealNoun}, chill with your phone, and remember to tap the <strong>Alarm</strong> button below! ✨😴`
+    );
+  } else if (isOngoing) {
+    templates.push(
+      `${greeting} You're currently on duty for <strong>${state.currentMeal}</strong> at <span class="highlight-venue">${escapeHtml(venueName)}</span>. Keep that Costa smile bright, stay hydrated through the rush, and push through — you've got this! 💪🍽️`
+    );
+    templates.push(
+      `${greeting} Hope service is running smoothly at <span class="highlight-venue">${escapeHtml(venueName)}</span>! Drink plenty of water, support your station team, and take care of your feet. You're doing a fantastic job out there! ⭐🚢`
+    );
+  } else {
+    // Off duty or Standby
+    templates.push(
+      `${greeting} No active duties scheduled for this ${state.currentMeal.toLowerCase()} shift. Enjoy your free time to the fullest — sleep in, catch up with crew friends at the mess, enjoy your ${mealNoun}, or relax in your cabin. Recharge well! 🌴🛋️`
+    );
+    templates.push(
+      `${greeting} You are off duty for ${state.currentMeal.toLowerCase()}! Make the most of your break — grab your ${mealNoun}, enjoy the sunshine on open deck, call home, and get some good rest before your next call! ☀️🌊`
+    );
+  }
+
+  const msg = templates[currentTweetIndex % templates.length];
+  const contentEl = document.getElementById('tweetMessageContent');
+  if (contentEl) {
+    contentEl.innerHTML = `<p style="margin:0;">${msg}</p>`;
+  }
 }
 
-function renderStationSupportLeads(schedule) {
-  const grid = document.getElementById('supportLeadsGrid');
-  if (!grid) return;
-
-  const ctCrew = [];
-  const trCrew = [];
-  const linenCrew = [];
-  const dirCrew = [];
-
-  (schedule.venues || []).forEach(v => {
-    (v.assignments || []).forEach(a => {
-      const name = a.waiterName || '';
-      const cName = cleanCrewName(name);
-      if (/-CT\b/i.test(name) || /\bCT\b/i.test(name)) ctCrew.push(cName);
-      if (/-TR\b/i.test(name) || /\bTR\b/i.test(name)) trCrew.push(cName);
-      if (/-LINEN\b/i.test(name) || /\bLINEN\b/i.test(name)) linenCrew.push(cName);
-      if (/-DIRECTIONE\b/i.test(name) || /\bDIRECTIONE\b/i.test(name)) dirCrew.push(cName);
-
-      const attName = a.attendantName || '';
-      if (attName) {
-        const cAtt = cleanCrewName(attName);
-        if (/-CT\b/i.test(attName)) ctCrew.push(cAtt);
-        if (/-TR\b/i.test(attName)) trCrew.push(cAtt);
-        if (/-LINEN\b/i.test(attName)) linenCrew.push(cAtt);
-        if (/-DIRECTIONE\b/i.test(attName)) dirCrew.push(cAtt);
-      }
+function initCrewTweetEvents() {
+  const refreshBtn = document.getElementById('refreshTweetBtn');
+  if (refreshBtn && !refreshBtn.dataset.wired) {
+    refreshBtn.dataset.wired = 'true';
+    refreshBtn.addEventListener('click', () => {
+      currentTweetIndex++;
+      const schedule = state.schedules[state.currentDay][state.currentMeal];
+      if (schedule) renderCrewCompanionTweet(schedule);
+      showToast('🔄 Loaded a fresh companion note!');
     });
-  });
+  }
 
-  const formatList = (arr) => {
-    if (arr.length === 0) return '<span class="support-empty">No assignments listed</span>';
-    return arr.slice(0, 4).map(name => `<span class="support-crew-tag">${escapeHtml(name)}</span>`).join('');
-  };
-
-  grid.innerHTML = `
-    <div class="support-lead-item">
-      <div class="support-lead-head">
-        <span class="support-badge ct">CT</span>
-        <strong>Cutlery Team (${ctCrew.length})</strong>
-      </div>
-      <div class="support-tag-wrap">${formatList(ctCrew)}</div>
-    </div>
-    <div class="support-lead-item">
-      <div class="support-lead-head">
-        <span class="support-badge tr">TR</span>
-        <strong>Trash &amp; Trays (${trCrew.length})</strong>
-      </div>
-      <div class="support-tag-wrap">${formatList(trCrew)}</div>
-    </div>
-    <div class="support-lead-item">
-      <div class="support-lead-head">
-        <span class="support-badge ln">LN</span>
-        <strong>Linen Runners (${linenCrew.length})</strong>
-      </div>
-      <div class="support-tag-wrap">${formatList(linenCrew)}</div>
-    </div>
-    <div class="support-lead-item">
-      <div class="support-lead-head">
-        <span class="support-badge dr">DR</span>
-        <strong>Directione &amp; Door (${dirCrew.length})</strong>
-      </div>
-      <div class="support-tag-wrap">${formatList(dirCrew)}</div>
-    </div>
-  `;
+  const tweetAlarmBtn = document.getElementById('tweetAlarmBtn');
+  if (tweetAlarmBtn && !tweetAlarmBtn.dataset.wired) {
+    tweetAlarmBtn.dataset.wired = 'true';
+    tweetAlarmBtn.addEventListener('click', handleAlarmButtonClick);
+  }
 }
 
 function getShortVenueName(userDuty) {
