@@ -9,7 +9,6 @@ Matches CostaSchedule.html visual system:
 
 import sys
 import os
-import io
 import json
 import datetime
 import webbrowser
