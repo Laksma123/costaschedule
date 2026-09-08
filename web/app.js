@@ -372,20 +372,12 @@ function initApp() {
   } catch (err) {
     console.error('App initialization error:', err);
   } finally {
-    // Hardcoded 3-second opening spinner before transitioning to UI
+    // Dismiss opening spinner smoothly once schedule is rendered (150ms)
     setTimeout(() => {
       if (typeof window.dismissSplashOverlay === 'function') {
         window.dismissSplashOverlay();
-      } else {
-        const splash = document.getElementById('splashOverlay');
-        if (splash) {
-          splash.classList.add('fade-out');
-          setTimeout(() => {
-            if (splash.parentNode) splash.parentNode.removeChild(splash);
-          }, 500);
-        }
       }
-    }, 3000);
+    }, 150);
   }
 }
 
@@ -437,15 +429,112 @@ function saveStoredSchedules() {
 }
 
 // ==========================================
-// PAYLOAD PARSER & DECODER
+// PAYLOAD PARSER & DECODER (DUAL-MODE: COMPRESSED QR & LEGACY)
 // ==========================================
-function parseWhatsAppPayload(text) {
+const _CZ_KEY_EXPAND = {
+  'w': 'waiterName', 'a': 'attendantName', 's': 'station',
+  't': 'tables', 'n': 'name', 'r': 'role', 'c': 'crew',
+  'as': 'assignments', 'rt': 'reportTime', 'ti': 'timing',
+  'ld': 'lead', 'tt': 'title', 'lo': 'location',
+  'pa': 'participants', 'un': 'uniform',
+  'v': 'venues', 'bv': 'buffetAndVenues', 'sd': 'sideDuties',
+  'se': 'specialEvents', 'sl': 'sickLeave',
+  'sh': 'ship', 'dt': 'date', 'po': 'port', 'ml': 'meal', 'sf': 'shift',
+};
+
+function expandKeys(obj) {
+  if (Array.isArray(obj)) return obj.map(expandKeys);
+  if (obj && typeof obj === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(obj)) {
+      out[_CZ_KEY_EXPAND[k] || k] = expandKeys(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
+async function decompressZlib(bytes) {
+  const ds = new DecompressionStream('deflate');
+  const writer = ds.writable.getWriter();
+  writer.write(bytes);
+  writer.close();
+  const res = new Response(ds.readable);
+  return await res.text();
+}
+
+async function parseWhatsAppPayload(text) {
   if (!text || typeof text !== 'string') {
     throw new Error('Empty message received.');
   }
 
-  let rawEncoded = text.trim();
+  let rawText = text.trim();
 
+  // ── 1. COMPRESSED QR FORMAT (CZ:n/t:base64) ──
+  const czPattern = /CZ:(\d+)\/(\d+):([A-Za-z0-9+/=]+)/g;
+  let match;
+  let hasCZ = false;
+
+  let saved = {};
+  try {
+    const rawSaved = safeStorage.getItem('costa_pending_qr');
+    if (rawSaved) saved = JSON.parse(rawSaved);
+  } catch(e) { saved = {}; }
+
+  while ((match = czPattern.exec(rawText)) !== null) {
+    hasCZ = true;
+    const part = parseInt(match[1], 10);
+    const total = parseInt(match[2], 10);
+    saved[part] = match[3];
+    saved._total = total;
+  }
+
+  if (hasCZ || saved._total) {
+    const total = saved._total || 2;
+    const partsFound = Object.keys(saved).filter(k => k !== '_total').map(Number).sort();
+
+    if (partsFound.length === total) {
+      let fullB64 = '';
+      for (let i = 1; i <= total; i++) {
+        fullB64 += saved[i];
+      }
+      safeStorage.removeItem('costa_pending_qr');
+
+      try {
+        const binaryStr = atob(fullB64);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+        const jsonStr = await decompressZlib(bytes);
+        const minified = JSON.parse(jsonStr);
+        const scheduleObj = expandKeys(minified);
+
+        if (!scheduleObj || !scheduleObj.meal) {
+          throw new Error('Incomplete schedule structure after decompression.');
+        }
+        scheduleObj.timestamp = Date.now();
+        return { schedule: scheduleObj, complete: true };
+      } catch (err) {
+        throw new Error('Failed to decompress QR data: ' + err.message);
+      }
+    } else {
+      safeStorage.setItem('costa_pending_qr', JSON.stringify(saved));
+      const remaining = [];
+      for (let i = 1; i <= total; i++) {
+        if (!saved[i]) remaining.push(i);
+      }
+      return {
+        complete: false,
+        partsFound: partsFound,
+        total: total,
+        remaining: remaining
+      };
+    }
+  }
+
+  // ── 2. LEGACY / STANDARD FORMAT ([COSTA-DATA-START]...[COSTA-DATA-END]) ──
+  let rawEncoded = rawText;
   const startTag = '[COSTA-DATA-START]';
   const endTag = '[COSTA-DATA-END]';
   
@@ -456,7 +545,7 @@ function parseWhatsAppPayload(text) {
     rawEncoded = text.substring(startIndex + startTag.length, endIndex).trim();
   }
 
-  rawEncoded = rawEncoded.replace(/[\*\_\s]/g, '');
+  rawEncoded = rawEncoded.replace(/[\*_\s]/g, '');
 
   let jsonString = '';
 
@@ -486,7 +575,7 @@ function parseWhatsAppPayload(text) {
   }
 
   scheduleObj.timestamp = Date.now();
-  return scheduleObj;
+  return { schedule: scheduleObj, complete: true };
 }
 
 // ==========================================
@@ -2414,12 +2503,23 @@ function setupEventListeners() {
   });
 }
 
-function processSchedulePaste(text) {
+async function processSchedulePaste(text) {
   const errorEl = document.getElementById('pasteError');
   errorEl.classList.add('hidden');
 
   try {
-    const schedule = parseWhatsAppPayload(text);
+    const result = await parseWhatsAppPayload(text);
+    
+    if (!result.complete) {
+      errorEl.classList.remove('hidden');
+      errorEl.style.color = 'var(--costa-blue)';
+      errorEl.innerText = `📥 QR Part ${result.partsFound.join(', ')} of ${result.total} received! Now copy and paste Part ${result.remaining.join(', ')} from WhatsApp.`;
+      showToast(`Part ${result.partsFound.join(', ')} saved. Paste Part ${result.remaining.join(', ')}!`);
+      document.getElementById('pasteTextarea').value = '';
+      return;
+    }
+
+    const schedule = result.schedule;
     const mealKey = (schedule.meal || 'LUNCH').toUpperCase();
 
     state.schedules.today[mealKey] = schedule;
@@ -2439,6 +2539,7 @@ function processSchedulePaste(text) {
     showToast(`Decoded ${schedule.meal} schedule successfully!`);
     renderSchedule();
   } catch (err) {
+    errorEl.style.color = '#DC2626';
     errorEl.innerText = '❌ Error: ' + err.message;
     errorEl.classList.remove('hidden');
   }

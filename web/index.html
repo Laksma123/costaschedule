@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="newspaper-theme">
-  <!-- Splash Loading & Validation Overlay -->
-  <div id="splashOverlay" class="splash-overlay" onclick="if(window.dismissSplashOverlay)window.dismissSplashOverlay();">
+  <!-- Splash Loading & Validation Overlay (Instant Touch / Failsafe Dismissal) -->
+  <div id="splashOverlay" class="splash-overlay" onclick="if(window.dismissSplashOverlay)window.dismissSplashOverlay();" ontouchstart="if(window.dismissSplashOverlay)window.dismissSplashOverlay();">
     <div class="splash-content">
       <div class="splash-logo-wrap">
         <img src="logo.png" alt="Costa Logo" class="splash-logo-img">
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- Guaranteed Failsafe Splash Controller (Executes immediately; guarantees splash dismissal after 3.0s in any sandbox/iOS preview) -->
+  <!-- Guaranteed Failsafe Splash Controller (Instant Touch / 600ms Max Timeout / Clean Removal) -->
   <script>
     (function() {
       var isDismissed = false;
@@ -36,17 +36,19 @@
         var splash = document.getElementById('splashOverlay');
         if (splash) {
           splash.classList.add('fade-out');
-          setTimeout(function() {
-            if (splash && splash.parentNode) {
-              splash.parentNode.removeChild(splash);
-            }
-          }, 500);
+          splash.style.display = 'none';
+          try {
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+          } catch (e) {}
         }
       };
-      // Hardcoded 3.0-second guaranteed timer
+      // 600ms guaranteed failsafe timer (prevents iPhone Safari timer throttling)
       setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
-      }, 3000);
+      }, 600);
+      window.addEventListener('load', function() {
+        if (window.dismissSplashOverlay) window.dismissSplashOverlay();
+      });
     })();
   </script>
 
@@ -767,5 +769,11 @@
   <div id="toast" class="toast hidden"></div>
 
   <script src="app.js"></script>
+  <script>
+    // Final failsafe: guarantee splash overlay dismissal in all iOS/Android browsers
+    if (typeof window.dismissSplashOverlay === 'function') {
+      setTimeout(window.dismissSplashOverlay, 700);
+    }
+  </script>
 </body>
 </html>
