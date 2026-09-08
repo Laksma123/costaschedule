@@ -599,6 +599,8 @@ function renderSchedule() {
       }
     }
   }
+
+  updateToggleBtnLabels();
 }
 
 function updatePersonalBriefingAndSpotlight(userDuty, schedule) {
@@ -1323,31 +1325,35 @@ function setCardExpansion(card, expand) {
   }
 }
 
+function isTabAnyCollapsed(tabSelector) {
+  const cards = document.querySelectorAll(`${tabSelector} .category-card`);
+  const anyCardCollapsed = Array.from(cards).some(c => c.classList.contains('collapsed'));
+  if (anyCardCollapsed) return true;
+
+  const groups = document.querySelectorAll(`${tabSelector} .venue-group`);
+  if (groups.length > 0) {
+    const anyGroupCollapsed = Array.from(groups).some(g => g.classList.contains('sub-collapsed'));
+    if (anyGroupCollapsed) return true;
+  }
+  return false;
+}
+
 function updateToggleBtnLabels() {
   // Check Tab 2 (Venues)
-  const venuesCards = document.querySelectorAll('#tabVenues .category-card');
-  const venuesCollapsed = Array.from(venuesCards).some(c => c.classList.contains('collapsed'));
   const btnVenues = document.getElementById('toggleVenuesAccordionBtn');
   if (btnVenues) {
-    btnVenues.innerText = venuesCollapsed ? 'Expand All' : 'Collapse All';
+    const venuesHasCollapsed = isTabAnyCollapsed('#tabVenues');
+    btnVenues.innerText = venuesHasCollapsed ? 'Expand All' : 'Collapse All';
   }
 
   // Check Tab 3 (Operations)
-  const opsCards = document.querySelectorAll('#tabOperations .category-card');
-  const opsCollapsed = Array.from(opsCards).some(c => c.classList.contains('collapsed'));
   const btnOps = document.getElementById('toggleOperationsAccordionBtn');
   if (btnOps) {
-    btnOps.innerText = opsCollapsed ? 'Expand All' : 'Collapse All';
+    const opsHasCollapsed = isTabAnyCollapsed('#tabOperations');
+    btnOps.innerText = opsHasCollapsed ? 'Expand All' : 'Collapse All';
   }
 
-  // Check Tab 1 / Global
-  const allCards = document.querySelectorAll('.category-card');
-  const anyCollapsed = Array.from(allCards).some(c => c.classList.contains('collapsed'));
-  const btnAll = document.getElementById('toggleAllAccordionBtn');
-  if (btnAll) {
-    btnAll.innerText = anyCollapsed ? 'Expand All' : 'Collapse All';
-  }
-  state.allExpanded = !anyCollapsed;
+  state.allExpanded = !isTabAnyCollapsed('#tabVenues') && !isTabAnyCollapsed('#tabOperations');
 }
 
 function applyDefaultCollapseState() {
@@ -1375,6 +1381,7 @@ function autoExpandOnSearch(shouldExpand) {
       grp.classList.remove('sub-collapsed');
     }
   });
+  updateToggleBtnLabels();
 }
 
 // ==========================================
@@ -1991,6 +1998,8 @@ function switchTab(targetTabId) {
     btn.classList.toggle('active', btn.dataset.tab === targetTabId);
   });
 
+  updateToggleBtnLabels();
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2046,6 +2055,7 @@ function setupEventListeners() {
       document.querySelectorAll('.venue-group').forEach(grp => {
         grp.classList.remove('sub-collapsed');
       });
+      updateToggleBtnLabels();
       // Scroll to user's highlighted row
       setTimeout(() => {
         const highlightedRow = document.querySelector('.highlight-my-row');
@@ -2112,44 +2122,18 @@ function setupEventListeners() {
       const group = subHeader.closest('.venue-group');
       if (group) {
         group.classList.toggle('sub-collapsed');
+        updateToggleBtnLabels();
       }
       return;
     }
   });
 
-  // 1. Toggle All Button in Schedule Tab (Tab 1)
-  const btnToggleAll = document.getElementById('toggleAllAccordionBtn');
-  if (btnToggleAll) {
-    btnToggleAll.addEventListener('click', () => {
-      const allCards = document.querySelectorAll('.category-card');
-      const anyCollapsed = Array.from(allCards).some(c => c.classList.contains('collapsed'));
-      const shouldExpand = anyCollapsed;
-
-      allCards.forEach(card => setCardExpansion(card, shouldExpand));
-      document.querySelectorAll('.venue-group').forEach(grp => {
-        if (shouldExpand) grp.classList.remove('sub-collapsed');
-        else grp.classList.add('sub-collapsed');
-      });
-
-      updateToggleBtnLabels();
-
-      if (shouldExpand) {
-        switchTab('tabVenues');
-        showToast('Expanded all sections & opened Venues');
-      } else {
-        showToast('Collapsed all sections');
-      }
-    });
-  }
-
-  // 2. Toggle Button in Venues Tab (Tab 2)
+  // 1. Toggle Button in Venues Tab (Tab 2)
   const btnToggleVenues = document.getElementById('toggleVenuesAccordionBtn');
   if (btnToggleVenues) {
     btnToggleVenues.addEventListener('click', () => {
+      const shouldExpand = isTabAnyCollapsed('#tabVenues');
       const cards = document.querySelectorAll('#tabVenues .category-card');
-      const anyCollapsed = Array.from(cards).some(c => c.classList.contains('collapsed'));
-      const shouldExpand = anyCollapsed;
-
       cards.forEach(card => setCardExpansion(card, shouldExpand));
       document.querySelectorAll('#tabVenues .venue-group').forEach(grp => {
         if (shouldExpand) grp.classList.remove('sub-collapsed');
@@ -2161,14 +2145,12 @@ function setupEventListeners() {
     });
   }
 
-  // 3. Toggle Button in Operations Tab (Tab 3)
+  // 2. Toggle Button in Operations Tab (Tab 3)
   const btnToggleOps = document.getElementById('toggleOperationsAccordionBtn');
   if (btnToggleOps) {
     btnToggleOps.addEventListener('click', () => {
+      const shouldExpand = isTabAnyCollapsed('#tabOperations');
       const cards = document.querySelectorAll('#tabOperations .category-card');
-      const anyCollapsed = Array.from(cards).some(c => c.classList.contains('collapsed'));
-      const shouldExpand = anyCollapsed;
-
       cards.forEach(card => setCardExpansion(card, shouldExpand));
       document.querySelectorAll('#tabOperations .venue-group').forEach(grp => {
         if (shouldExpand) grp.classList.remove('sub-collapsed');

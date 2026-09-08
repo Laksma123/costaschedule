@@ -686,21 +686,21 @@ html, body {
   background: #FFFFFF;
   border: 1px solid var(--border-color);
   border-left: 4px solid var(--costa-yellow);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 50, 74, 0.05);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0, 50, 74, 0.05);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .crew-tweet-card:hover {
-  box-shadow: 0 4px 14px rgba(0, 50, 74, 0.08);
+  box-shadow: 0 3px 10px rgba(0, 50, 74, 0.08);
 }
 
 .tweet-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tweet-author-info {
@@ -714,13 +714,20 @@ html, body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--costa-blue-faint);
+  background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  border: 1.5px solid var(--costa-blue);
+  border: 1.5px solid var(--border-color);
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 50, 74, 0.06);
+}
+
+.tweet-costa-logo {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
 }
 
 .tweet-verified-badge {
@@ -738,6 +745,7 @@ html, body {
   align-items: center;
   justify-content: center;
   border: 1.5px solid #FFFFFF;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .tweet-author-text {
@@ -766,39 +774,45 @@ html, body {
 
 .tweet-mood-badge {
   font-size: 0.68rem;
-  font-weight: 700;
-  color: #065F46;
-  background: #D1FAE5;
+  font-weight: 600;
+  color: var(--good-ink);
+  background: var(--good-bg);
+  border: 1px solid var(--good-border);
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   width: fit-content;
+  display: inline-flex;
+  align-items: center;
 }
 
 .tweet-mood-badge.night {
-  color: #1E3A8A;
-  background: #DBEAFE;
+  color: var(--costa-blue);
+  background: var(--costa-blue-faint);
+  border: 1px solid #BAE6FD;
 }
 
 .tweet-mood-badge.break {
-  color: #92400E;
-  background: #FEF3C7;
+  color: var(--warn-ink);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
 }
 
 .tweet-mood-badge.party {
   color: #701A75;
-  background: #FCE7F3;
+  background: #FDF2F8;
+  border: 1px solid #FBCFE8;
 }
 
 .btn-refresh-tweet {
-  background: #F1F5F9;
-  border: 1px solid #E2E8F0;
+  background: var(--costa-blue-faint);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--costa-slate);
+  color: var(--costa-blue);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -806,33 +820,33 @@ html, body {
 
 .btn-refresh-tweet:hover {
   background: #E2E8F0;
-  color: var(--costa-blue);
   transform: rotate(30deg);
 }
 
 .tweet-content-box {
-  font-size: 0.88rem;
-  line-height: 1.55;
-  color: #1E293B;
-  padding: 4px 0 12px 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--costa-ink);
+  padding: 2px 0 10px 0;
 }
 
 .tweet-content-box strong {
   color: var(--costa-navy);
+  font-weight: 600;
 }
 
 .tweet-content-box .highlight-time {
-  color: #B45309;
-  background: #FFFBEB;
-  font-weight: 700;
+  color: var(--costa-navy);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  font-weight: 600;
   padding: 1px 6px;
   border-radius: 4px;
-  border: 1px solid #FDE68A;
 }
 
 .tweet-content-box .highlight-venue {
   color: var(--costa-blue);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .tweet-footer {
@@ -840,28 +854,28 @@ html, body {
   justify-content: space-between;
   align-items: center;
   padding-top: 10px;
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .tweet-alarm-pill {
   background: var(--costa-yellow);
   color: var(--costa-navy);
-  border: 1px solid var(--costa-yellow-dark);
-  font-size: 0.78rem;
+  border: 1px solid #E09E00;
+  font-size: 0.76rem;
   font-weight: 700;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 1px 3px rgba(255, 199, 44, 0.2);
+  box-shadow: 0 1px 3px rgba(249, 176, 0, 0.25);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tweet-alarm-pill:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(255, 199, 44, 0.35);
+  box-shadow: 0 2px 6px rgba(249, 176, 0, 0.4);
 }
 
 .tweet-date-text {
