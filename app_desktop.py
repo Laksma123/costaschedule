@@ -1,109 +1,144 @@
 #!/usr/bin/env python3
 """
 Costa Cruises — Restaurant Schedule Exporter
-═══════════════════════════════════════════════════════════════
-Linear / Modern Precision Design System
-Fast, fluid, high-contrast dark aesthetic with layered depth,
-refined typography, subtle ambient glows, and 0% idle CPU.
-═══════════════════════════════════════════════════════════════
+Desktop Edition — Newspaper Light Theme
+Matches CostaSchedule.html visual system:
+  White canvas, Poppins type, zero emoji,
+  thin-line borders, Costa blue + yellow accents.
 """
 
 import sys
 import os
+import io
 import json
 import datetime
 import webbrowser
-from PIL import Image
+from PIL import Image as PILImage
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
+
+import qrcode
+from qrcode.constants import ERROR_CORRECT_L, ERROR_CORRECT_M
 
 from exporter import parse_schedule_excel, generate_payload, copy_to_clipboard
 
 # ─────────────────────────────────────────────────────────────
-# LINEAR / MODERN DESIGN TOKENS (The DNA)
+# NEWSPAPER LIGHT DESIGN TOKENS  (matches CostaSchedule.html)
 # ─────────────────────────────────────────────────────────────
-ctk.set_appearance_mode("Dark")
+ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
 
 TK = {
-    # ── Backgrounds (light, dark) ──
-    "bg_deep":        ("#F4F6F8", "#001824"),
-    "bg_base":        ("#FFFFFF", "#002235"),
-    "bg_elevated":    ("#FFFFFF", "#002B40"),
-    "surface":        ("#FFFFFF", "#00324A"),
-    "surface_card":   ("#FFFFFF", "#003852"),
-    "surface_inner":  ("#F8FAFC", "#00263B"),
-    "surface_hover":  ("#EBF3F8", "#00415E"),
-    "surface_active": ("#D5E8F3", "#004A6B"),
-    "surface_badge":  ("#EBF3F8", "#003B57"),
+    # Surfaces
+    "bg_base":        "#FFFFFF",
+    "bg_elevated":    "#FFFFFF",
+    "surface":        "#FFFFFF",
+    "surface_card":   "#FFFFFF",
+    "surface_inner":  "#F8FAFC",
+    "surface_hover":  "#F1F5F9",
+    "surface_active": "#E2E8F0",
+    "surface_badge":  "#EBF5FA",
 
-    # ── Borders ──
-    "border_subtle":  ("#E2E8F0", "#003B57"),
-    "border_card":    ("#CBD5E1", "#004766"),
-    "border_hover":   ("#94A6AE", "#005E85"),
-    "border_focus":   ("#0071A3", "#0071A3"),
-    "border_accent":  ("#BAE6FD", "#00557A"),
+    # Borders (thin hairlines like newspaper columns)
+    "border_subtle":  "#F1F5F9",
+    "border_card":    "#E2E8F0",
+    "border_hover":   "#CBD5E1",
+    "border_focus":   "#0071A3",
 
-    # ── Accent Brand Blue (Costa #0071A3) ──
-    "accent":         ("#0071A3", "#0071A3"),
-    "accent_hover":   ("#005F8A", "#0088C4"),
-    "accent_dim":     ("#D1E9F5", "#00324A"),
-    "accent_bg":      ("#EBF5FA", "#002235"),
-    "accent_glow":    ("#D0E8F5", "#003A55"),
+    # Costa brand
+    "accent":         "#0071A3",
+    "accent_hover":   "#005F8A",
+    "accent_dim":     "#EBF5FA",
+    "accent_bg":      "#EBF5FA",
 
-    # ── Status Colors (Costa Yellow #F9B000) ──
-    "gold_accent":    ("#F9B000", "#F9B000"),
-    "gold_hover":     ("#E09E00", "#FFBE1A"),
-    "gold_dim":       ("#FEF8E7", "#332400"),
-    "cyan_accent":    ("#0071A3", "#38BDF8"),
-    "cyan_dim":       ("#E0F2FE", "#092535"),
-    "green_success":  ("#059669", "#10B981"),
-    "green_hover":    ("#047857", "#059669"),
-    "green_dim":      ("#D1FAE5", "#06281D"),
-    "purple_accent":  ("#7C3AED", "#A855F7"),
-    "purple_dim":     ("#EDE9FE", "#230F38"),
-    "coral_accent":   ("#E11D48", "#FB7185"),
-    "coral_dim":      ("#FFE4E6", "#2E0E15"),
+    # Costa yellow — primary CTA, selection
+    "gold_accent":    "#F9B000",
+    "gold_hover":     "#E09E00",
+    "gold_dim":       "#FFF8E8",
 
-    # ── Typography ──
-    "fg_primary":     ("#0A2A38", "#FFFFFF"),
-    "fg_secondary":   ("#5F7079", "#B2C1C9"),
-    "fg_subtle":      ("#94A6AE", "#7A8F99"),
-    "fg_accent":      ("#0071A3", "#38BDF8"),
+    # Status triples
+    "good_bg":        "#F1F9F5",
+    "good_border":    "#C9E5D6",
+    "good_ink":       "#1F7A54",
+    "warn_bg":        "#FFF8E8",
+    "warn_border":    "#F7DFA6",
+    "warn_ink":       "#6B4E00",
+    "bad_bg":         "#FCF2F0",
+    "bad_border":     "#EFCFC8",
+    "bad_ink":        "#B3402E",
+
+    # Typography — Costa InterfaceGuidelines.md
+    "fg_primary":     "#0A2A38",   # costa-ink
+    "fg_secondary":   "#5F7079",   # costa-slate
+    "fg_subtle":      "#94A6AE",   # costa-faint
+    "fg_accent":      "#0071A3",
+    "fg_gold":        "#F9B000",
 }
 
-def get_active_tokens():
-    mode = ctk.get_appearance_mode().lower()
-    idx = 1 if mode == "dark" else 0
-    return {k: v[idx] if isinstance(v, (tuple, list)) else v for k, v in TK.items()}
+
+# ─────────────────────────────────────────────────────────────
+# FONT POOL  (create once, reuse everywhere)
+# ─────────────────────────────────────────────────────────────
+class Fonts:
+    """Pre-allocated font objects to avoid repeated CTkFont creation."""
+    _cache = {}
+
+    @classmethod
+    def get(cls, key):
+        if key not in cls._cache:
+            cls._cache = {
+                "brand_lg":   ctk.CTkFont(family="Poppins", size=18, weight="bold"),
+                "brand_sm":   ctk.CTkFont(family="Poppins", size=11, weight="bold"),
+                "h1":         ctk.CTkFont(family="Poppins", size=20, weight="bold"),
+                "h2":         ctk.CTkFont(family="Poppins", size=14, weight="bold"),
+                "h3":         ctk.CTkFont(family="Poppins", size=12, weight="bold"),
+                "body":       ctk.CTkFont(family="Poppins", size=12),
+                "body_bold":  ctk.CTkFont(family="Poppins", size=12, weight="bold"),
+                "small":      ctk.CTkFont(family="Poppins", size=10),
+                "small_bold": ctk.CTkFont(family="Poppins", size=10, weight="bold"),
+                "tiny":       ctk.CTkFont(family="Poppins", size=9, weight="bold"),
+                "mono":       ctk.CTkFont(family="SF Mono", size=11),
+                "mono_sm":    ctk.CTkFont(family="SF Mono", size=10),
+                "btn":        ctk.CTkFont(family="Poppins", size=13, weight="bold"),
+                "btn_sm":     ctk.CTkFont(family="Poppins", size=11, weight="bold"),
+                "tab":        ctk.CTkFont(family="Poppins", size=11, weight="bold"),
+                "stat_val":   ctk.CTkFont(family="Poppins", size=16, weight="bold"),
+                "qr_label":   ctk.CTkFont(family="Poppins", size=11),
+            }
+        return cls._cache[key]
 
 
+# ─────────────────────────────────────────────────────────────
+# DND SUPPORT
+# ─────────────────────────────────────────────────────────────
 try:
     from tkinterdnd2 import DND_FILES, TkinterDnD
     HAS_DND = True
 except ImportError:
     HAS_DND = False
 
+
 class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
+    """Costa Schedule Exporter — Newspaper Light Edition."""
+
     def __init__(self):
         super().__init__()
 
-        # ── Setup Drag & Drop Support ──
         if HAS_DND:
             try:
                 self.TkdndVersion = TkinterDnD._require(self)
                 self.drop_target_register(DND_FILES)
                 self.dnd_bind('<<Drop>>', self._on_file_drop)
             except Exception as e:
-                print(f"[Warning] TkinterDnD initialization error: {e}")
+                print(f"[Warning] TkinterDnD init error: {e}")
 
-        # ── Window Setup & Frame Metrics ──
+        # Window
         self.title("Costa Cruises — Schedule Exporter")
-        self.geometry("1180x840")
-        self.minsize(980, 720)
+        self.geometry("1100x800")
+        self.minsize(920, 680)
         self.configure(fg_color=TK["bg_base"])
 
-        # ── Reactive State ──
+        # State
         self.current_file = self._find_default_sample()
         self.schedule_data = None
         self.payload = ""
@@ -111,472 +146,234 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.meal_shift = "LUNCH"
         self.active_filter = "ALL"
         self.search_query = ""
+        self._search_debounce_job = None
         self._toast_job = None
+        self._qr_ctk_image = None
+        self._cached_crew_count = 0
+        self._cached_section_count = 0
 
-        # ── Asset Management ──
+        # Logo
         self.logo_image = self._load_logo_image()
 
-        # ── Build Layout Primitives ──
-        self._build_sidebar()
-        self._build_main_view()
+        # Build
+        self._build_top_bar()
+        self._build_control_strip()
+        self._build_content_area()
+        self._build_bottom_bar()
 
-        # ── Initial Auto-Parse ──
+        # Auto-parse on start
         if self.current_file and os.path.exists(self.current_file):
             self.after(60, self.process_schedule)
 
-    # ─────────────────────────────────────────────────────────────
-    # INITIALIZATION HELPERS
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────
+    # INIT HELPERS
+    # ─────────────────────────────────────────────────────────
     def _find_default_sample(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        sample_path = os.path.join(base_dir, "sample", "Costa_Serena_Schedule_Sample.xlsx")
-        if os.path.exists(sample_path):
-            return sample_path
-        return ""
+        base = os.path.dirname(os.path.abspath(__file__))
+        p = os.path.join(base, "sample", "Costa_Serena_Schedule_Sample.xlsx")
+        return p if os.path.exists(p) else ""
 
     def _load_logo_image(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        logo_path = os.path.join(base_dir, "logo.png")
-        if os.path.exists(logo_path):
+        base = os.path.dirname(os.path.abspath(__file__))
+        logo = os.path.join(base, "logo.png")
+        if os.path.exists(logo):
             try:
-                pil_img = Image.open(logo_path)
-                return ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(38, 38))
-            except Exception as e:
-                print(f"[Warning] Could not load logo: {e}")
+                pil = PILImage.open(logo)
+                return ctk.CTkImage(light_image=pil, dark_image=pil, size=(32, 32))
+            except Exception:
+                pass
         return None
 
-    # ─────────────────────────────────────────────────────────────
-    # SIDEBAR: MINIMALIST PRECISION TOOLBAR
-    # ─────────────────────────────────────────────────────────────
-    def _build_sidebar(self):
-        sidebar = ctk.CTkFrame(
-            self,
-            width=260,
-            corner_radius=0,
-            fg_color=TK["bg_elevated"],
-            border_width=1,
-            border_color=TK["border_subtle"]
+    # ─────────────────────────────────────────────────────────
+    # TOP BAR  (replaces sidebar — newspaper masthead)
+    # ─────────────────────────────────────────────────────────
+    def _build_top_bar(self):
+        bar = ctk.CTkFrame(
+            self, height=56, corner_radius=0,
+            fg_color=TK["bg_base"],
+            border_width=0
         )
-        sidebar.pack(side="left", fill="y")
-        sidebar.pack_propagate(False)
+        bar.pack(fill="x")
+        bar.pack_propagate(False)
 
-        # ── Brand Header ──
-        brand_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
-        brand_frame.pack(fill="x", padx=16, pady=(20, 14))
+        # Blue accent line at top (3px, like HTML border-top)
+        accent_line = ctk.CTkFrame(bar, height=3, fg_color=TK["accent"], corner_radius=0)
+        accent_line.pack(fill="x", side="top")
+
+        inner = ctk.CTkFrame(bar, fg_color="transparent")
+        inner.pack(fill="both", expand=True, padx=20)
+
+        # Left: Logo + Brand
+        brand = ctk.CTkFrame(inner, fg_color="transparent")
+        brand.pack(side="left", fill="y")
 
         if self.logo_image:
-            logo_lbl = ctk.CTkLabel(brand_frame, image=self.logo_image, text="")
-            logo_lbl.pack(side="left", padx=(0, 12))
+            ctk.CTkLabel(brand, image=self.logo_image, text="").pack(side="left", padx=(0, 10))
 
-        title_box = ctk.CTkFrame(brand_frame, fg_color="transparent")
-        title_box.pack(side="left", fill="both", expand=True)
+        title_box = ctk.CTkFrame(brand, fg_color="transparent")
+        title_box.pack(side="left", fill="y", pady=4)
 
+        # "COSTA SMERALDA." with yellow dot
+        title_frame = ctk.CTkFrame(title_box, fg_color="transparent")
+        title_frame.pack(anchor="w")
         ctk.CTkLabel(
-            title_box,
-            text="COSTA",
-            font=ctk.CTkFont(family="Poppins", size=17, weight="bold"),
-            text_color=TK["fg_primary"],
-            anchor="w"
-        ).pack(fill="x")
-
-        tag_pill = ctk.CTkFrame(
-            title_box,
-            fg_color=TK["accent_bg"],
-            corner_radius=4,
-            border_width=1,
-            border_color=TK["accent_dim"]
-        )
-        tag_pill.pack(anchor="w", pady=(2, 0))
-
+            title_frame, text="COSTA SMERALDA",
+            font=Fonts.get("brand_lg"), text_color=TK["fg_primary"]
+        ).pack(side="left")
         ctk.CTkLabel(
-            tag_pill,
-            text=" PRECISION ENGINE v2.6 ",
-            font=ctk.CTkFont(family="Poppins", size=8, weight="bold"),
-            text_color=TK["fg_accent"]
-        ).pack(padx=2, pady=1)
-
-        # ── Hairline Divider ──
-        self._create_divider(sidebar, pady=8)
-
-        # ── Section 1: Workflow Actions ──
-        ctk.CTkLabel(
-            sidebar,
-            text="WORKFLOW ACTIONS",
-            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
-            text_color=TK["fg_subtle"],
-            anchor="w"
-        ).pack(fill="x", padx=18, pady=(4, 6))
-
-        nav_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
-        nav_frame.pack(fill="x", padx=14, pady=0)
-
-        self.btn_browse = ctk.CTkButton(
-            nav_frame,
-            text=" 📂   Browse Roster (.xlsx)",
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            fg_color=TK["surface"],
-            hover_color=TK["surface_hover"],
-            border_width=1,
-            border_color=TK["border_card"],
-            text_color=TK["fg_primary"],
-            anchor="w",
-            height=36,
-            corner_radius=8,
-            command=self.browse_file
-        )
-        self.btn_browse.pack(fill="x", pady=3)
-
-        self.btn_refresh = ctk.CTkButton(
-            nav_frame,
-            text=" 🔄   Reload Active File",
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            fg_color=TK["surface"],
-            hover_color=TK["surface_hover"],
-            border_width=1,
-            border_color=TK["border_card"],
-            text_color=TK["fg_secondary"],
-            anchor="w",
-            height=36,
-            corner_radius=8,
-            command=self.process_schedule
-        )
-        self.btn_refresh.pack(fill="x", pady=3)
-
-        ctk.CTkLabel(
-            nav_frame,
-            text="💡 Tip: Drag & Drop .xlsx here",
-            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
-            text_color=TK["fg_subtle"],
-            anchor="center"
-        ).pack(fill="x", pady=(2, 0))
-
-        # ── Hairline Divider ──
-        self._create_divider(sidebar, pady=10)
-
-        # ── Section 2: Telemetry Snapshot ──
-        ctk.CTkLabel(
-            sidebar,
-            text="TELEMETRY SUMMARY",
-            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
-            text_color=TK["fg_subtle"],
-            anchor="w"
-        ).pack(fill="x", padx=18, pady=(2, 6))
-
-        stats_card = ctk.CTkFrame(
-            sidebar,
-            fg_color=TK["surface_inner"],
-            corner_radius=8,
-            border_width=1,
-            border_color=TK["border_subtle"]
-        )
-        stats_card.pack(fill="x", padx=14, pady=2)
-
-        self.side_stat_crew = self._create_stat_row(stats_card, "👥 Total Crew Roster", "0 crew")
-        self.side_stat_venues = self._create_stat_row(stats_card, "🏛️ Active Venues", "0 sections")
-        self.side_stat_stream = self._create_stat_row(stats_card, "⚡ Encrypted Stream", "0 chars")
-
-        # ── Sidebar Flexible Spacer ──
-        ctk.CTkFrame(sidebar, fg_color="transparent").pack(fill="both", expand=True)
-
-        # ── Sidebar Footer / Status & Theme ──
-        footer = ctk.CTkFrame(sidebar, fg_color="transparent")
-        footer.pack(fill="x", padx=14, pady=14)
-
-        theme_row = ctk.CTkFrame(footer, fg_color="transparent")
-        theme_row.pack(fill="x", pady=(0, 8))
-
-        ctk.CTkLabel(
-            theme_row,
-            text="Appearance Mode",
-            font=ctk.CTkFont(family="Poppins", size=10),
-            text_color=TK["fg_subtle"]
+            title_frame, text=".",
+            font=Fonts.get("brand_lg"), text_color=TK["gold_accent"]
         ).pack(side="left")
 
-        self.theme_menu = ctk.CTkOptionMenu(
-            theme_row,
-            values=["Dark", "Light", "System"],
-            width=84,
-            height=24,
-            corner_radius=6,
-            fg_color=TK["surface"],
-            button_color=TK["border_card"],
-            button_hover_color=TK["accent"],
-            text_color=TK["fg_primary"],
-            font=ctk.CTkFont(family="Poppins", size=10),
-            command=self._on_theme_changed
-        )
-        self.theme_menu.pack(side="right")
-        self.theme_menu.set("Dark")
-
-        status_box = ctk.CTkFrame(
-            footer,
-            fg_color=TK["surface_inner"],
-            corner_radius=8,
-            border_width=1,
-            border_color=TK["border_subtle"]
-        )
-        status_box.pack(fill="x")
-
-        self.lbl_system_status = ctk.CTkLabel(
-            status_box,
-            text="● Engine Ready (0% CPU)",
-            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
-            text_color=TK["green_success"],
-            pady=6
-        )
-        self.lbl_system_status.pack(anchor="center")
-
-    def _create_stat_row(self, parent, label, value):
-        row = ctk.CTkFrame(parent, fg_color="transparent")
-        row.pack(fill="x", padx=10, pady=4)
-
         ctk.CTkLabel(
-            row,
-            text=label,
-            font=ctk.CTkFont(family="Poppins", size=10),
-            text_color=TK["fg_subtle"]
-        ).pack(side="left")
-
-        val_lbl = ctk.CTkLabel(
-            row,
-            text=value,
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            text_color=TK["fg_secondary"]
-        )
-        val_lbl.pack(side="right")
-        return val_lbl
-
-    # ─────────────────────────────────────────────────────────────
-    # MAIN VIEW CONTAINER
-    # ─────────────────────────────────────────────────────────────
-    def _build_main_view(self):
-        main_frame = ctk.CTkFrame(self, fg_color="transparent")
-        main_frame.pack(side="right", fill="both", expand=True, padx=20, pady=16)
-
-        # ── 1. Top Header Banner & Telemetry ──
-        self._build_header(main_frame)
-
-        # ── 2. Bento Control Strip (Active File + Shift + Live Search) ──
-        self._build_control_card(main_frame)
-
-        # ── 3. Tabbed Interactive Workspaces ──
-        self._build_content_tabs(main_frame)
-
-        # ── 4. Bottom Precision Action Bar ──
-        self._build_action_bar(main_frame)
-
-    # ─────────────────────────────────────────────────────────────
-    # TOP HEADER & TELEMETRY PILLS
-    # ─────────────────────────────────────────────────────────────
-    def _build_header(self, parent):
-        header = ctk.CTkFrame(parent, fg_color="transparent")
-        header.pack(fill="x", pady=(0, 12))
-
-        # Title & Subtitle with refined typography
-        title_box = ctk.CTkFrame(header, fg_color="transparent")
-        title_box.pack(side="left", fill="y")
-
-        ctk.CTkLabel(
-            title_box,
-            text="Costa Schedule Exporter",
-            font=ctk.CTkFont(family="Poppins", size=22, weight="bold"),
-            text_color=TK["fg_primary"]
+            title_box, text="RESTAURANT SCHEDULE",
+            font=Fonts.get("small_bold"), text_color=TK["fg_subtle"], anchor="w"
         ).pack(anchor="w")
 
-        ctk.CTkLabel(
-            title_box,
-            text="Extract rosters, map multi-venue stations & generate encrypted WhatsApp payloads.",
-            font=ctk.CTkFont(family="Poppins", size=12),
-            text_color=TK["fg_secondary"]
-        ).pack(anchor="w", pady=(2, 0))
+        # Right: Telemetry badges
+        badge_box = ctk.CTkFrame(inner, fg_color="transparent")
+        badge_box.pack(side="right", fill="y")
 
-        # Right-side Telemetry Badges
-        self.badge_box = ctk.CTkFrame(header, fg_color="transparent")
-        self.badge_box.pack(side="right", fill="y")
+        self.badge_vessel = self._make_badge(badge_box, "COSTA SERENA", TK["fg_accent"])
+        self.badge_date = self._make_badge(badge_box, "August 23, 2026", TK["fg_secondary"])
+        self.badge_port = self._make_badge(badge_box, "KAOHSIUNG", TK["fg_secondary"])
 
-        self.badge_vessel = self._create_badge(self.badge_box, "🚢", "COSTA SERENA", TK["accent"], TK["accent_bg"])
-        self.badge_date = self._create_badge(self.badge_box, "📅", "August 23, 2026", TK["gold_accent"], TK["gold_dim"])
-        self.badge_port = self._create_badge(self.badge_box, "📍", "KAOHSIUNG", TK["cyan_accent"], TK["cyan_dim"])
+        # Bottom hairline
+        ctk.CTkFrame(self, height=1, fg_color=TK["border_card"], corner_radius=0).pack(fill="x")
 
-    def _create_badge(self, parent, icon, text, fg_color, bg_tint):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface"],
-            corner_radius=8,
-            border_width=1,
-            border_color=TK["border_card"]
+    def _make_badge(self, parent, text, color):
+        pill = ctk.CTkFrame(
+            parent, fg_color=TK["surface_inner"], corner_radius=6,
+            border_width=1, border_color=TK["border_card"]
         )
-        card.pack(side="left", padx=3)
-
+        pill.pack(side="left", padx=3, pady=10)
         lbl = ctk.CTkLabel(
-            card,
-            text=f"{icon}  {text}",
-            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
-            text_color=fg_color,
-            padx=10,
-            pady=5
+            pill, text=text,
+            font=Fonts.get("small_bold"), text_color=color
         )
-        lbl.pack()
+        lbl.pack(padx=10, pady=3)
         return lbl
 
-    # ─────────────────────────────────────────────────────────────
-    # CONTROL CARD (FILE STATUS, SHIFT SELECTOR & LIVE SEARCH)
-    # ─────────────────────────────────────────────────────────────
-    def _build_control_card(self, parent):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
-        )
-        card.pack(fill="x", pady=(0, 10))
+    # ─────────────────────────────────────────────────────────
+    # CONTROL STRIP  (file + shift + search + filter)
+    # ─────────────────────────────────────────────────────────
+    def _build_control_strip(self):
+        strip = ctk.CTkFrame(self, fg_color=TK["surface_inner"], corner_radius=0)
+        strip.pack(fill="x")
 
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=14, pady=10)
+        inner = ctk.CTkFrame(strip, fg_color="transparent")
+        inner.pack(fill="x", padx=20, pady=10)
 
-        # Row 1: File Pill & Shift Selector
+        # Row 1: File + Shift
         r1 = ctk.CTkFrame(inner, fg_color="transparent")
         r1.pack(fill="x", pady=(0, 8))
 
-        # Left: Active File Pill
+        # File display
         file_box = ctk.CTkFrame(r1, fg_color="transparent")
         file_box.pack(side="left", fill="x", expand=True, padx=(0, 14))
 
         ctk.CTkLabel(
-            file_box,
-            text="SOURCE ROSTER FILE",
-            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
-            text_color=TK["fg_subtle"]
+            file_box, text="SOURCE FILE",
+            font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
         ).pack(anchor="w")
 
         file_pill = ctk.CTkFrame(
-            file_box,
-            fg_color=TK["surface_inner"],
-            corner_radius=8,
-            border_width=1,
-            border_color=TK["border_subtle"],
-            height=34
+            file_box, fg_color=TK["bg_base"], corner_radius=8,
+            border_width=1, border_color=TK["border_card"], height=34
         )
-        file_pill.pack(fill="x", pady=(4, 0))
+        file_pill.pack(fill="x", pady=(3, 0))
         file_pill.pack_propagate(False)
 
-        self.lbl_file_display = ctk.CTkLabel(
-            file_pill,
-            text=self._format_file_display_text(),
-            font=ctk.CTkFont(family="Poppins", size=11),
-            text_color=TK["fg_secondary"],
-            anchor="w",
-            padx=10
+        self.lbl_file = ctk.CTkLabel(
+            file_pill, text=self._file_display_text(),
+            font=Fonts.get("body"), text_color=TK["fg_secondary"], anchor="w", padx=10
         )
-        self.lbl_file_display.pack(side="left", fill="both", expand=True)
+        self.lbl_file.pack(side="left", fill="both", expand=True)
 
-        btn_browse_inline = ctk.CTkButton(
-            file_pill,
-            text="Browse...",
-            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
-            fg_color=TK["surface_hover"],
-            hover_color=TK["surface_active"],
-            border_width=1,
-            border_color=TK["border_card"],
-            text_color=TK["fg_primary"],
-            width=70,
-            height=24,
-            corner_radius=6,
+        ctk.CTkButton(
+            file_pill, text="Browse",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_primary"], width=70, height=24, corner_radius=6,
             command=self.browse_file
-        )
-        btn_browse_inline.pack(side="right", padx=5)
+        ).pack(side="right", padx=5)
 
-        # Right: Shift Selector
+        ctk.CTkButton(
+            file_pill, text="Reload",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_secondary"], width=60, height=24, corner_radius=6,
+            command=self.process_schedule
+        ).pack(side="right", padx=(0, 3))
+
+        # Shift selector
         shift_box = ctk.CTkFrame(r1, fg_color="transparent")
         shift_box.pack(side="right")
 
         ctk.CTkLabel(
-            shift_box,
-            text="MEAL SHIFT",
-            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
-            text_color=TK["fg_subtle"]
+            shift_box, text="MEAL SHIFT",
+            font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
         ).pack(anchor="w")
 
         self.shift_selector = ctk.CTkSegmentedButton(
-            shift_box,
-            values=["BREAKFAST", "LUNCH", "DINNER"],
-            font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
-            height=34,
-            corner_radius=20,
-            border_width=2,
+            shift_box, values=["BREAKFAST", "LUNCH", "DINNER"],
+            font=Fonts.get("btn_sm"), height=34, corner_radius=8,
+            border_width=1,
             selected_color=TK["accent"],
             selected_hover_color=TK["accent_hover"],
-            unselected_color=TK["surface_inner"],
+            unselected_color=TK["bg_base"],
             unselected_hover_color=TK["surface_hover"],
-            text_color=TK["fg_primary"],
+            text_color=TK["bg_base"],
             text_color_disabled=TK["fg_subtle"],
             command=self._on_shift_selected
         )
-        self.shift_selector.pack(pady=(4, 0))
+        self.shift_selector.pack(pady=(3, 0))
         self.shift_selector.set("LUNCH")
 
-        # Row 2: Live Search & Quick Category Filters
+        # Row 2: Search + Filter pills
         r2 = ctk.CTkFrame(inner, fg_color="transparent")
         r2.pack(fill="x")
 
-        # Search Bar
+        # Search
         search_wrap = ctk.CTkFrame(
-            r2,
-            fg_color=TK["surface_inner"],
-            corner_radius=8,
-            border_width=1,
-            border_color=TK["border_subtle"],
-            height=32
+            r2, fg_color=TK["bg_base"], corner_radius=8,
+            border_width=1, border_color=TK["border_card"], height=32
         )
         search_wrap.pack(side="left", fill="x", expand=True, padx=(0, 10))
         search_wrap.pack_propagate(False)
 
         ctk.CTkLabel(
-            search_wrap,
-            text=" 🔍",
-            font=ctk.CTkFont(family="Poppins", size=11),
-            text_color=TK["fg_subtle"]
-        ).pack(side="left", padx=(8, 2))
+            search_wrap, text="Search",
+            font=Fonts.get("small"), text_color=TK["fg_subtle"]
+        ).pack(side="left", padx=(10, 4))
 
         self.search_entry = ctk.CTkEntry(
             search_wrap,
-            placeholder_text="Filter crew name, ID, station, table, or duty...",
+            placeholder_text="Crew name, station, table, duty...",
             placeholder_text_color=TK["fg_subtle"],
-            fg_color="transparent",
-            border_width=0,
-            font=ctk.CTkFont(family="Poppins", size=11),
-            text_color=TK["fg_primary"],
-            height=28
+            fg_color="transparent", border_width=0,
+            font=Fonts.get("body"), text_color=TK["fg_primary"], height=28
         )
         self.search_entry.pack(side="left", fill="both", expand=True, padx=4)
-        self.search_entry.bind("<KeyRelease>", self._on_search_changed)
+        self.search_entry.bind("<KeyRelease>", self._on_search_key)
 
-        btn_clear = ctk.CTkButton(
-            search_wrap,
-            text="✕",
-            width=24,
-            height=20,
-            corner_radius=4,
-            fg_color="transparent",
-            hover_color=TK["surface_hover"],
-            text_color=TK["fg_subtle"],
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
+        ctk.CTkButton(
+            search_wrap, text="x", width=22, height=20, corner_radius=4,
+            fg_color="transparent", hover_color=TK["surface_hover"],
+            text_color=TK["fg_subtle"], font=Fonts.get("small_bold"),
             command=self._clear_search
-        )
-        btn_clear.pack(side="right", padx=4)
+        ).pack(side="right", padx=4)
 
-        # Quick Filter Pills
+        # Filter pills
         self.filter_selector = ctk.CTkSegmentedButton(
-            r2,
-            values=["ALL", "MAIN DINING", "BUFFET & OUTLETS", "SIDE DUTIES"],
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            height=30,
-            corner_radius=20,
-            border_width=2,
+            r2, values=["ALL", "MAIN DINING", "BUFFET & OUTLETS", "SIDE DUTIES"],
+            font=Fonts.get("small_bold"), height=30, corner_radius=8,
+            border_width=1,
             selected_color=TK["accent_dim"],
             selected_hover_color=TK["accent"],
-            unselected_color=TK["surface_inner"],
+            unselected_color=TK["bg_base"],
             unselected_hover_color=TK["surface_hover"],
             text_color=TK["fg_primary"],
             text_color_disabled=TK["fg_subtle"],
@@ -585,703 +382,602 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.filter_selector.pack(side="right")
         self.filter_selector.set("ALL")
 
-    def _format_file_display_text(self):
+        # Bottom hairline
+        ctk.CTkFrame(self, height=1, fg_color=TK["border_subtle"], corner_radius=0).pack(fill="x")
+
+    def _file_display_text(self):
         if not self.current_file:
-            return "No file loaded — Click 'Browse...' to select roster (.xlsx)"
-        name = os.path.basename(self.current_file)
-        return f"📄 {name}  —  {self.current_file}"
+            return "No file loaded — Click Browse to select roster (.xlsx)"
+        return os.path.basename(self.current_file)
 
-    # ─────────────────────────────────────────────────────────────
-    # TABBED INTERACTIVE CONTENT CENTER
-    # ─────────────────────────────────────────────────────────────
-    def _build_content_tabs(self, parent):
-        tabview = ctk.CTkTabview(
-            parent,
-            fg_color=TK["surface"],
-            corner_radius=12,
-            border_width=1,
-            border_color=TK["border_card"],
-            segmented_button_fg_color=TK["surface_inner"],
-            segmented_button_selected_color=TK["accent"],
-            segmented_button_selected_hover_color=TK["accent_hover"],
-            segmented_button_unselected_hover_color=TK["surface_hover"],
-            segmented_button_unselected_color=TK["surface_inner"]
+    # ─────────────────────────────────────────────────────────
+    # CONTENT AREA  (flat scroll — dashboard + cards + QR)
+    # ─────────────────────────────────────────────────────────
+    def _build_content_area(self):
+        self.content_scroll = ctk.CTkScrollableFrame(
+            self, fg_color=TK["bg_base"], corner_radius=0
         )
-        tabview._segmented_button.configure(
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            corner_radius=20,
-            border_width=2,
-            height=36,
-            text_color=TK["fg_primary"],
-            text_color_disabled=TK["fg_subtle"]
+        self.content_scroll.pack(fill="both", expand=True, padx=0, pady=0)
+
+        # Inner wrapper with max-width for readability
+        self.content_inner = ctk.CTkFrame(self.content_scroll, fg_color="transparent")
+        self.content_inner.pack(fill="x", expand=True, padx=24, pady=16)
+
+        # ── Stats row ──
+        self.stats_frame = ctk.CTkFrame(self.content_inner, fg_color="transparent")
+        self.stats_frame.pack(fill="x", pady=(0, 16))
+        self.stats_frame.columnconfigure((0, 1, 2, 3), weight=1, uniform="stat")
+
+        self.stat_port = self._make_stat_card(self.stats_frame, 0, "PORT & MEAL", "—", "—")
+        self.stat_crew = self._make_stat_card(self.stats_frame, 1, "ACTIVE ROSTER", "0 Crew", "0 Sections")
+        self.stat_stations = self._make_stat_card(self.stats_frame, 2, "DINING STATIONS", "0 Tables", "0 Venues")
+        self.stat_payload = self._make_stat_card(self.stats_frame, 3, "ENCODED STREAM", "0 Chars", "0 Bytes")
+
+        # ── QR Preview Section ──
+        self.qr_section = ctk.CTkFrame(
+            self.content_inner, fg_color=TK["surface_inner"],
+            corner_radius=12, border_width=1, border_color=TK["border_card"]
         )
-        tabview.pack(fill="both", expand=True, pady=(0, 10))
+        self.qr_section.pack(fill="x", pady=(0, 16))
 
-        # Tab 1: Visual Bento Explorer
-        tab_bento = tabview.add("✨ Visual Bento Explorer")
-        self._build_bento_tab(tab_bento)
+        qr_inner = ctk.CTkFrame(self.qr_section, fg_color="transparent")
+        qr_inner.pack(fill="x", padx=20, pady=16)
 
-        # Tab 2: WhatsApp Encrypted Payload
-        tab_payload = tabview.add("💬 WhatsApp Payload (Live)")
-        self._build_payload_tab(tab_payload)
+        # QR left: info
+        qr_info = ctk.CTkFrame(qr_inner, fg_color="transparent")
+        qr_info.pack(side="left", fill="y")
 
-        # Tab 3: Formatted Overview & JSON Inspector
-        tab_overview = tabview.add("📊 Structured Overview & Raw Data")
-        self._build_overview_tab(tab_overview)
+        ctk.CTkLabel(
+            qr_info, text="QR CODE — ENCRYPTED SCHEDULE",
+            font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
+        ).pack(anchor="w")
 
-        self.tabview = tabview
+        ctk.CTkLabel(
+            qr_info, text="Scan to get schedule data",
+            font=Fonts.get("h2"), text_color=TK["fg_primary"], anchor="w"
+        ).pack(anchor="w", pady=(4, 2))
 
-    # ─────────────────────────────────────────────────────────────
-    # TAB 1: VISUAL BENTO EXPLORER
-    # ─────────────────────────────────────────────────────────────
-    def _build_bento_tab(self, parent):
-        self.bento_scroll = ctk.CTkScrollableFrame(
-            parent,
-            fg_color="transparent",
-            corner_radius=0
+        self.qr_status_label = ctk.CTkLabel(
+            qr_info, text="No schedule loaded. Browse a roster file to generate QR.",
+            font=Fonts.get("body"), text_color=TK["fg_secondary"],
+            anchor="w", wraplength=400, justify="left"
         )
-        self.bento_scroll.pack(fill="both", expand=True, padx=2, pady=2)
+        self.qr_status_label.pack(anchor="w", pady=(2, 8))
 
-        self.lbl_bento_empty = ctk.CTkLabel(
-            self.bento_scroll,
-            text="No schedule loaded. Click 'Browse Roster' to open an Excel file.",
-            font=ctk.CTkFont(family="Poppins", size=13),
-            text_color=TK["fg_secondary"],
-            pady=40
+        # QR action buttons row
+        qr_btns = ctk.CTkFrame(qr_info, fg_color="transparent")
+        qr_btns.pack(anchor="w")
+
+        self.btn_copy_payload = ctk.CTkButton(
+            qr_btns, text="Copy Payload",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["surface_hover"], hover_color=TK["accent"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_primary"], height=30, corner_radius=6,
+            command=self.copy_payload_action
         )
-        self.lbl_bento_empty.pack(expand=True)
+        self.btn_copy_payload.pack(side="left", padx=(0, 6))
 
-    def _render_bento_cards(self):
-        for widget in self.bento_scroll.winfo_children():
-            widget.destroy()
+        ctk.CTkButton(
+            qr_btns, text="Save Backup",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_secondary"], height=30, corner_radius=6,
+            command=self.save_json_backup_action
+        ).pack(side="left", padx=(0, 6))
 
-        d = self.schedule_data
-        if not d:
-            self.lbl_bento_empty = ctk.CTkLabel(
-                self.bento_scroll,
-                text="No schedule loaded. Click 'Browse Roster' to open an Excel file.",
-                font=ctk.CTkFont(family="Poppins", size=13),
-                text_color=TK["fg_secondary"],
-                pady=40
-            )
-            self.lbl_bento_empty.pack(expand=True)
-            return
+        ctk.CTkButton(
+            qr_btns, text="Export JSON",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_secondary"], height=30, corner_radius=6,
+            command=self.export_json_action
+        ).pack(side="left")
 
-        q = self.search_query.lower()
-        active_filter = self.active_filter
+        # QR right: image preview + navigation for segmented QR
+        self.qr_image_frame = ctk.CTkFrame(qr_inner, fg_color="transparent")
+        self.qr_image_frame.pack(side="right", padx=(20, 0))
 
-        # ── 1. Top Metrics Bento Grid (4-card row) ──
-        metrics_frame = ctk.CTkFrame(self.bento_scroll, fg_color="transparent")
-        metrics_frame.pack(fill="x", pady=(0, 12))
-        metrics_frame.columnconfigure((0, 1, 2, 3), weight=1, uniform="bento_stat")
+        self.qr_placeholder = ctk.CTkFrame(
+            self.qr_image_frame, width=220, height=220,
+            fg_color=TK["bg_base"], corner_radius=8,
+            border_width=1, border_color=TK["border_card"]
+        )
+        self.qr_placeholder.pack()
+        self.qr_placeholder.pack_propagate(False)
 
-        total_venues = len(d.get("venues", []))
-        total_buffet = len(d.get("buffetAndVenues", []))
-        total_side = len(d.get("sideDuties", []))
-        
-        all_crew_names = set()
-        for v in d.get("venues", []):
-            for a in v.get("assignments", []):
-                if a.get("waiterName"): all_crew_names.add(a.get("waiterName"))
-                if a.get("attendantName"): all_crew_names.add(a.get("attendantName"))
-        for b in d.get("buffetAndVenues", []):
-            for c in b.get("crew", []):
-                if c.get("name"): all_crew_names.add(c.get("name"))
-        for s in d.get("sideDuties", []):
-            for c in s.get("crew", []):
-                if c.get("name"): all_crew_names.add(c.get("name"))
-        for sk in d.get("sickLeave", []):
-            if sk.get("name"): all_crew_names.add(sk.get("name"))
+        self.qr_image_label = ctk.CTkLabel(
+            self.qr_placeholder, text="QR will appear here",
+            font=Fonts.get("small"), text_color=TK["fg_subtle"]
+        )
+        self.qr_image_label.pack(expand=True)
 
-        total_stations = sum(len(v.get("assignments", [])) for v in d.get("venues", []))
+        # Navigation for segmented QR
+        self.qr_nav_frame = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
+        self.qr_nav_frame.pack(fill="x", pady=(6, 0))
 
-        self._build_metric_bento_card(metrics_frame, 0, "📍 PORT & MEAL", f"{d.get('port', '—')} • {d.get('meal', 'LUNCH')}", "📅 " + d.get('date', '—'), TK["cyan_accent"], TK["cyan_dim"])
-        self._build_metric_bento_card(metrics_frame, 1, "👥 ACTIVE ROSTER", f"{len(all_crew_names)} Crew Members", f"{total_venues + total_buffet + total_side} Duty Sections", TK["accent"], TK["accent_bg"])
-        self._build_metric_bento_card(metrics_frame, 2, "🍽️ DINING STATIONS", f"{total_stations} Active Tables", f"{total_venues} Restaurant Venues", TK["gold_accent"], TK["gold_dim"])
-        self._build_metric_bento_card(metrics_frame, 3, "⚡ STREAM ENCODING", f"{len(self.payload):,} Chars Payload", f"{len(self.b64_data):,} Bytes Base64", TK["green_success"], TK["green_dim"])
+        self.btn_qr_prev = ctk.CTkButton(
+            self.qr_nav_frame, text="<", width=30, height=24,
+            font=Fonts.get("btn_sm"), corner_radius=4,
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            text_color=TK["fg_primary"], command=self._qr_prev
+        )
+        self.btn_qr_prev.pack(side="left")
 
-        # ── 2. Main Dining Restaurants Bento Section ──
-        if active_filter in ("ALL", "MAIN DINING"):
-            for venue in d.get("venues", []):
-                assignments = venue.get("assignments", [])
-                filtered_assignments = [
-                    a for a in assignments
-                    if not q or (
-                        q in a.get("station", "").lower()
-                        or q in a.get("waiterName", "").lower()
-                        or q in a.get("attendantName", "").lower()
-                        or q in a.get("tables", "").lower()
-                    )
-                ]
+        self.qr_page_label = ctk.CTkLabel(
+            self.qr_nav_frame, text="",
+            font=Fonts.get("small_bold"), text_color=TK["fg_secondary"]
+        )
+        self.qr_page_label.pack(side="left", expand=True)
 
-                if filtered_assignments or not q:
-                    self._build_venue_bento_card(self.bento_scroll, venue.get("name"), venue.get("reportTime", "—"), filtered_assignments)
+        self.btn_qr_next = ctk.CTkButton(
+            self.qr_nav_frame, text=">", width=30, height=24,
+            font=Fonts.get("btn_sm"), corner_radius=4,
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            text_color=TK["fg_primary"], command=self._qr_next
+        )
+        self.btn_qr_next.pack(side="right")
 
-        # ── 3. Buffet & Specialty Restaurants Bento Section ──
-        if active_filter in ("ALL", "BUFFET & OUTLETS"):
-            buffets = d.get("buffetAndVenues", [])
-            for b in buffets:
-                crew = b.get("crew", [])
-                filtered_crew = [
-                    c for c in crew
-                    if not q or (
-                        q in c.get("name", "").lower()
-                        or q in c.get("role", "").lower()
-                        or q in b.get("name", "").lower()
-                    )
-                ]
+        # Hide nav initially
+        self.qr_nav_frame.pack_forget()
+        self._qr_images = []  # list of CTkImage
+        self._qr_current_page = 0
 
-                if filtered_crew or not q:
-                    self._build_buffet_bento_card(self.bento_scroll, b.get("name"), b.get("timing", "—"), b.get("lead", ""), filtered_crew)
+        # ── Cards container ──
+        self.cards_frame = ctk.CTkFrame(self.content_inner, fg_color="transparent")
+        self.cards_frame.pack(fill="x", pady=(0, 8))
 
-        # ── 4. Sub-Teams & Side Duties Bento Section ──
-        if active_filter in ("ALL", "SIDE DUTIES"):
-            side_duties = d.get("sideDuties", [])
-            for s in side_duties:
-                crew = s.get("crew", [])
-                filtered_crew = [
-                    c for c in crew
-                    if not q or (
-                        q in c.get("name", "").lower()
-                        or q in s.get("name", "").lower()
-                    )
-                ]
+        self.empty_label = ctk.CTkLabel(
+            self.cards_frame,
+            text="No schedule loaded. Click Browse to open an Excel roster file.",
+            font=Fonts.get("body"), text_color=TK["fg_secondary"], pady=40
+        )
+        self.empty_label.pack(expand=True)
 
-                if filtered_crew or not q:
-                    self._build_side_duty_bento_card(self.bento_scroll, s.get("name"), s.get("timing", "—"), filtered_crew)
-
-        # ── 5. Special Events & Sick Leave ──
-        if active_filter == "ALL":
-            if d.get("specialEvents"):
-                self._build_special_events_card(self.bento_scroll, d.get("specialEvents", []), q)
-            if d.get("sickLeave"):
-                self._build_sick_leave_card(self.bento_scroll, d.get("sickLeave", []), q)
-
-    def _build_metric_bento_card(self, parent, col, tag, title, subtitle, accent_color, bg_tint):
+    def _make_stat_card(self, parent, col, tag, title, subtitle):
         card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface_card"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
+            parent, fg_color=TK["surface_card"], corner_radius=10,
+            border_width=1, border_color=TK["border_card"]
         )
         card.grid(row=0, column=col, padx=4, pady=2, sticky="nsew")
 
         inner = ctk.CTkFrame(card, fg_color="transparent")
         inner.pack(fill="both", expand=True, padx=12, pady=10)
 
+        # Tag with colored dot
         tag_row = ctk.CTkFrame(inner, fg_color="transparent")
         tag_row.pack(fill="x")
-
-        dot = ctk.CTkFrame(tag_row, width=6, height=6, corner_radius=3, fg_color=accent_color)
+        dot = ctk.CTkFrame(tag_row, width=6, height=6, corner_radius=3, fg_color=TK["accent"])
         dot.pack(side="left", padx=(0, 6))
-
         ctk.CTkLabel(
-            tag_row,
-            text=tag,
-            font=ctk.CTkFont(family="Poppins", size=9, weight="bold"),
-            text_color=TK["fg_subtle"]
+            tag_row, text=tag, font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
         ).pack(side="left")
 
-        ctk.CTkLabel(
-            inner,
-            text=title,
-            font=ctk.CTkFont(family="Poppins", size=14, weight="bold"),
-            text_color=TK["fg_primary"],
-            anchor="w"
-        ).pack(fill="x", pady=(6, 2))
-
-        ctk.CTkLabel(
-            inner,
-            text=subtitle,
-            font=ctk.CTkFont(family="Poppins", size=10),
-            text_color=TK["fg_secondary"],
-            anchor="w"
-        ).pack(fill="x")
-
-    def _build_venue_bento_card(self, parent, venue_name, report_time, assignments):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface_card"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
+        title_lbl = ctk.CTkLabel(
+            inner, text=title, font=Fonts.get("h2"),
+            text_color=TK["fg_primary"], anchor="w"
         )
-        card.pack(fill="x", pady=6)
+        title_lbl.pack(fill="x", pady=(6, 2))
+
+        sub_lbl = ctk.CTkLabel(
+            inner, text=subtitle, font=Fonts.get("small"),
+            text_color=TK["fg_secondary"], anchor="w"
+        )
+        sub_lbl.pack(fill="x")
+
+        return (title_lbl, sub_lbl)
+
+    # ─────────────────────────────────────────────────────────
+    # BOTTOM BAR  (primary action + secondary)
+    # ─────────────────────────────────────────────────────────
+    def _build_bottom_bar(self):
+        # Top hairline
+        ctk.CTkFrame(self, height=1, fg_color=TK["border_card"], corner_radius=0).pack(fill="x")
+
+        bar = ctk.CTkFrame(self, height=56, fg_color=TK["bg_base"], corner_radius=0)
+        bar.pack(fill="x")
+        bar.pack_propagate(False)
+
+        inner = ctk.CTkFrame(bar, fg_color="transparent")
+        inner.pack(fill="both", expand=True, padx=20)
+
+        # Primary CTA — yellow (Costa guideline: one yellow button)
+        self.btn_primary = ctk.CTkButton(
+            inner, text="GENERATE QR & COPY SCHEDULE",
+            font=Fonts.get("btn"),
+            fg_color=TK["gold_accent"], hover_color=TK["gold_hover"],
+            text_color=TK["fg_primary"],  # Dark text on yellow (8:1 contrast)
+            height=40, corner_radius=8,
+            command=self._primary_action
+        )
+        self.btn_primary.pack(side="left", fill="x", expand=True, padx=(0, 10))
+
+        # Secondary: Open WebApp
+        ctk.CTkButton(
+            inner, text="Open WebApp",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_secondary"], height=40, corner_radius=8,
+            command=self.open_webapp
+        ).pack(side="right")
+
+        # Status label
+        self.lbl_status = ctk.CTkLabel(
+            inner, text="Ready",
+            font=Fonts.get("small"), text_color=TK["good_ink"]
+        )
+        self.lbl_status.pack(side="right", padx=16)
+
+    # ─────────────────────────────────────────────────────────
+    # QR CODE GENERATION
+    # ─────────────────────────────────────────────────────────
+    def _generate_qr(self):
+        """Generate QR code(s) from payload. Segments if data > 2800 chars."""
+        if not self.payload:
+            return
+
+        payload_text = self.payload
+        MAX_QR_CHARS = 2800  # Safe limit for QR version 40 with L error correction
+
+        try:
+            if len(payload_text) <= MAX_QR_CHARS:
+                # Single QR — fits everything
+                self._qr_images = [self._make_qr_image(payload_text)]
+                self._qr_current_page = 0
+                self.qr_nav_frame.pack_forget()
+                self.qr_status_label.configure(
+                    text=f"QR generated — {len(payload_text):,} chars encoded. "
+                         f"Scan with any QR reader. Works offline."
+                )
+            else:
+                # Segmented QR — split payload into chunks
+                chunks = []
+                total_chars = len(payload_text)
+                i = 0
+                while i < total_chars:
+                    chunks.append(payload_text[i:i + MAX_QR_CHARS])
+                    i += MAX_QR_CHARS
+
+                total_parts = len(chunks)
+                self._qr_images = []
+
+                for idx, chunk in enumerate(chunks):
+                    # Prefix each chunk with segment header
+                    header = f"[COSTA-QR-SEG {idx + 1}/{total_parts}]\n"
+                    segmented_data = header + chunk
+                    self._qr_images.append(self._make_qr_image(segmented_data))
+
+                self._qr_current_page = 0
+                self.qr_nav_frame.pack(fill="x", pady=(6, 0))
+                self.qr_status_label.configure(
+                    text=f"Segmented QR — {total_parts} codes, {total_chars:,} chars total. "
+                         f"Scan all {total_parts} QR codes in order. "
+                         f"Manager concatenates the text from each scan."
+                )
+
+            self._show_qr_page(0)
+
+        except Exception as e:
+            self.qr_image_label.configure(image=None, text=f"QR failed: {e}")
+            self.qr_status_label.configure(
+                text=f"QR generation failed. Use Copy Payload button instead."
+            )
+
+    def _make_qr_image(self, data):
+        """Generate a single QR code PIL image from data string."""
+        qr = qrcode.QRCode(
+            version=None,
+            error_correction=ERROR_CORRECT_L,
+            box_size=5,
+            border=2,
+        )
+        qr.add_data(data)
+        qr.make(fit=True)
+        pil = qr.make_image(fill_color="#0A2A38", back_color="#FFFFFF").convert("RGB")
+
+        display_size = 210
+        pil = pil.resize((display_size, display_size), PILImage.NEAREST)
+
+        return ctk.CTkImage(
+            light_image=pil, dark_image=pil,
+            size=(display_size, display_size)
+        )
+
+    def _show_qr_page(self, page):
+        """Display a specific QR page."""
+        if not self._qr_images:
+            return
+        page = max(0, min(page, len(self._qr_images) - 1))
+        self._qr_current_page = page
+
+        self.qr_image_label.configure(image=self._qr_images[page], text="")
+
+        if len(self._qr_images) > 1:
+            self.qr_page_label.configure(
+                text=f"QR {page + 1} / {len(self._qr_images)}"
+            )
+
+    def _qr_prev(self):
+        if self._qr_current_page > 0:
+            self._show_qr_page(self._qr_current_page - 1)
+
+    def _qr_next(self):
+        if self._qr_current_page < len(self._qr_images) - 1:
+            self._show_qr_page(self._qr_current_page + 1)
+
+    # ─────────────────────────────────────────────────────────
+    # CARD RENDERING  (newspaper-style, no emoji)
+    # ─────────────────────────────────────────────────────────
+    def _render_cards(self):
+        """Render schedule data as clean newspaper-style cards."""
+        for w in self.cards_frame.winfo_children():
+            w.destroy()
+
+        d = self.schedule_data
+        if not d:
+            self.empty_label = ctk.CTkLabel(
+                self.cards_frame,
+                text="No schedule loaded. Click Browse to open an Excel roster file.",
+                font=Fonts.get("body"), text_color=TK["fg_secondary"], pady=40
+            )
+            self.empty_label.pack(expand=True)
+            return
+
+        q = self.search_query.lower()
+        filt = self.active_filter
+
+        # Main Dining
+        if filt in ("ALL", "MAIN DINING"):
+            for venue in d.get("venues", []):
+                assignments = venue.get("assignments", [])
+                filtered = [
+                    a for a in assignments
+                    if not q or any(q in str(a.get(k, "")).lower()
+                                   for k in ("station", "waiterName", "attendantName", "tables"))
+                ]
+                if filtered or not q:
+                    self._card_venue(venue.get("name"), venue.get("reportTime", "—"), filtered)
+
+        # Buffet & Outlets
+        if filt in ("ALL", "BUFFET & OUTLETS"):
+            for b in d.get("buffetAndVenues", []):
+                crew = b.get("crew", [])
+                filtered = [
+                    c for c in crew
+                    if not q or q in c.get("name", "").lower()
+                    or q in c.get("role", "").lower()
+                    or q in b.get("name", "").lower()
+                ]
+                if filtered or not q:
+                    self._card_buffet(b.get("name"), b.get("timing", "—"), b.get("lead", ""), filtered)
+
+        # Side Duties
+        if filt in ("ALL", "SIDE DUTIES"):
+            for s in d.get("sideDuties", []):
+                crew = s.get("crew", [])
+                filtered = [
+                    c for c in crew
+                    if not q or q in c.get("name", "").lower()
+                    or q in s.get("name", "").lower()
+                ]
+                if filtered or not q:
+                    self._card_side_duty(s.get("name"), s.get("timing", "—"), filtered)
+
+        # Special Events
+        if filt == "ALL" and d.get("specialEvents"):
+            self._card_special_events(d.get("specialEvents", []))
+
+        # Sick Leave
+        if filt == "ALL" and d.get("sickLeave"):
+            self._card_sick_leave(d.get("sickLeave", []))
+
+    def _card_venue(self, name, report_time, assignments):
+        card = self._card_shell(self.cards_frame)
 
         hdr = ctk.CTkFrame(card, fg_color="transparent")
-        hdr.pack(fill="x", padx=14, pady=(12, 8))
+        hdr.pack(fill="x", padx=16, pady=(12, 8))
 
         ctk.CTkLabel(
-            hdr,
-            text=f"🏛️  {venue_name}",
-            font=ctk.CTkFont(family="Poppins", size=13, weight="bold"),
-            text_color=TK["fg_primary"]
+            hdr, text=name,
+            font=Fonts.get("h3"), text_color=TK["fg_primary"]
         ).pack(side="left")
 
-        pill = ctk.CTkFrame(
-            hdr,
-            fg_color=TK["accent_bg"],
-            corner_radius=6,
-            border_width=1,
-            border_color=TK["accent_dim"]
-        )
-        pill.pack(side="right")
-
         ctk.CTkLabel(
-            pill,
-            text=f"⏰ Report: {report_time}  •  {len(assignments)} Stations",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            text_color=TK["fg_accent"]
-        ).pack(padx=8, pady=3)
+            hdr, text=f"Report: {report_time}  /  {len(assignments)} stations",
+            font=Fonts.get("small"), text_color=TK["fg_accent"]
+        ).pack(side="right")
+
+        # Thin divider
+        ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
         body = ctk.CTkFrame(card, fg_color="transparent")
-        body.pack(fill="x", padx=10, pady=(0, 10))
+        body.pack(fill="x", padx=12, pady=(4, 10))
 
         for idx, a in enumerate(assignments):
-            row_bg = TK["surface_inner"] if idx % 2 == 0 else TK["surface"]
-            row = ctk.CTkFrame(
-                body,
-                fg_color=row_bg,
-                corner_radius=6,
-                border_width=1,
-                border_color=TK["border_subtle"]
-            )
-            row.pack(fill="x", pady=2, padx=4)
+            bg = TK["surface_inner"] if idx % 2 == 0 else TK["bg_base"]
+            row = ctk.CTkFrame(body, fg_color=bg, corner_radius=4)
+            row.pack(fill="x", pady=1, padx=4)
 
-            stn_pill = ctk.CTkFrame(
-                row,
-                fg_color=TK["surface_badge"],
-                corner_radius=4,
-                border_width=1,
-                border_color=TK["border_card"]
-            )
-            stn_pill.pack(side="left", padx=8, pady=6)
-
+            # Station badge
             ctk.CTkLabel(
-                stn_pill,
-                text=a.get("station", "—"),
-                font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-                text_color=TK["cyan_accent"]
-            ).pack(padx=6, pady=2)
+                row, text=a.get("station", "—"),
+                font=Fonts.get("small_bold"), text_color=TK["fg_accent"],
+                width=60
+            ).pack(side="left", padx=8, pady=5)
 
-            waiter_text = f"👤 {a.get('waiterName', '—')}" if a.get('waiterName') else "—"
+            # Waiter
             ctk.CTkLabel(
-                row,
-                text=waiter_text,
-                font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
-                text_color=TK["fg_primary"],
-                anchor="w"
-            ).pack(side="left", padx=8)
+                row, text=a.get("waiterName", "—"),
+                font=Fonts.get("body_bold"), text_color=TK["fg_primary"], anchor="w"
+            ).pack(side="left", padx=6)
 
+            # Attendant
             if a.get("attendantName"):
-                att_text = f"👥 Attendant: {a.get('attendantName', '')}"
                 ctk.CTkLabel(
-                    row,
-                    text=att_text,
-                    font=ctk.CTkFont(family="Poppins", size=11),
-                    text_color=TK["fg_secondary"],
-                    anchor="w"
-                ).pack(side="left", padx=8)
+                    row, text=f"/ {a['attendantName']}",
+                    font=Fonts.get("body"), text_color=TK["fg_secondary"], anchor="w"
+                ).pack(side="left", padx=4)
 
+            # Tables
             if a.get("tables"):
-                tbl_pill = ctk.CTkFrame(
-                    row,
-                    fg_color=TK["gold_dim"],
-                    corner_radius=4,
-                    border_width=1,
-                    border_color=TK["border_subtle"]
-                )
-                tbl_pill.pack(side="right", padx=8, pady=6)
-
                 ctk.CTkLabel(
-                    tbl_pill,
-                    text=f"🪑 {a.get('tables')}",
-                    font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-                    text_color=TK["gold_accent"]
-                ).pack(padx=6, pady=2)
+                    row, text=a["tables"],
+                    font=Fonts.get("mono_sm"), text_color=TK["fg_subtle"]
+                ).pack(side="right", padx=8, pady=5)
 
-    def _build_buffet_bento_card(self, parent, name, timing, lead, crew):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface_card"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
-        )
-        card.pack(fill="x", pady=6)
+    def _card_buffet(self, name, timing, lead, crew):
+        card = self._card_shell(self.cards_frame)
 
         hdr = ctk.CTkFrame(card, fg_color="transparent")
-        hdr.pack(fill="x", padx=14, pady=(12, 8))
+        hdr.pack(fill="x", padx=16, pady=(12, 8))
 
         ctk.CTkLabel(
-            hdr,
-            text=f"🥗  {name}",
-            font=ctk.CTkFont(family="Poppins", size=13, weight="bold"),
-            text_color=TK["fg_primary"]
+            hdr, text=name,
+            font=Fonts.get("h3"), text_color=TK["fg_primary"]
         ).pack(side="left")
 
+        right_text = f"{timing}  /  {len(crew)} crew"
         if lead:
-            lead_pill = ctk.CTkFrame(
-                hdr,
-                fg_color=TK["gold_dim"],
-                corner_radius=6,
-                border_width=1,
-                border_color=TK["border_subtle"]
-            )
-            lead_pill.pack(side="left", padx=10)
-
-            ctk.CTkLabel(
-                lead_pill,
-                text=f"⭐ Lead: {lead}",
-                font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-                text_color=TK["gold_accent"]
-            ).pack(padx=8, pady=2)
-
-        pill = ctk.CTkFrame(
-            hdr,
-            fg_color=TK["surface_badge"],
-            corner_radius=6,
-            border_width=1,
-            border_color=TK["border_card"]
-        )
-        pill.pack(side="right")
-
+            right_text = f"Lead: {lead}  /  " + right_text
         ctk.CTkLabel(
-            pill,
-            text=f"⏰ {timing}  •  {len(crew)} Crew",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            text_color=TK["fg_secondary"]
-        ).pack(padx=8, pady=3)
+            hdr, text=right_text,
+            font=Fonts.get("small"), text_color=TK["fg_secondary"]
+        ).pack(side="right")
+
+        ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
         body = ctk.CTkFrame(card, fg_color="transparent")
-        body.pack(fill="x", padx=12, pady=(0, 12))
+        body.pack(fill="x", padx=12, pady=(4, 10))
 
-        chip_frame = ctk.CTkFrame(body, fg_color="transparent")
-        chip_frame.pack(fill="x")
+        # Crew chips in a flow layout
+        chip_row = ctk.CTkFrame(body, fg_color="transparent")
+        chip_row.pack(fill="x")
 
         for c in crew:
-            role_suffix = f" — {c.get('role')}" if c.get('role') else ""
+            role = f" — {c['role']}" if c.get("role") else ""
             chip = ctk.CTkFrame(
-                chip_frame,
-                fg_color=TK["surface_inner"],
-                corner_radius=6,
-                border_width=1,
-                border_color=TK["border_subtle"]
+                chip_row, fg_color=TK["surface_inner"], corner_radius=6,
+                border_width=1, border_color=TK["border_subtle"]
             )
-            chip.pack(side="left", padx=3, pady=3)
+            chip.pack(side="left", padx=2, pady=2)
 
             ctk.CTkLabel(
-                chip,
-                text=f"{c.get('name', '')}{role_suffix}",
-                font=ctk.CTkFont(family="Poppins", size=10),
-                text_color=TK["fg_primary"]
+                chip, text=f"{c.get('name', '')}{role}",
+                font=Fonts.get("small"), text_color=TK["fg_primary"]
             ).pack(padx=6, pady=3)
 
-    def _build_side_duty_bento_card(self, parent, name, timing, crew):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface_card"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
-        )
-        card.pack(fill="x", pady=6)
+    def _card_side_duty(self, name, timing, crew):
+        card = self._card_shell(self.cards_frame)
 
         hdr = ctk.CTkFrame(card, fg_color="transparent")
-        hdr.pack(fill="x", padx=14, pady=(10, 6))
+        hdr.pack(fill="x", padx=16, pady=(10, 6))
 
         ctk.CTkLabel(
-            hdr,
-            text=f"⚡  {name}",
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            text_color=TK["fg_primary"]
+            hdr, text=name,
+            font=Fonts.get("h3"), text_color=TK["fg_primary"]
         ).pack(side="left")
 
-        pill = ctk.CTkFrame(
-            hdr,
-            fg_color=TK["purple_dim"],
-            corner_radius=6,
-            border_width=1,
-            border_color=TK["border_subtle"]
-        )
-        pill.pack(side="right")
-
         ctk.CTkLabel(
-            pill,
-            text=f"⏰ {timing}  •  {len(crew)} Crew",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            text_color=TK["purple_accent"]
-        ).pack(padx=8, pady=2)
+            hdr, text=f"{timing}  /  {len(crew)} crew",
+            font=Fonts.get("small"), text_color=TK["fg_subtle"]
+        ).pack(side="right")
+
+        ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
         body = ctk.CTkFrame(card, fg_color="transparent")
-        body.pack(fill="x", padx=12, pady=(0, 10))
+        body.pack(fill="x", padx=12, pady=(4, 8))
 
         for c in crew:
             chip = ctk.CTkFrame(
-                body,
-                fg_color=TK["surface_inner"],
-                corner_radius=6,
-                border_width=1,
-                border_color=TK["border_subtle"]
+                body, fg_color=TK["surface_inner"], corner_radius=4,
+                border_width=1, border_color=TK["border_subtle"]
             )
-            chip.pack(side="left", padx=3, pady=2)
-
+            chip.pack(side="left", padx=2, pady=2)
             ctk.CTkLabel(
-                chip,
-                text=f"{c.get('name', '')}",
-                font=ctk.CTkFont(family="Poppins", size=10),
-                text_color=TK["fg_secondary"]
+                chip, text=c.get("name", ""),
+                font=Fonts.get("small"), text_color=TK["fg_secondary"]
             ).pack(padx=6, pady=2)
 
-    def _build_special_events_card(self, parent, events, query):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface_card"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
-        )
-        card.pack(fill="x", pady=6)
-
-        hdr = ctk.CTkFrame(card, fg_color="transparent")
-        hdr.pack(fill="x", padx=14, pady=(10, 6))
+    def _card_special_events(self, events):
+        card = self._card_shell(self.cards_frame)
 
         ctk.CTkLabel(
-            hdr,
-            text="🎭  SPECIAL EVENTS & TRAVEL TALK",
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            text_color=TK["gold_accent"]
-        ).pack(side="left")
+            card, text="SPECIAL EVENTS & TRAVEL TALK",
+            font=Fonts.get("h3"), text_color=TK["gold_accent"]
+        ).pack(anchor="w", padx=16, pady=(12, 6))
+
+        ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
         body = ctk.CTkFrame(card, fg_color="transparent")
-        body.pack(fill="x", padx=12, pady=(0, 10))
+        body.pack(fill="x", padx=12, pady=(4, 10))
 
         for ev in events:
-            ev_box = ctk.CTkFrame(body, fg_color=TK["surface_inner"], corner_radius=6, border_width=1, border_color=TK["border_subtle"])
+            ev_box = ctk.CTkFrame(
+                body, fg_color=TK["surface_inner"], corner_radius=6,
+                border_width=1, border_color=TK["border_subtle"]
+            )
             ev_box.pack(fill="x", pady=3)
 
             ctk.CTkLabel(
                 ev_box,
-                text=f"📌 {ev.get('title')}  —  {ev.get('location')}",
-                font=ctk.CTkFont(family="Poppins", size=11, weight="bold"),
-                text_color=TK["fg_primary"],
-                anchor="w"
-            ).pack(fill="x", padx=8, pady=(6, 4))
+                text=f"{ev.get('title')}  —  {ev.get('location')}",
+                font=Fonts.get("body_bold"), text_color=TK["fg_primary"], anchor="w"
+            ).pack(fill="x", padx=10, pady=(6, 4))
 
             p_frame = ctk.CTkFrame(ev_box, fg_color="transparent")
-            p_frame.pack(fill="x", padx=6, pady=(0, 6))
-
+            p_frame.pack(fill="x", padx=8, pady=(0, 6))
             for p in ev.get("participants", []):
-                chip = ctk.CTkFrame(p_frame, fg_color=TK["surface_badge"], corner_radius=4, border_width=1, border_color=TK["border_card"])
+                chip = ctk.CTkFrame(
+                    p_frame, fg_color=TK["bg_base"], corner_radius=4,
+                    border_width=1, border_color=TK["border_card"]
+                )
                 chip.pack(side="left", padx=2, pady=2)
-
                 ctk.CTkLabel(
                     chip,
                     text=f"{p.get('name')} [{p.get('uniform')}]",
-                    font=ctk.CTkFont(family="Poppins", size=9),
-                    text_color=TK["fg_secondary"]
+                    font=Fonts.get("mono_sm"), text_color=TK["fg_secondary"]
                 ).pack(padx=5, pady=2)
 
-    def _build_sick_leave_card(self, parent, sick_list, query):
-        card = ctk.CTkFrame(
-            parent,
-            fg_color=TK["surface_card"],
-            corner_radius=10,
-            border_width=1,
-            border_color=TK["border_card"]
-        )
-        card.pack(fill="x", pady=6)
-
-        hdr = ctk.CTkFrame(card, fg_color="transparent")
-        hdr.pack(fill="x", padx=14, pady=(10, 6))
+    def _card_sick_leave(self, sick_list):
+        card = self._card_shell(self.cards_frame)
 
         ctk.CTkLabel(
-            hdr,
-            text="🏥  SICK LEAVE / OFF DUTY",
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            text_color=TK["coral_accent"]
-        ).pack(side="left")
+            card, text="SICK LEAVE / OFF DUTY",
+            font=Fonts.get("h3"), text_color=TK["bad_ink"]
+        ).pack(anchor="w", padx=16, pady=(12, 6))
+
+        ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
         body = ctk.CTkFrame(card, fg_color="transparent")
-        body.pack(fill="x", padx=12, pady=(0, 10))
+        body.pack(fill="x", padx=12, pady=(4, 8))
 
         for sk in sick_list:
-            chip = ctk.CTkFrame(body, fg_color=TK["coral_dim"], corner_radius=4, border_width=1, border_color=TK["border_subtle"])
+            chip = ctk.CTkFrame(
+                body, fg_color=TK["bad_bg"], corner_radius=4,
+                border_width=1, border_color=TK["bad_border"]
+            )
             chip.pack(side="left", padx=3, pady=2)
-
             ctk.CTkLabel(
-                chip,
-                text=f"{sk.get('name')}",
-                font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-                text_color=TK["coral_accent"]
+                chip, text=sk.get("name", ""),
+                font=Fonts.get("small_bold"), text_color=TK["bad_ink"]
             ).pack(padx=6, pady=2)
 
-    # ─────────────────────────────────────────────────────────────
-    # TAB 2: WHATSAPP ENCRYPTED PAYLOAD
-    # ─────────────────────────────────────────────────────────────
-    def _build_payload_tab(self, parent):
-        info_bar = ctk.CTkFrame(parent, fg_color="transparent")
-        info_bar.pack(fill="x", padx=6, pady=(6, 8))
-
-        tag_box = ctk.CTkFrame(info_bar, fg_color="transparent")
-        tag_box.pack(side="left")
-
-        ctk.CTkLabel(
-            tag_box,
-            text="● ENCRYPTED TRANSMISSION STREAM",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            text_color=TK["accent"]
-        ).pack(side="left")
-
-        right_bar = ctk.CTkFrame(info_bar, fg_color="transparent")
-        right_bar.pack(side="right")
-
-        self.lbl_payload_metrics = ctk.CTkLabel(
-            right_bar,
-            text="0 characters · 0 bytes base64",
-            font=ctk.CTkFont(family="SF Mono", size=11),
-            text_color=TK["fg_subtle"]
+    def _card_shell(self, parent):
+        """Create a newspaper-style card frame."""
+        card = ctk.CTkFrame(
+            parent, fg_color=TK["surface_card"], corner_radius=10,
+            border_width=1, border_color=TK["border_card"]
         )
-        self.lbl_payload_metrics.pack(side="left", padx=(0, 10))
+        card.pack(fill="x", pady=5)
+        return card
 
-        btn_copy_tab2 = ctk.CTkButton(
-            right_bar,
-            text="📋 Copy Stream",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            fg_color=TK["surface_hover"],
-            hover_color=TK["accent"],
-            text_color=TK["fg_primary"],
-            width=88,
-            height=24,
-            corner_radius=6,
-            command=self.copy_payload_action
-        )
-        btn_copy_tab2.pack(side="left")
-
-        self.txt_payload = ctk.CTkTextbox(
-            parent,
-            font=ctk.CTkFont(family="SF Mono", size=11),
-            fg_color=TK["surface_inner"],
-            text_color=TK["fg_primary"],
-            border_width=1,
-            border_color=TK["border_subtle"],
-            corner_radius=8,
-            wrap="char"
-        )
-        self.txt_payload.pack(fill="both", expand=True, padx=4, pady=(0, 6))
-
-    # ─────────────────────────────────────────────────────────────
-    # TAB 3: STRUCTURED OVERVIEW & JSON
-    # ─────────────────────────────────────────────────────────────
-    def _build_overview_tab(self, parent):
-        top_bar = ctk.CTkFrame(parent, fg_color="transparent")
-        top_bar.pack(fill="x", padx=6, pady=(6, 6))
-
-        ctk.CTkLabel(
-            top_bar,
-            text="STRUCTURED PARSED TEXT STREAM",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            text_color=TK["fg_subtle"]
-        ).pack(side="left")
-
-        actions_bar = ctk.CTkFrame(top_bar, fg_color="transparent")
-        actions_bar.pack(side="right")
-
-        btn_copy_text = ctk.CTkButton(
-            actions_bar,
-            text="📋 Copy Text",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            fg_color=TK["surface_hover"],
-            hover_color=TK["accent"],
-            text_color=TK["fg_primary"],
-            width=76,
-            height=24,
-            corner_radius=6,
-            command=self.copy_overview_text_action
-        )
-        btn_copy_text.pack(side="left", padx=(0, 6))
-
-        btn_backup = ctk.CTkButton(
-            actions_bar,
-            text="💾 Save Backup (Timestamp)",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            fg_color=TK["green_success"],
-            hover_color=TK["green_hover"],
-            text_color="#FFFFFF",
-            width=150,
-            height=24,
-            corner_radius=6,
-            command=self.save_json_backup_action
-        )
-        btn_backup.pack(side="left", padx=(0, 6))
-
-        btn_export = ctk.CTkButton(
-            actions_bar,
-            text="📁 Export As...",
-            font=ctk.CTkFont(family="Poppins", size=10, weight="bold"),
-            fg_color=TK["surface_hover"],
-            hover_color=TK["accent"],
-            text_color=TK["fg_primary"],
-            width=88,
-            height=24,
-            corner_radius=6,
-            command=self.export_json_action
-        )
-        btn_export.pack(side="left")
-
-        self.txt_overview = ctk.CTkTextbox(
-            parent,
-            font=ctk.CTkFont(family="SF Mono", size=11),
-            fg_color=TK["surface_inner"],
-            text_color=TK["fg_primary"],
-            border_width=1,
-            border_color=TK["border_subtle"],
-            corner_radius=8,
-            wrap="word"
-        )
-        self.txt_overview.pack(fill="both", expand=True, padx=4, pady=4)
-
-    # ─────────────────────────────────────────────────────────────
-    # BOTTOM ACTION BAR (LINEAR SIGNATURE ACCENT CTA)
-    # ─────────────────────────────────────────────────────────────
-    def _build_action_bar(self, parent):
-        action_bar = ctk.CTkFrame(parent, fg_color="transparent")
-        action_bar.pack(fill="x", padx=2)
-
-        self.btn_primary_copy = ctk.CTkButton(
-            action_bar,
-            text="📋  COPY ENCRYPTED SCHEDULE TO CLIPBOARD",
-            font=ctk.CTkFont(family="Poppins", size=13, weight="bold"),
-            fg_color=TK["accent"],
-            hover_color=TK["accent_hover"],
-            text_color="#FFFFFF",
-            height=44,
-            corner_radius=8,
-            command=self.copy_payload_action
-        )
-        self.btn_primary_copy.pack(side="left", fill="x", expand=True, padx=(0, 10))
-
-        self.btn_secondary_web = ctk.CTkButton(
-            action_bar,
-            text="🌐 Open WebApp Viewer",
-            font=ctk.CTkFont(family="Poppins", size=12, weight="bold"),
-            fg_color=TK["surface"],
-            hover_color=TK["surface_hover"],
-            border_width=1,
-            border_color=TK["border_card"],
-            text_color=TK["fg_primary"],
-            height=44,
-            corner_radius=8,
-            command=self.open_webapp
-        )
-        self.btn_secondary_web.pack(side="right", padx=0)
-
-    # ─────────────────────────────────────────────────────────────
-    # BUSINESS LOGIC & ROSTER PROCESSING
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────
+    # BUSINESS LOGIC
+    # ─────────────────────────────────────────────────────────
     def browse_file(self):
-        """Open native Mac/Windows file chooser with instant zero freeze."""
         self.update_idletasks()
         selected = filedialog.askopenfilename(
             parent=self,
@@ -1290,340 +986,213 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         )
         if selected:
             self.current_file = selected
-            self.lbl_file_display.configure(text=self._format_file_display_text())
+            self.lbl_file.configure(text=self._file_display_text())
             self.process_schedule()
 
     def _on_file_drop(self, event):
-        """Handle Drag & Drop of Excel schedule files."""
-        raw_data = (event.data or "").strip()
-        if raw_data.startswith('{') and raw_data.endswith('}'):
-            raw_data = raw_data[1:-1]
-        elif raw_data.startswith('"') and raw_data.endswith('"'):
-            raw_data = raw_data[1:-1]
-
-        file_path = raw_data.strip()
-        if file_path.lower().endswith(('.xlsx', '.xls')) and os.path.exists(file_path):
-            self.current_file = file_path
-            self.lbl_file_display.configure(text=self._format_file_display_text())
+        raw = (event.data or "").strip()
+        if raw.startswith('{') and raw.endswith('}'):
+            raw = raw[1:-1]
+        elif raw.startswith('"') and raw.endswith('"'):
+            raw = raw[1:-1]
+        path = raw.strip()
+        if path.lower().endswith(('.xlsx', '.xls')) and os.path.exists(path):
+            self.current_file = path
+            self.lbl_file.configure(text=self._file_display_text())
             self.process_schedule()
-            self._show_toast("📥 Roster Loaded via Drag & Drop", color=TK["green_success"][1])
+            self._show_status("Roster loaded via drag & drop", TK["good_ink"])
         else:
-            self._show_toast("⚠️ Please drop a valid Excel file (.xlsx)", color=TK["gold_accent"][1])
+            self._show_status("Drop a valid Excel file (.xlsx)", TK["warn_ink"])
 
     def _on_shift_selected(self, value):
         self.meal_shift = value
         if self.current_file:
             self.process_schedule()
 
-    def _on_search_changed(self, event=None):
+    def _on_search_key(self, event=None):
+        """Debounced search — 300ms delay before re-render."""
+        if self._search_debounce_job:
+            self.after_cancel(self._search_debounce_job)
+        self._search_debounce_job = self.after(300, self._apply_search)
+
+    def _apply_search(self):
         self.search_query = self.search_entry.get().strip()
-        self._render_bento_cards()
+        self._render_cards()
 
     def _clear_search(self):
         self.search_entry.delete(0, "end")
         self.search_query = ""
-        self._render_bento_cards()
+        self._render_cards()
 
     def _on_filter_changed(self, value):
         self.active_filter = value
-        self._render_bento_cards()
+        self._render_cards()
 
     def process_schedule(self):
-        """Parse active Excel file and generate compressed payload."""
+        """Parse Excel and generate payload + QR."""
         if not self.current_file or not os.path.exists(self.current_file):
             return
 
-        self.lbl_system_status.configure(text="● Parsing Roster...", text_color=TK["accent"])
+        self._show_status("Parsing roster...", TK["fg_accent"])
         self.update_idletasks()
 
         try:
             self.schedule_data = parse_schedule_excel(self.current_file, self.meal_shift)
             self.payload, self.b64_data = generate_payload(self.schedule_data)
+
+            # Count crew once (avoid duplicate counting)
+            self._count_crew()
+
             self._render_results()
-            self.lbl_system_status.configure(text="● Engine Ready (0% CPU)", text_color=TK["green_success"])
+            self._generate_qr()
+            self._show_status("Ready", TK["good_ink"])
         except Exception as err:
-            self.lbl_system_status.configure(text="● Parse Error", text_color="#EF4444")
-            messagebox.showerror("Parsing Error", f"Failed to parse Excel schedule:\n\n{err}")
+            self._show_status("Parse error", TK["bad_ink"])
+            messagebox.showerror("Parse Error", f"Failed to parse Excel:\n\n{err}")
+
+    def _count_crew(self):
+        d = self.schedule_data
+        if not d:
+            return
+        names = set()
+        for v in d.get("venues", []):
+            for a in v.get("assignments", []):
+                if a.get("waiterName"):
+                    names.add(a["waiterName"])
+                if a.get("attendantName"):
+                    names.add(a["attendantName"])
+        for b in d.get("buffetAndVenues", []):
+            for c in b.get("crew", []):
+                if c.get("name"):
+                    names.add(c["name"])
+        for s in d.get("sideDuties", []):
+            for c in s.get("crew", []):
+                if c.get("name"):
+                    names.add(c["name"])
+        for sk in d.get("sickLeave", []):
+            if sk.get("name"):
+                names.add(sk["name"])
+
+        self._cached_crew_count = len(names)
+        self._cached_section_count = (
+            len(d.get("venues", []))
+            + len(d.get("buffetAndVenues", []))
+            + len(d.get("sideDuties", []))
+        )
 
     def _render_results(self):
         d = self.schedule_data
         if not d:
             return
 
-        # 1. Update Telemetry Badges
-        self.badge_vessel.configure(text=f"🚢  {d.get('ship', 'COSTA')}")
-        self.badge_date.configure(text=f"📅  {d.get('date', '—')}")
-        self.badge_port.configure(text=f"📍  {d.get('port', '—')}")
+        # Update badges
+        self.badge_vessel.configure(text=d.get("ship", "COSTA"))
+        self.badge_date.configure(text=d.get("date", "—"))
+        self.badge_port.configure(text=d.get("port", "—"))
 
-        # 2. Update Sidebar Telemetry
-        all_crew_names = set()
-        for v in d.get("venues", []):
-            for a in v.get("assignments", []):
-                if a.get("waiterName"): all_crew_names.add(a.get("waiterName"))
-                if a.get("attendantName"): all_crew_names.add(a.get("attendantName"))
-        for b in d.get("buffetAndVenues", []):
-            for c in b.get("crew", []):
-                if c.get("name"): all_crew_names.add(c.get("name"))
-        for s in d.get("sideDuties", []):
-            for c in s.get("crew", []):
-                if c.get("name"): all_crew_names.add(c.get("name"))
-        for sk in d.get("sickLeave", []):
-            if sk.get("name"): all_crew_names.add(sk.get("name"))
+        # Update stat cards
+        total_stations = sum(len(v.get("assignments", [])) for v in d.get("venues", []))
+        total_venues = len(d.get("venues", []))
 
-        total_sections = len(d.get('venues', [])) + len(d.get('buffetAndVenues', [])) + len(d.get('sideDuties', []))
-        self.side_stat_crew.configure(text=f"{len(all_crew_names)} crew")
-        self.side_stat_venues.configure(text=f"{total_sections} sections")
-        self.side_stat_stream.configure(text=f"{len(self.payload):,} chars")
+        self.stat_port[0].configure(text=f"{d.get('port', '—')} / {d.get('meal', 'LUNCH')}")
+        self.stat_port[1].configure(text=d.get("date", "—"))
 
-        # 3. Update Payload Metrics & Stream
-        chars = len(self.payload)
-        b64_len = len(self.b64_data)
-        self.lbl_payload_metrics.configure(text=f"{chars:,} chars · {b64_len:,} bytes encoded")
+        self.stat_crew[0].configure(text=f"{self._cached_crew_count} Crew")
+        self.stat_crew[1].configure(text=f"{self._cached_section_count} Sections")
 
-        self.txt_payload.delete("1.0", "end")
-        self.txt_payload.insert("1.0", self.payload)
+        self.stat_stations[0].configure(text=f"{total_stations} Tables")
+        self.stat_stations[1].configure(text=f"{total_venues} Venues")
 
-        # 4. Update Structured Overview Stream
-        overview_text = self._build_overview_text(d)
-        self.txt_overview.delete("1.0", "end")
-        self.txt_overview.insert("1.0", overview_text)
+        self.stat_payload[0].configure(text=f"{len(self.payload):,} Chars")
+        self.stat_payload[1].configure(text=f"{len(self.b64_data):,} Bytes")
 
-        # 5. Render Interactive Bento Cards
-        self._render_bento_cards()
+        # Render cards
+        self._render_cards()
 
-    def _build_overview_text(self, d):
-        lines = []
-        lines.append(f"🚢 VESSEL : {d.get('ship', '')}")
-        lines.append(f"📅 DATE   : {d.get('date', '')}  |  PORT: {d.get('port', '')}")
-        lines.append(f"🍽️ SHIFT  : {d.get('shift', '')} [{d.get('meal', '')}]")
-        lines.append("─" * 68)
-        lines.append("")
-
-        # Venues
-        lines.append("🏛️ MAIN RESTAURANTS & STATIONS:")
-        for v in d.get("venues", []):
-            lines.append(f"  ┌ {v.get('name')} (Report: {v.get('reportTime', '—')})")
-            for a in v.get("assignments", []):
-                waiter = f"{a.get('waiterName')}" if a.get('waiterName') else "—"
-                attendant = f" / Attendant: {a.get('attendantName')}" if a.get('attendantName') else ""
-                lines.append(f"  │  • {a.get('station')}: {waiter}{attendant} [{a.get('tables')}]")
-            lines.append("  └" + "─" * 40)
-        lines.append("")
-
-        # Buffet & Special Outlets
-        lines.append("🥗 BUFFET & SPECIALTY RESTAURANTS:")
-        for b in d.get("buffetAndVenues", []):
-            lead = f" (Lead: {b.get('lead')})" if b.get('lead') else ""
-            lines.append(f"  • {b.get('name')} | Timing: {b.get('timing', '—')}{lead}")
-            crew_list = [f"{c.get('name')}" + (f" ({c.get('role')})" if c.get('role') else "") for c in b.get('crew', [])]
-            if crew_list:
-                lines.append(f"      Crew ({len(crew_list)}): " + ", ".join(crew_list))
-        lines.append("")
-
-        # Side Duties
-        lines.append("⚡ SUB-TEAMS & SIDE DUTIES:")
-        for s in d.get("sideDuties", []):
-            lines.append(f"  • {s.get('name')} (Timing: {s.get('timing', '—')})")
-            crew_str = ", ".join([f"{c.get('name')}" for c in s.get('crew', [])])
-            lines.append(f"      Crew: {crew_str}")
-        lines.append("")
-
-        # Special Events
-        if d.get("specialEvents"):
-            lines.append("🎭 SPECIAL EVENTS & TRAVEL TALK:")
-            for ev in d.get("specialEvents", []):
-                lines.append(f"  • {ev.get('title')} ({ev.get('location')})")
-                for p in ev.get("participants", []):
-                    lines.append(f"      - {p.get('name')} [{p.get('uniform')}]")
-            lines.append("")
-
-        # Sick Leave
-        if d.get("sickLeave"):
-            lines.append("🏥 SICK LEAVE / OFF:")
-            for sk in d.get("sickLeave", []):
-                lines.append(f"  • {sk.get('name')}")
-
-        return "\n".join(lines)
-
-    # ─────────────────────────────────────────────────────────────
-    # CLIPBOARD & NOTIFICATIONS
-    # ─────────────────────────────────────────────────────────────
-    def copy_payload_action(self):
-        """Copy active payload to clipboard with precision feedback."""
+    # ─────────────────────────────────────────────────────────
+    # ACTIONS
+    # ─────────────────────────────────────────────────────────
+    def _primary_action(self):
+        """Primary CTA: copy payload + ensure QR is generated."""
         if not self.payload:
-            messagebox.showwarning("No Schedule", "Please load and process a schedule file first.")
+            messagebox.showwarning("No Schedule", "Load and process a schedule file first.")
             return
+        self.copy_payload_action()
+        self._generate_qr()
 
+    def copy_payload_action(self):
+        if not self.payload:
+            messagebox.showwarning("No Schedule", "Load and process a schedule file first.")
+            return
         success = copy_to_clipboard(self.payload)
         if not success:
             self.clipboard_clear()
             self.clipboard_append(self.payload)
-
         self._trigger_copy_feedback()
-
-    def copy_overview_text_action(self):
-        txt = self.txt_overview.get("1.0", "end").strip()
-        if not txt:
-            return
-        success = copy_to_clipboard(txt)
-        if not success:
-            self.clipboard_clear()
-            self.clipboard_append(txt)
-        messagebox.showinfo("Copied", "Structured overview text copied to clipboard.")
 
     def _trigger_copy_feedback(self):
         if self._toast_job:
             self.after_cancel(self._toast_job)
 
-        self.btn_primary_copy.configure(
-            text="✓  COPIED TO CLIPBOARD! READY TO PASTE ON WHATSAPP",
-            fg_color=TK["green_success"],
-            hover_color=TK["green_hover"],
-            text_color="#FFFFFF"
+        self.btn_primary.configure(
+            text="COPIED — READY TO PASTE",
+            fg_color=TK["good_ink"]
+        )
+        self._toast_job = self.after(2400, self._restore_primary_btn)
+
+    def _restore_primary_btn(self):
+        self.btn_primary.configure(
+            text="GENERATE QR & COPY SCHEDULE",
+            fg_color=TK["gold_accent"]
         )
 
-        self._toast_job = self.after(2400, self._restore_copy_buttons)
-
-    def _restore_copy_buttons(self):
-        self.btn_primary_copy.configure(
-            text="📋  COPY ENCRYPTED SCHEDULE TO CLIPBOARD",
-            fg_color=TK["accent"],
-            hover_color=TK["accent_hover"],
-            text_color="#FFFFFF"
-        )
-
-    # ─────────────────────────────────────────────────────────────
-    # EXPORT DATA
-    # ─────────────────────────────────────────────────────────────
     def save_json_backup_action(self):
         if not self.schedule_data:
-            messagebox.showwarning("No Data", "Please load a schedule first.")
+            messagebox.showwarning("No Data", "Load a schedule first.")
             return
-
         try:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            save_dir = os.path.join(base_dir, "Save Data")
+            base = os.path.dirname(os.path.abspath(__file__))
+            save_dir = os.path.join(base, "Save Data")
             os.makedirs(save_dir, exist_ok=True)
 
-            now_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            ship_slug = str(self.schedule_data.get("ship", "Costa")).replace(" ", "_")
-            meal_slug = str(self.schedule_data.get("meal", "Schedule")).replace(" ", "_")
-            filename = f"{ship_slug}_{meal_slug}_{now_str}.json"
-            filepath = os.path.join(save_dir, filename)
+            now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            ship = str(self.schedule_data.get("ship", "Costa")).replace(" ", "_")
+            meal = str(self.schedule_data.get("meal", "Schedule")).replace(" ", "_")
+            fname = f"{ship}_{meal}_{now}.json"
+            fpath = os.path.join(save_dir, fname)
 
-            with open(filepath, "w", encoding="utf-8") as f:
+            with open(fpath, "w", encoding="utf-8") as f:
                 json.dump(self.schedule_data, f, indent=2, ensure_ascii=False)
-
-            messagebox.showinfo("Backup Saved", f"Schedule saved to Save Data:\n{filename}\n\nPath:\n{filepath}")
+            messagebox.showinfo("Saved", f"Backup saved:\n{fname}")
         except Exception as err:
-            messagebox.showerror("Save Failed", f"Failed to save backup:\n{err}")
+            messagebox.showerror("Save Failed", f"Failed:\n{err}")
 
     def export_json_action(self):
         if not self.schedule_data:
-            messagebox.showwarning("No Data", "Please load a schedule first.")
+            messagebox.showwarning("No Data", "Load a schedule first.")
             return
-
-        out_path = filedialog.asksaveasfilename(
-            parent=self,
-            title="Export Schedule JSON",
-            defaultextension=".json",
-            filetypes=[("JSON Files", "*.json")]
+        out = filedialog.asksaveasfilename(
+            parent=self, title="Export Schedule JSON",
+            defaultextension=".json", filetypes=[("JSON", "*.json")]
         )
-        if out_path:
-            with open(out_path, "w", encoding="utf-8") as f:
+        if out:
+            with open(out, "w", encoding="utf-8") as f:
                 json.dump(self.schedule_data, f, indent=2, ensure_ascii=False)
-            messagebox.showinfo("Export Successful", f"Schedule saved to:\n{out_path}")
+            messagebox.showinfo("Exported", f"Saved to:\n{out}")
 
-    # ─────────────────────────────────────────────────────────────
-    # EXTERNAL LAUNCHERS
-    # ─────────────────────────────────────────────────────────────
     def open_webapp(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        html_path = os.path.join(base_dir, "CostaSchedule.html")
-        if os.path.exists(html_path):
-            webbrowser.open(f"file://{html_path}")
+        base = os.path.dirname(os.path.abspath(__file__))
+        html = os.path.join(base, "CostaSchedule.html")
+        if os.path.exists(html):
+            webbrowser.open(f"file://{html}")
         else:
-            messagebox.showwarning("File Missing", "CostaSchedule.html not found in project directory.")
+            messagebox.showwarning("Missing", "CostaSchedule.html not found.")
 
-    def _create_divider(self, parent, pady=8):
-        t = get_active_tokens()
-        div = ctk.CTkFrame(parent, height=1, fg_color=t["border_subtle"])
-        div.pack(fill="x", padx=16, pady=pady)
-        return div
-
-    # ─────────────────────────────────────────────────────────────
-    # THEME SWITCHING ENGINE
-    # ─────────────────────────────────────────────────────────────
-    def _on_theme_changed(self, mode):
-        """Apply theme change and rebuild UI with correct token set."""
-        ctk.set_appearance_mode(mode)
-
-        # Small delay to let ctk finish mode switch before we re-color
-        self.after(50, self._apply_theme_colors)
-
-    def _apply_theme_colors(self):
-        """Re-apply all color tokens to match current appearance mode."""
-        t = get_active_tokens()
-
-        # Window base
-        self.configure(fg_color=t["bg_base"])
-
-        # Re-apply key segmented button colors
+    def _show_status(self, text, color):
         try:
-            self.shift_selector.configure(
-                selected_color=t["accent"],
-                selected_hover_color=t["accent_hover"],
-                unselected_color=t["surface_inner"],
-                unselected_hover_color=t["surface_hover"],
-                text_color=t["fg_primary"]
-            )
-            self.filter_selector.configure(
-                selected_color=t["accent_dim"],
-                selected_hover_color=t["accent"],
-                unselected_color=t["surface_inner"],
-                unselected_hover_color=t["surface_hover"],
-                text_color=t["fg_primary"]
-            )
-            # Tab pills
-            self.tabview.configure(
-                fg_color=t["surface"],
-                border_color=t["border_card"],
-                segmented_button_fg_color=t["surface_inner"],
-                segmented_button_selected_color=t["accent"],
-                segmented_button_selected_hover_color=t["accent_hover"],
-                segmented_button_unselected_hover_color=t["surface_hover"]
-            )
-            self.tabview._segmented_button.configure(
-                text_color=t["fg_primary"]
-            )
-            # Payload & overview textboxes
-            self.txt_payload.configure(
-                fg_color=t["surface_inner"],
-                text_color=t["fg_primary"],
-                border_color=t["border_subtle"]
-            )
-            self.txt_overview.configure(
-                fg_color=t["surface_inner"],
-                text_color=t["fg_primary"],
-                border_color=t["border_subtle"]
-            )
-            # Action bar primary CTA
-            self.btn_primary_copy.configure(
-                fg_color=t["accent"],
-                hover_color=t["accent_hover"]
-            )
-            self.btn_secondary_web.configure(
-                fg_color=t["surface"],
-                hover_color=t["surface_hover"],
-                border_color=t["border_card"],
-                text_color=t["fg_primary"]
-            )
-            # System status
-            self.lbl_system_status.configure(
-                text_color=t["green_success"]
-            )
+            self.lbl_status.configure(text=text, text_color=color)
         except Exception:
-            pass  # Graceful degradation if widgets not yet built
+            pass
 
 
 # ─────────────────────────────────────────────────────────────
