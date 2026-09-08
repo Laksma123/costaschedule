@@ -488,11 +488,13 @@ async function parseWhatsAppPayload(text) {
     }
   } catch(e) { saved = {}; }
 
+  const isBoth = /(?:PART\s*2|2\s*\/\s*2)/i.test(rawText);
+
   while ((match = czPattern.exec(rawText)) !== null) {
     hasCZ = true;
     const part = parseInt(match[1], 10);
     const total = parseInt(match[2], 10);
-    if (part === 1 && !saved[2]) {
+    if (part === 1 && !isBoth) {
       saved = {};
     }
     saved[part] = match[3].replace(/\s+/g, '');
@@ -501,7 +503,7 @@ async function parseWhatsAppPayload(text) {
 
   if (hasCZ || saved._total) {
     const total = saved._total || 2;
-    const partsFound = Object.keys(saved).filter(k => k !== '_total').map(Number).sort();
+    const partsFound = Object.keys(saved).filter(k => /^\d+$/.test(k)).map(Number).sort((a, b) => a - b);
 
     if (partsFound.length === total) {
       let fullB64 = '';
