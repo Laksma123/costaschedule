@@ -4004,7 +4004,7 @@ async function parseWhatsAppPayload(text) {
   let rawText = text.trim();
 
   // ── 1. COMPRESSED QR FORMAT ([COSTA-PART n/t] or legacy CZ:n/t:base64) ──
-  const czPattern = /(?:\[COSTA[- ]PART\s*|COSTA\s*|CZ:?)(\d+)\s*\/\s*(\d+)\]?:?\s*([\sA-Za-z0-9+/=]{10,})/gi;
+  const czPattern = /(?:\[COSTA[- ]PART\s*|COSTA\s*|CZ:?)(\d+)\s*\/\s*(\d+)\]?:?\s*([A-Za-z0-9+/=]{10,})/gi;
   let match;
   let hasCZ = false;
 
