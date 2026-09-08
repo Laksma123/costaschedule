@@ -17,9 +17,9 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
 import qrcode
-from qrcode.constants import ERROR_CORRECT_L, ERROR_CORRECT_M
+from qrcode.constants import ERROR_CORRECT_L
 
-from exporter import parse_schedule_excel, generate_payload, copy_to_clipboard
+from exporter import parse_schedule_excel, generate_payload, generate_compressed_payload, copy_to_clipboard
 
 # ─────────────────────────────────────────────────────────────
 # NEWSPAPER LIGHT DESIGN TOKENS  (matches CostaSchedule.html)
@@ -142,6 +142,8 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.schedule_data = None
         self.payload = ""
         self.b64_data = ""
+        self.qr_segments = []     # compressed QR text segments
+        self.qr_compressed_b64 = ""  # full compressed b64
         self.meal_shift = "LUNCH"
         self.active_filter = "ALL"
         self.search_query = ""
@@ -475,54 +477,55 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self.export_json_action
         ).pack(side="left")
 
-        # QR right: image preview + navigation for segmented QR
+        # QR right: 2 QR codes side-by-side for compressed segments
         self.qr_image_frame = ctk.CTkFrame(qr_inner, fg_color="transparent")
         self.qr_image_frame.pack(side="right", padx=(20, 0))
 
-        self.qr_placeholder = ctk.CTkFrame(
-            self.qr_image_frame, width=220, height=220,
+        # QR A
+        qr_a_wrap = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
+        qr_a_wrap.pack(side="left", padx=(0, 8))
+
+        ctk.CTkLabel(
+            qr_a_wrap, text="QR A — Scan first",
+            font=Fonts.get("tiny"), text_color=TK["fg_accent"]
+        ).pack()
+
+        self.qr_a_box = ctk.CTkFrame(
+            qr_a_wrap, width=180, height=180,
             fg_color=TK["bg_base"], corner_radius=8,
             border_width=1, border_color=TK["border_card"]
         )
-        self.qr_placeholder.pack()
-        self.qr_placeholder.pack_propagate(False)
+        self.qr_a_box.pack(pady=(3, 0))
+        self.qr_a_box.pack_propagate(False)
 
-        self.qr_image_label = ctk.CTkLabel(
-            self.qr_placeholder, text="QR will appear here",
+        self.qr_a_label = ctk.CTkLabel(
+            self.qr_a_box, text="QR A",
             font=Fonts.get("small"), text_color=TK["fg_subtle"]
         )
-        self.qr_image_label.pack(expand=True)
+        self.qr_a_label.pack(expand=True)
 
-        # Navigation for segmented QR
-        self.qr_nav_frame = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
-        self.qr_nav_frame.pack(fill="x", pady=(6, 0))
+        # QR B
+        qr_b_wrap = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
+        qr_b_wrap.pack(side="left")
 
-        self.btn_qr_prev = ctk.CTkButton(
-            self.qr_nav_frame, text="<", width=30, height=24,
-            font=Fonts.get("btn_sm"), corner_radius=4,
-            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
-            text_color=TK["fg_primary"], command=self._qr_prev
+        ctk.CTkLabel(
+            qr_b_wrap, text="QR B — Scan second",
+            font=Fonts.get("tiny"), text_color=TK["fg_accent"]
+        ).pack()
+
+        self.qr_b_box = ctk.CTkFrame(
+            qr_b_wrap, width=180, height=180,
+            fg_color=TK["bg_base"], corner_radius=8,
+            border_width=1, border_color=TK["border_card"]
         )
-        self.btn_qr_prev.pack(side="left")
+        self.qr_b_box.pack(pady=(3, 0))
+        self.qr_b_box.pack_propagate(False)
 
-        self.qr_page_label = ctk.CTkLabel(
-            self.qr_nav_frame, text="",
-            font=Fonts.get("small_bold"), text_color=TK["fg_secondary"]
+        self.qr_b_label = ctk.CTkLabel(
+            self.qr_b_box, text="QR B",
+            font=Fonts.get("small"), text_color=TK["fg_subtle"]
         )
-        self.qr_page_label.pack(side="left", expand=True)
-
-        self.btn_qr_next = ctk.CTkButton(
-            self.qr_nav_frame, text=">", width=30, height=24,
-            font=Fonts.get("btn_sm"), corner_radius=4,
-            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
-            text_color=TK["fg_primary"], command=self._qr_next
-        )
-        self.btn_qr_next.pack(side="right")
-
-        # Hide nav initially
-        self.qr_nav_frame.pack_forget()
-        self._qr_images = []  # list of CTkImage
-        self._qr_current_page = 0
+        self.qr_b_label.pack(expand=True)
 
         # ── Cards container ──
         self.cards_frame = ctk.CTkFrame(self.content_inner, fg_color="transparent")
@@ -584,7 +587,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         # Primary CTA — yellow (Costa guideline: one yellow button)
         self.btn_primary = ctk.CTkButton(
-            inner, text="GENERATE QR & COPY SCHEDULE",
+            inner, text="COPY SCHEDULE TO CLIPBOARD",
             font=Fonts.get("btn"),
             fg_color=TK["gold_accent"], hover_color=TK["gold_hover"],
             text_color=TK["fg_primary"],  # Dark text on yellow (8:1 contrast)
@@ -614,59 +617,44 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
     # QR CODE GENERATION
     # ─────────────────────────────────────────────────────────
     def _generate_qr(self):
-        """Generate QR code(s) from payload. Segments if data > 2800 chars."""
-        if not self.payload:
+        """Generate 2 compressed QR codes (side-by-side) from schedule data."""
+        if not self.schedule_data:
             return
 
-        payload_text = self.payload
-        MAX_QR_CHARS = 2800  # Safe limit for QR version 40 with L error correction
-
         try:
-            if len(payload_text) <= MAX_QR_CHARS:
-                # Single QR — fits everything
-                self._qr_images = [self._make_qr_image(payload_text)]
-                self._qr_current_page = 0
-                self.qr_nav_frame.pack_forget()
-                self.qr_status_label.configure(
-                    text=f"QR generated — {len(payload_text):,} chars encoded. "
-                         f"Scan with any QR reader. Works offline."
-                )
-            else:
-                # Segmented QR — split payload into chunks
-                chunks = []
-                total_chars = len(payload_text)
-                i = 0
-                while i < total_chars:
-                    chunks.append(payload_text[i:i + MAX_QR_CHARS])
-                    i += MAX_QR_CHARS
+            self.qr_segments, self.qr_compressed_b64 = generate_compressed_payload(
+                self.schedule_data
+            )
 
-                total_parts = len(chunks)
-                self._qr_images = []
+            # Generate QR A
+            qr_a_img = self._make_qr_image(self.qr_segments[0], size=170)
+            self.qr_a_label.configure(image=qr_a_img, text="")
+            self._qr_a_ref = qr_a_img  # prevent GC
 
-                for idx, chunk in enumerate(chunks):
-                    # Prefix each chunk with segment header
-                    header = f"[COSTA-QR-SEG {idx + 1}/{total_parts}]\n"
-                    segmented_data = header + chunk
-                    self._qr_images.append(self._make_qr_image(segmented_data))
+            # Generate QR B
+            qr_b_img = self._make_qr_image(self.qr_segments[1], size=170)
+            self.qr_b_label.configure(image=qr_b_img, text="")
+            self._qr_b_ref = qr_b_img  # prevent GC
 
-                self._qr_current_page = 0
-                self.qr_nav_frame.pack(fill="x", pady=(6, 0))
-                self.qr_status_label.configure(
-                    text=f"Segmented QR — {total_parts} codes, {total_chars:,} chars total. "
-                         f"Scan all {total_parts} QR codes in order. "
-                         f"Manager concatenates the text from each scan."
-                )
+            seg_a_len = len(self.qr_segments[0])
+            seg_b_len = len(self.qr_segments[1])
+            total_b64 = len(self.qr_compressed_b64)
 
-            self._show_qr_page(0)
+            self.qr_status_label.configure(
+                text=f"2 QR codes ready — compressed {len(self.payload):,} to "
+                     f"{total_b64:,} chars ({100 - total_b64 * 100 // len(self.b64_data):.0f}% smaller). "
+                     f"Manager: scan QR A, paste to WA, then scan QR B, paste to WA."
+            )
 
         except Exception as e:
-            self.qr_image_label.configure(image=None, text=f"QR failed: {e}")
+            self.qr_a_label.configure(image=None, text=f"Error: {e}")
+            self.qr_b_label.configure(image=None, text="—")
             self.qr_status_label.configure(
                 text=f"QR generation failed. Use Copy Payload button instead."
             )
 
-    def _make_qr_image(self, data):
-        """Generate a single QR code PIL image from data string."""
+    def _make_qr_image(self, data, size=170):
+        """Generate a single QR code CTkImage from text data."""
         qr = qrcode.QRCode(
             version=None,
             error_correction=ERROR_CORRECT_L,
@@ -676,36 +664,12 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         qr.add_data(data)
         qr.make(fit=True)
         pil = qr.make_image(fill_color="#0A2A38", back_color="#FFFFFF").convert("RGB")
-
-        display_size = 210
-        pil = pil.resize((display_size, display_size), PILImage.NEAREST)
+        pil = pil.resize((size, size), PILImage.NEAREST)
 
         return ctk.CTkImage(
             light_image=pil, dark_image=pil,
-            size=(display_size, display_size)
+            size=(size, size)
         )
-
-    def _show_qr_page(self, page):
-        """Display a specific QR page."""
-        if not self._qr_images:
-            return
-        page = max(0, min(page, len(self._qr_images) - 1))
-        self._qr_current_page = page
-
-        self.qr_image_label.configure(image=self._qr_images[page], text="")
-
-        if len(self._qr_images) > 1:
-            self.qr_page_label.configure(
-                text=f"QR {page + 1} / {len(self._qr_images)}"
-            )
-
-    def _qr_prev(self):
-        if self._qr_current_page > 0:
-            self._show_qr_page(self._qr_current_page - 1)
-
-    def _qr_next(self):
-        if self._qr_current_page < len(self._qr_images) - 1:
-            self._show_qr_page(self._qr_current_page + 1)
 
     # ─────────────────────────────────────────────────────────
     # CARD RENDERING  (newspaper-style, no emoji)
@@ -1141,7 +1105,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
     def _restore_primary_btn(self):
         self.btn_primary.configure(
-            text="GENERATE QR & COPY SCHEDULE",
+            text="COPY SCHEDULE TO CLIPBOARD",
             fg_color=TK["gold_accent"]
         )
 

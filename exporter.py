@@ -8,6 +8,7 @@ import sys
 import os
 import json
 import base64
+import zlib
 import subprocess
 import argparse
 import openpyxl
@@ -340,6 +341,67 @@ def generate_payload(schedule_data):
         f"[COSTA-DATA-END]"
     )
     return wa_message, b64_str
+
+
+# ──────────────────────────────────────────────────────
+# COMPRESSED PAYLOAD (for QR codes — ship environment)
+# ──────────────────────────────────────────────────────
+# Key minification map: full key → short key
+# Reduces JSON size by ~19% before compression
+_KEY_MIN = {
+    'waiterName': 'w', 'attendantName': 'a', 'station': 's',
+    'tables': 't', 'name': 'n', 'role': 'r', 'crew': 'c',
+    'assignments': 'as', 'reportTime': 'rt', 'timing': 'ti',
+    'lead': 'ld', 'title': 'tt', 'location': 'lo',
+    'participants': 'pa', 'uniform': 'un',
+    'venues': 'v', 'buffetAndVenues': 'bv', 'sideDuties': 'sd',
+    'specialEvents': 'se', 'sickLeave': 'sl',
+    'ship': 'sh', 'date': 'dt', 'port': 'po', 'meal': 'ml', 'shift': 'sf',
+}
+
+# Reverse map for expansion (used by HTML/APK decoder)
+_KEY_EXPAND = {v: k for k, v in _KEY_MIN.items()}
+
+
+def _minify_keys(obj):
+    """Recursively shorten dict keys using _KEY_MIN map."""
+    if isinstance(obj, dict):
+        return {_KEY_MIN.get(k, k): _minify_keys(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_minify_keys(i) for i in obj]
+    return obj
+
+
+def generate_compressed_payload(schedule_data):
+    """
+    Generate zlib-compressed, key-minified payload split into 2 QR-ready segments.
+
+    Returns:
+        tuple: (segment_list, full_b64)
+            segment_list: list of strings like ["CZ:1/2:<b64half>", "CZ:2/2:<b64half>"]
+            full_b64: the complete compressed base64 string (for single-paste fallback)
+
+    Format: CZ:<part>/<total>:<base64 of zlib(minified JSON)>
+    The HTML/APK parser detects prefix 'CZ:' and:
+        1. Joins segments by stripping headers
+        2. Base64-decodes the joined string
+        3. Zlib-decompresses the bytes
+        4. Expands minified keys back to full keys
+        5. Parses JSON as normal
+    """
+    minified = _minify_keys(schedule_data)
+    mini_json = json.dumps(minified, separators=(',', ':'), ensure_ascii=False)
+    compressed = zlib.compress(mini_json.encode('utf-8'), level=9)
+    full_b64 = base64.b64encode(compressed).decode('utf-8')
+
+    # Split into 2 equal segments for QR
+    half = len(full_b64) // 2
+    segments = [
+        f"CZ:1/2:{full_b64[:half]}",
+        f"CZ:2/2:{full_b64[half:]}",
+    ]
+
+    return segments, full_b64
 
 def main():
     parser = argparse.ArgumentParser(description="Costa Smeralda Schedule Exporter to WhatsApp")
