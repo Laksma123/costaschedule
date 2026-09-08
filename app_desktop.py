@@ -16,12 +16,6 @@ from PIL import Image as PILImage
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
-import socket
-import http.server
-import socketserver
-import threading
-import html
-
 import qrcode
 from qrcode.constants import ERROR_CORRECT_L
 
@@ -114,334 +108,21 @@ class Fonts:
 
 
 # ─────────────────────────────────────────────────────────────
-# NETWORK & WEB BRIDGE HELPERS (3-Step Transfer Flow)
+# AIRGAP QR MODAL (Full-Screen High Contrast Zoom)
 # ─────────────────────────────────────────────────────────────
-def find_available_port(start_port=8080, max_tries=20):
-    for port in range(start_port, start_port + max_tries):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('0.0.0.0', port))
-                return port
-        except OSError:
-            continue
-    return start_port
-
-def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(('10.255.255.255', 1))
-        ip = s.getsockname()[0]
-    except Exception:
-        try:
-            ip = socket.gethostbyname(socket.gethostname())
-        except Exception:
-            ip = '127.0.0.1'
-    finally:
-        s.close()
-    return ip
-
-
-class ScheduleHttpHandler(http.server.BaseHTTPRequestHandler):
-    """Serve a clean, responsive mobile webpage for the manager's phone."""
-
-    def log_message(self, format, *args):
-        pass  # Quiet logging
-
-    def do_GET(self):
-        app = getattr(self.server, "costa_app", None)
-        if not app or not app.schedule_data:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(b"<html><body style='font-family:sans-serif;padding:24px;text-align:center;'><h2>Costa Schedule Bridge</h2><p>No schedule loaded in desktop app.</p></body></html>")
-            return
-
-        d = app.schedule_data
-        ship = html.escape(str(d.get("ship", "COSTA SMERALDA")))
-        date_val = html.escape(str(d.get("date", "—")))
-        port_val = html.escape(str(d.get("port", "—")))
-        shift_val = html.escape(str(d.get("shift", "—")))
-        crew_count = app._cached_crew_count
-        raw_msg = app.payload or ""
-
-        html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Costa Schedule — WhatsApp Bridge</title>
-  <style>
-    :root {{
-      --bg: #F8FAFC;
-      --card: #FFFFFF;
-      --text: #0A2A38;
-      --subtext: #4A6572;
-      --border: #E2E8F0;
-      --yellow: #F2B832;
-      --yellow-hover: #D9A020;
-      --blue: #003B95;
-    }}
-    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 16px;
-      line-height: 1.5;
-    }}
-    .container {{
-      max-width: 480px;
-      margin: 0 auto;
-    }}
-    .header {{
-      text-align: center;
-      padding: 16px 0 16px 0;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 16px;
-    }}
-    .brand {{
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      color: var(--text);
-    }}
-    .dot {{ color: var(--yellow); }}
-    .subtitle {{
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--subtext);
-      letter-spacing: 1px;
-      margin-top: 2px;
-    }}
-    .meta-card {{
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-    }}
-    .meta-row {{
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 13px;
-    }}
-    .meta-label {{ color: var(--subtext); }}
-    .meta-value {{ font-weight: 600; color: var(--text); }}
-    .actions {{
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
-    }}
-    .btn {{
-      display: block;
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
-      text-align: center;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }}
-    .btn-yellow {{
-      background: var(--yellow);
-      color: #0A2A38;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-    }}
-    .btn-yellow:active {{
-      background: var(--yellow-hover);
-    }}
-    .btn-outline {{
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }}
-    .preview-box {{
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 16px;
-    }}
-    .preview-title {{
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--subtext);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }}
-    textarea {{
-      width: 100%;
-      height: 120px;
-      font-family: monospace;
-      font-size: 11px;
-      color: var(--subtext);
-      background: #F1F5F9;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px;
-      resize: none;
-      white-space: pre;
-    }}
-    .instructions {{
-      font-size: 12px;
-      color: var(--subtext);
-      text-align: center;
-      line-height: 1.6;
-    }}
-    .toast {{
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0A2A38;
-      color: #FFFFFF;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      display: none;
-      z-index: 100;
-    }}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="brand">{ship}<span class="dot">.</span></div>
-      <div class="subtitle">RESTAURANT SCHEDULE BRIDGE</div>
-    </div>
-
-    <div class="meta-card">
-      <div class="meta-row">
-        <span class="meta-label">Date</span>
-        <span class="meta-value">{date_val}</span>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Port</span>
-        <span class="meta-value">{port_val}</span>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Shift</span>
-        <span class="meta-value">{shift_val}</span>
-      </div>
-      <div class="meta-row" style="margin-bottom:0;">
-        <span class="meta-label">Active Crew</span>
-        <span class="meta-value">{crew_count} Persons</span>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-yellow" onclick="copySchedule()">
-        COPY FOR WHATSAPP GROUP
-      </button>
-      <a id="waDirectBtn" class="btn btn-outline" href="#">
-        OPEN DIRECTLY IN WHATSAPP
-      </a>
-    </div>
-
-    <div class="preview-box">
-      <div class="preview-title">Payload Preview</div>
-      <textarea id="payloadText" readonly></textarea>
-    </div>
-
-    <div class="instructions">
-      Step 3 of 3: Tap <b>Copy for WhatsApp</b>, then switch to WhatsApp and paste into the crew group. Crew members will copy it into their Costa Schedule App.
-    </div>
-  </div>
-
-  <div id="toast" class="toast">COPIED TO CLIPBOARD!</div>
-
-  <script>
-    var rawText = {json.dumps(raw_msg)};
-    document.getElementById('payloadText').value = rawText;
-    document.getElementById('waDirectBtn').href = 'whatsapp://send?text=' + encodeURIComponent(rawText);
-
-    function copySchedule() {{
-      if (navigator.clipboard && navigator.clipboard.writeText) {{
-        navigator.clipboard.writeText(rawText).then(showToast).catch(fallbackCopy);
-      }} else {{
-        fallbackCopy();
-      }}
-    }}
-
-    function fallbackCopy() {{
-      var ta = document.getElementById('payloadText');
-      ta.select();
-      document.execCommand('copy');
-      showToast();
-    }}
-
-    function showToast() {{
-      var t = document.getElementById('toast');
-      t.style.display = 'block';
-      setTimeout(function() {{ t.style.display = 'none'; }}, 2500);
-    }}
-  </script>
-</body>
-</html>"""
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        encoded = html_content.encode("utf-8")
-        self.send_header("Content-Length", str(len(encoded)))
-        self.end_headers()
-        self.wfile.write(encoded)
-
-
-class ScheduleHttpServer:
-    """Zero-dependency local HTTP micro-server for 1-QR mobile bridge."""
-
-    def __init__(self, app_instance):
-        self.app = app_instance
-        self.port = find_available_port(8080)
-        self.ip = get_local_ip()
-        self.server = None
-        self.thread = None
-
-    @property
-    def url(self):
-        return f"http://{self.ip}:{self.port}"
-
-    def start(self):
-        try:
-            self.server = socketserver.ThreadingTCPServer(('0.0.0.0', self.port), ScheduleHttpHandler)
-            self.server.costa_app = self.app
-            self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
-            self.thread.start()
-            print(f"[WebBridge] Server started on {self.url}")
-            return True
-        except Exception as e:
-            print(f"[WebBridge] Failed to start server: {e}")
-            return False
-
-    def stop(self):
-        if self.server:
-            try:
-                self.server.shutdown()
-                self.server.server_close()
-            except Exception:
-                pass
-
-
 class QRModal(ctk.CTkToplevel):
     """High-resolution modal dialog for Airgap QR scanning (pure black, integer scaled)."""
 
-    def __init__(self, parent, segments, meta_info=None):
+    def __init__(self, parent, segments, meta_info=None, initial_idx=0):
         super().__init__(parent)
         self.title("Costa Cruises — Airgap QR Codes")
-        self.geometry("620x720")
+        self.geometry("640x740")
         self.resizable(False, False)
         self.configure(fg_color=TK["bg_base"])
 
         self.segments = segments or []
         self.meta_info = meta_info or {}
-        self.current_idx = 0
+        self.current_idx = max(0, min(initial_idx, len(self.segments) - 1)) if self.segments else 0
         self._qr_ref = None
 
         self.transient(parent)
@@ -449,13 +130,13 @@ class QRModal(ctk.CTkToplevel):
 
         self._build_ui()
         self._bind_keys()
-        self._show_segment(0)
+        self._show_segment(self.current_idx)
 
         # Center on parent window
         self.update_idletasks()
         try:
-            x = parent.winfo_x() + (parent.winfo_width() - 620) // 2
-            y = parent.winfo_y() + (parent.winfo_height() - 720) // 2
+            x = parent.winfo_x() + (parent.winfo_width() - 640) // 2
+            y = parent.winfo_y() + (parent.winfo_height() - 740) // 2
             self.geometry(f"+{max(0, x)}+{max(0, y)}")
         except Exception:
             pass
@@ -494,9 +175,9 @@ class QRModal(ctk.CTkToplevel):
         # Hairline
         ctk.CTkFrame(self, height=1, fg_color=TK["border_card"], corner_radius=0).pack(fill="x", padx=24)
 
-        # Main QR Container Box (480x480)
+        # Main QR Container Box (500x500)
         self.qr_box = ctk.CTkFrame(
-            self, width=480, height=480,
+            self, width=500, height=500,
             fg_color="#FFFFFF", corner_radius=8,
             border_width=1, border_color=TK["border_card"]
         )
@@ -508,7 +189,7 @@ class QRModal(ctk.CTkToplevel):
 
         # Instructions Banner
         self.lbl_step = ctk.CTkLabel(
-            self, text="Point phone camera at QR, copy text, then paste into WhatsApp.",
+            self, text="Point phone camera at QR, tap 'Copy text', then paste into WhatsApp.",
             font=Fonts.get("h3"), text_color=TK["fg_primary"]
         )
         self.lbl_step.pack(pady=(0, 10))
@@ -528,13 +209,13 @@ class QRModal(ctk.CTkToplevel):
         self.btn_prev.pack(side="left", fill="x", expand=True, padx=(0, 8))
 
         self.lbl_indicator = ctk.CTkLabel(
-            nav, text="1 / 4", font=Fonts.get("brand_lg"),
-            text_color=TK["fg_primary"], width=70
+            nav, text="Part 1 of 2", font=Fonts.get("brand_lg"),
+            text_color=TK["fg_primary"], width=110
         )
         self.lbl_indicator.pack(side="left", padx=6)
 
         self.btn_next = ctk.CTkButton(
-            nav, text="NEXT PART ▶",
+            nav, text="NEXT PART (Space) ▶",
             font=Fonts.get("btn_sm"),
             fg_color=TK["gold_accent"], hover_color=TK["gold_hover"],
             text_color=TK["fg_primary"], height=38, corner_radius=8,
@@ -565,7 +246,7 @@ class QRModal(ctk.CTkToplevel):
         total = len(self.segments)
         data = self.segments[idx]
 
-        # Generate large high-contrast QR code
+        # Generate large high-contrast QR code (box_size=5, border=4, NEAREST scaling)
         qr = qrcode.QRCode(
             version=None,
             error_correction=ERROR_CORRECT_L,
@@ -575,23 +256,23 @@ class QRModal(ctk.CTkToplevel):
         qr.add_data(data)
         qr.make(fit=True)
         pil = qr.make_image(fill_color="#000000", back_color="#FFFFFF").convert("RGB")
-        pil = pil.resize((450, 450), PILImage.LANCZOS)
+        pil = pil.resize((460, 460), PILImage.NEAREST)
 
-        ctk_img = ctk.CTkImage(light_image=pil, dark_image=pil, size=(450, 450))
+        ctk_img = ctk.CTkImage(light_image=pil, dark_image=pil, size=(460, 460))
         self.qr_image_label.configure(image=ctk_img, text="")
         self._qr_ref = ctk_img
 
         # Update UI text
-        self.lbl_indicator.configure(text=f"{idx + 1} / {total}")
+        self.lbl_indicator.configure(text=f"Part {idx + 1} of {total}")
         self.lbl_step.configure(
-            text=f"Part {idx + 1} of {total}: Point camera at QR, copy text, then paste into WhatsApp."
+            text=f"Part {idx + 1} of {total}: Point camera at QR, tap 'Copy text', then paste into WhatsApp."
         )
 
         self.btn_prev.configure(state="normal" if idx > 0 else "disabled")
         if idx == total - 1:
             self.btn_next.configure(text="DONE (Close)", fg_color=TK["accent"], text_color="#FFFFFF")
         else:
-            self.btn_next.configure(text="NEXT PART ▶", fg_color=TK["gold_accent"], text_color=TK["fg_primary"])
+            self.btn_next.configure(text="NEXT PART (Space) ▶", fg_color=TK["gold_accent"], text_color=TK["fg_primary"])
 
 
 # ─────────────────────────────────────────────────────────────
@@ -639,12 +320,6 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self._qr_ctk_image = None
         self._cached_crew_count = 0
         self._cached_section_count = 0
-        self.active_qr_mode = "bridge"
-
-        # Web Bridge Server (3-Step Transfer)
-        self.http_server = ScheduleHttpServer(self)
-        self.http_server.start()
-        self.protocol("WM_DELETE_WINDOW", self._on_close)
 
         # Logo
         self.logo_image = self._load_logo_image()
@@ -917,125 +592,58 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         qr_inner = ctk.CTkFrame(self.qr_section, fg_color="transparent")
         qr_inner.pack(fill="x", padx=20, pady=16)
 
-        # QR left: info
+        # QR left: info & actions
         qr_info = ctk.CTkFrame(qr_inner, fg_color="transparent")
         qr_info.pack(side="left", fill="both", expand=True)
 
-        # Mode Switcher (Segmented Button)
-        mode_bar = ctk.CTkFrame(qr_info, fg_color="transparent")
-        mode_bar.pack(anchor="w", pady=(0, 8))
-
-        self.seg_qr_mode = ctk.CTkSegmentedButton(
-            mode_bar,
-            values=["⚡ 1-QR Web Bridge (3 Steps)", "📶 Airgap QR Codes (Offline)"],
-            command=self._on_qr_mode_switch,
-            font=Fonts.get("small_bold"),
-            selected_color=TK["accent"],
-            selected_hover_color=TK["accent_hover"],
-            unselected_color=TK["surface_hover"],
-            unselected_hover_color=TK["surface_active"],
-            text_color=TK["fg_primary"],
-            height=30
-        )
-        self.seg_qr_mode.set("⚡ 1-QR Web Bridge (3 Steps)")
-        self.seg_qr_mode.pack(side="left")
-
-        # ── Mode 1 Frame: Web Bridge Info ──
-        self.frame_bridge_info = ctk.CTkFrame(qr_info, fg_color="transparent")
-        self.frame_bridge_info.pack(fill="x", expand=True)
-
         ctk.CTkLabel(
-            self.frame_bridge_info, text="3-STEP SMART TRANSFER — 1 SCAN ONLY",
+            qr_info, text="OFFLINE AIRGAP SYSTEM — SHIP IT COMPLIANT",
             font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
         ).pack(anchor="w")
 
         ctk.CTkLabel(
-            self.frame_bridge_info, text="Scan with camera to open WhatsApp sender",
-            font=Fonts.get("h2"), text_color=TK["fg_primary"], anchor="w"
-        ).pack(anchor="w", pady=(2, 4))
-
-        self.bridge_status_label = ctk.CTkLabel(
-            self.frame_bridge_info,
-            text=f"1. Scan the 1 QR on the right using phone camera (Version 2, instant 0.05s scan).\n"
-                 f"2. Tap the link to open Costa Schedule Bridge on your phone.\n"
-                 f"3. On your phone, tap 'COPY FOR WHATSAPP' or 'OPEN IN WHATSAPP'!",
-            font=Fonts.get("body"), text_color=TK["fg_secondary"],
-            anchor="w", justify="left"
-        )
-        self.bridge_status_label.pack(anchor="w", pady=(0, 8))
-
-        bridge_btns = ctk.CTkFrame(self.frame_bridge_info, fg_color="transparent")
-        bridge_btns.pack(anchor="w")
-
-        self.btn_copy_bridge_url = ctk.CTkButton(
-            bridge_btns, text="Copy Link",
-            font=Fonts.get("btn_sm"),
-            fg_color=TK["surface_hover"], hover_color=TK["accent"],
-            border_width=1, border_color=TK["border_card"],
-            text_color=TK["fg_primary"], height=30, corner_radius=6,
-            command=self.copy_bridge_url_action
-        )
-        self.btn_copy_bridge_url.pack(side="left", padx=(0, 6))
-
-        ctk.CTkButton(
-            bridge_btns, text="Test in Browser",
-            font=Fonts.get("btn_sm"),
-            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
-            border_width=1, border_color=TK["border_card"],
-            text_color=TK["fg_secondary"], height=30, corner_radius=6,
-            command=self.open_bridge_browser_action
-        ).pack(side="left", padx=(0, 6))
-
-        self.btn_copy_payload = ctk.CTkButton(
-            bridge_btns, text="Copy Payload",
-            font=Fonts.get("btn_sm"),
-            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
-            border_width=1, border_color=TK["border_card"],
-            text_color=TK["fg_secondary"], height=30, corner_radius=6,
-            command=self.copy_payload_action
-        )
-        self.btn_copy_payload.pack(side="left")
-
-        # ── Mode 2 Frame: Airgap Info ──
-        self.frame_airgap_info = ctk.CTkFrame(qr_info, fg_color="transparent")
-
-        ctk.CTkLabel(
-            self.frame_airgap_info, text="OFFLINE AIRGAP SYSTEM — SHIP IT COMPLIANT",
-            font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
-        ).pack(anchor="w")
-
-        ctk.CTkLabel(
-            self.frame_airgap_info, text="Zero network, cables, or WA Web required",
+            qr_info, text="Send Schedule via WhatsApp (2 Scans)",
             font=Fonts.get("h2"), text_color=TK["fg_primary"], anchor="w"
         ).pack(anchor="w", pady=(2, 4))
 
         self.airgap_status_label = ctk.CTkLabel(
-            self.frame_airgap_info,
-            text="Optimized phone-scannable QR codes. Scan each part and paste into WhatsApp group.\n"
-                 "Click 'ENLARGE FULL-SIZE QR' below for instant full-screen camera detection.",
+            qr_info,
+            text="1. Click 'ENLARGE QR CODE' below.\n"
+                 "2. Scan Part 1 with camera -> tap 'Copy text' -> paste into WhatsApp.\n"
+                 "3. Press Spacebar -> scan Part 2 -> tap 'Copy text' -> paste into WhatsApp.",
             font=Fonts.get("body"), text_color=TK["fg_secondary"],
             anchor="w", justify="left"
         )
-        self.airgap_status_label.pack(anchor="w", pady=(0, 8))
+        self.airgap_status_label.pack(anchor="w", pady=(0, 10))
 
-        airgap_btns = ctk.CTkFrame(self.frame_airgap_info, fg_color="transparent")
+        airgap_btns = ctk.CTkFrame(qr_info, fg_color="transparent")
         airgap_btns.pack(anchor="w")
 
         self.btn_enlarge_qr = ctk.CTkButton(
-            airgap_btns, text="🔍 ENLARGE FULL-SIZE QR",
+            airgap_btns, text="🔍 ENLARGE QR CODE (FULL SCREEN)",
             font=Fonts.get("btn"),
             fg_color=TK["gold_accent"], hover_color=TK["gold_hover"],
-            text_color=TK["fg_primary"], height=34, corner_radius=6,
-            command=self.open_qr_modal
+            text_color=TK["fg_primary"], height=36, corner_radius=6,
+            command=lambda: self.open_qr_modal(0)
         )
         self.btn_enlarge_qr.pack(side="left", padx=(0, 8))
+
+        self.btn_copy_payload = ctk.CTkButton(
+            airgap_btns, text="Copy Payload",
+            font=Fonts.get("btn_sm"),
+            fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
+            border_width=1, border_color=TK["border_card"],
+            text_color=TK["fg_secondary"], height=36, corner_radius=6,
+            command=self.copy_payload_action
+        )
+        self.btn_copy_payload.pack(side="left", padx=(0, 6))
 
         ctk.CTkButton(
             airgap_btns, text="Save Backup",
             font=Fonts.get("btn_sm"),
             fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
             border_width=1, border_color=TK["border_card"],
-            text_color=TK["fg_secondary"], height=34, corner_radius=6,
+            text_color=TK["fg_secondary"], height=36, corner_radius=6,
             command=self.save_json_backup_action
         ).pack(side="left", padx=(0, 6))
 
@@ -1044,66 +652,39 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             font=Fonts.get("btn_sm"),
             fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
             border_width=1, border_color=TK["border_card"],
-            text_color=TK["fg_secondary"], height=34, corner_radius=6,
+            text_color=TK["fg_secondary"], height=36, corner_radius=6,
             command=self.export_json_action
         ).pack(side="left")
 
-        # ── QR Right: Display Area ──
+        # ── QR Right: 2 Side-by-Side QR Boxes ──
         self.qr_image_frame = ctk.CTkFrame(qr_inner, fg_color="transparent")
         self.qr_image_frame.pack(side="right", padx=(20, 0))
 
-        # Bridge QR Container (1 Single QR)
-        self.bridge_qr_wrap = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
-        self.bridge_qr_wrap.pack(side="left")
+        # QR Part 1
+        qr_a_sub = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
+        qr_a_sub.pack(side="left", padx=(0, 10))
 
-        self.bridge_qr_box = ctk.CTkFrame(
-            self.bridge_qr_wrap, width=190, height=190,
-            fg_color="#FFFFFF", corner_radius=8,
-            border_width=1, border_color=TK["border_card"]
-        )
-        self.bridge_qr_box.pack()
-        self.bridge_qr_box.pack_propagate(False)
-
-        self.bridge_qr_label = ctk.CTkLabel(
-            self.bridge_qr_box, text="Generating QR...",
-            font=Fonts.get("small"), text_color=TK["fg_subtle"]
-        )
-        self.bridge_qr_label.pack(expand=True)
-
-        self.bridge_url_caption = ctk.CTkLabel(
-            self.bridge_qr_wrap, text="Scan with Phone Camera",
-            font=Fonts.get("tiny"), text_color=TK["fg_accent"]
-        )
-        self.bridge_url_caption.pack(pady=(4, 0))
-
-        # Airgap QR Container (side-by-side previews)
-        self.airgap_qr_wrap = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
-
-        # QR A Preview
-        qr_a_sub = ctk.CTkFrame(self.airgap_qr_wrap, fg_color="transparent")
-        qr_a_sub.pack(side="left", padx=(0, 8))
-
-        ctk.CTkLabel(qr_a_sub, text="Part 1 — Scan first", font=Fonts.get("tiny"), text_color=TK["fg_accent"]).pack()
-        self.qr_a_box = ctk.CTkFrame(qr_a_sub, width=170, height=170, fg_color="#FFFFFF", corner_radius=8, border_width=1, border_color=TK["border_card"])
-        self.qr_a_box.pack(pady=(3, 0))
+        ctk.CTkLabel(qr_a_sub, text="PART 1 OF 2", font=Fonts.get("small_bold"), text_color=TK["accent"]).pack()
+        self.qr_a_box = ctk.CTkFrame(qr_a_sub, width=170, height=170, fg_color="#FFFFFF", corner_radius=8, border_width=1, border_color=TK["border_card"], cursor="pointinghand")
+        self.qr_a_box.pack(pady=(4, 0))
         self.qr_a_box.pack_propagate(False)
-        self.qr_a_label = ctk.CTkLabel(self.qr_a_box, text="Part 1", font=Fonts.get("small"), text_color=TK["fg_subtle"])
+        self.qr_a_label = ctk.CTkLabel(self.qr_a_box, text="Part 1\n(Click to zoom)", font=Fonts.get("small"), text_color=TK["fg_subtle"])
         self.qr_a_label.pack(expand=True)
-        self.qr_a_box.bind("<Button-1>", lambda e: self.open_qr_modal())
-        self.qr_a_label.bind("<Button-1>", lambda e: self.open_qr_modal())
+        self.qr_a_box.bind("<Button-1>", lambda e: self.open_qr_modal(0))
+        self.qr_a_label.bind("<Button-1>", lambda e: self.open_qr_modal(0))
 
-        # QR B Preview
-        qr_b_sub = ctk.CTkFrame(self.airgap_qr_wrap, fg_color="transparent")
+        # QR Part 2
+        qr_b_sub = ctk.CTkFrame(self.qr_image_frame, fg_color="transparent")
         qr_b_sub.pack(side="left")
 
-        ctk.CTkLabel(qr_b_sub, text="Part 2 — Scan second", font=Fonts.get("tiny"), text_color=TK["fg_accent"]).pack()
-        self.qr_b_box = ctk.CTkFrame(qr_b_sub, width=170, height=170, fg_color="#FFFFFF", corner_radius=8, border_width=1, border_color=TK["border_card"])
-        self.qr_b_box.pack(pady=(3, 0))
+        ctk.CTkLabel(qr_b_sub, text="PART 2 OF 2", font=Fonts.get("small_bold"), text_color=TK["accent"]).pack()
+        self.qr_b_box = ctk.CTkFrame(qr_b_sub, width=170, height=170, fg_color="#FFFFFF", corner_radius=8, border_width=1, border_color=TK["border_card"], cursor="pointinghand")
+        self.qr_b_box.pack(pady=(4, 0))
         self.qr_b_box.pack_propagate(False)
-        self.qr_b_label = ctk.CTkLabel(self.qr_b_box, text="Part 2", font=Fonts.get("small"), text_color=TK["fg_subtle"])
+        self.qr_b_label = ctk.CTkLabel(self.qr_b_box, text="Part 2\n(Click to zoom)", font=Fonts.get("small"), text_color=TK["fg_subtle"])
         self.qr_b_label.pack(expand=True)
-        self.qr_b_box.bind("<Button-1>", lambda e: self.open_qr_modal())
-        self.qr_b_label.bind("<Button-1>", lambda e: self.open_qr_modal())
+        self.qr_b_box.bind("<Button-1>", lambda e: self.open_qr_modal(1))
+        self.qr_b_label.bind("<Button-1>", lambda e: self.open_qr_modal(1))
 
         # ── Cards container ──
         self.cards_frame = ctk.CTkFrame(self.content_inner, fg_color="transparent")
@@ -1194,30 +775,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
     # ─────────────────────────────────────────────────────────
     # QR CODE GENERATION & MODAL ACTIONS
     # ─────────────────────────────────────────────────────────
-    def _on_qr_mode_switch(self, value):
-        if "1-QR" in value:
-            self.active_qr_mode = "bridge"
-            self.frame_airgap_info.pack_forget()
-            self.airgap_qr_wrap.pack_forget()
-            self.frame_bridge_info.pack(fill="x", expand=True)
-            self.bridge_qr_wrap.pack(side="left")
-        else:
-            self.active_qr_mode = "airgap"
-            self.frame_bridge_info.pack_forget()
-            self.bridge_qr_wrap.pack_forget()
-            self.frame_airgap_info.pack(fill="x", expand=True)
-            self.airgap_qr_wrap.pack(side="left")
-
-    def copy_bridge_url_action(self):
-        if hasattr(self, "http_server") and self.http_server:
-            if copy_to_clipboard(self.http_server.url):
-                self._show_toast("Bridge URL copied!")
-
-    def open_bridge_browser_action(self):
-        if hasattr(self, "http_server") and self.http_server:
-            webbrowser.open(self.http_server.url)
-
-    def open_qr_modal(self):
+    def open_qr_modal(self, initial_idx=0):
         if not self.qr_segments:
             messagebox.showinfo("No Schedule", "Please load an Excel roster file first.")
             return
@@ -1227,15 +785,10 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             "date": self.schedule_data.get("date", "Today") if self.schedule_data else "Today",
             "crew": self._cached_crew_count,
         }
-        QRModal(self, self.qr_segments, meta)
+        QRModal(self, self.qr_segments, meta, initial_idx=initial_idx)
 
-    def _on_close(self):
-        if hasattr(self, "http_server") and self.http_server:
-            self.http_server.stop()
-        self.destroy()
-
-    def _make_qr_image(self, data, size=180, box_size=5):
-        """Generate a crisp QR code CTkImage with proper quiet zone and contrast."""
+    def _make_qr_image(self, data, size=160, box_size=4):
+        """Generate a crisp QR code CTkImage with proper quiet zone and high contrast."""
         qr = qrcode.QRCode(
             version=None,
             error_correction=ERROR_CORRECT_L,
@@ -1246,7 +799,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         qr.make(fit=True)
         pil = qr.make_image(fill_color="#000000", back_color="#FFFFFF").convert("RGB")
         if size:
-            pil = pil.resize((size, size), PILImage.LANCZOS)
+            pil = pil.resize((size, size), PILImage.NEAREST)
 
         return ctk.CTkImage(
             light_image=pil, dark_image=pil,
@@ -1254,41 +807,31 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         )
 
     def _generate_qr(self):
-        """Generate 1-QR Web Bridge and Airgap QR codes from schedule data."""
+        """Generate 2-part Airgap QR codes from schedule data."""
         if not self.schedule_data:
             return
 
         try:
-            # 1. Generate 1-QR Web Bridge
-            if hasattr(self, "http_server") and self.http_server:
-                bridge_url = self.http_server.url
-                bridge_img = self._make_qr_image(bridge_url, size=180, box_size=6)
-                self.bridge_qr_label.configure(image=bridge_img, text="")
-                self._bridge_qr_ref = bridge_img
-                self.bridge_url_caption.configure(text=f"Scan: {bridge_url}")
-
-            # 2. Generate Airgap Segments (scannable Version <= 22)
+            # Generate exactly 2 Airgap Segments with [COSTA-PART 1/2] and [COSTA-PART 2/2]
             self.qr_segments, self.qr_compressed_b64 = generate_compressed_payload(
-                self.schedule_data, max_seg_len=950
+                self.schedule_data, num_segments=2
             )
 
-            # Generate QR A preview (first segment)
-            qr_a_img = self._make_qr_image(self.qr_segments[0], size=160, box_size=4)
-            self.qr_a_label.configure(image=qr_a_img, text="")
-            self._qr_a_ref = qr_a_img
+            if len(self.qr_segments) >= 1:
+                qr_a_img = self._make_qr_image(self.qr_segments[0], size=160, box_size=4)
+                self.qr_a_label.configure(image=qr_a_img, text="")
+                self._qr_a_ref = qr_a_img
 
-            # Generate QR B preview (second segment if available)
-            if len(self.qr_segments) > 1:
+            if len(self.qr_segments) >= 2:
                 qr_b_img = self._make_qr_image(self.qr_segments[1], size=160, box_size=4)
                 self.qr_b_label.configure(image=qr_b_img, text="")
                 self._qr_b_ref = qr_b_img
 
-            total_parts = len(self.qr_segments)
             self.airgap_status_label.configure(
-                text=f"Ready: {total_parts} scannable QR parts generated. "
-                     f"Click 'ENLARGE FULL-SIZE QR' to scan comfortably."
+                text="1. Click 'ENLARGE QR CODE' below.\n"
+                     "2. Scan Part 1 with camera -> tap 'Copy text' -> paste into WhatsApp.\n"
+                     "3. Press Spacebar -> scan Part 2 -> tap 'Copy text' -> paste into WhatsApp."
             )
-
         except Exception as e:
             print(f"[Error] QR Generation failed: {e}")
 

@@ -372,31 +372,29 @@ def _minify_keys(obj):
     return obj
 
 
-def generate_compressed_payload(schedule_data, max_seg_len=950):
+def generate_compressed_payload(schedule_data, num_segments=2):
     """
-    Generate zlib-compressed, key-minified payload split into phone-friendly QR segments.
-    Keeps each segment <= max_seg_len chars (Version <= 22) for instant camera detection on LCDs.
+    Generate zlib-compressed, key-minified payload split into 2 phone-friendly QR segments.
+    Uses clean plain-text headers '[COSTA-PART 1/2]' so phone cameras recognize it as
+    plain text and show 'Copy text' button, preventing browser auto-open errors (ERR_UNSAFE_PORT).
 
     Returns:
         tuple: (segment_list, full_b64)
-            segment_list: list of strings like ["CZ:1/4:<b64chunk>", ...]
-            full_b64: the complete compressed base64 string (for single-paste fallback)
+            segment_list: list of strings like ["[COSTA-PART 1/2]\\n<b64half>", "[COSTA-PART 2/2]\\n<b64half>"]
+            full_b64: the complete compressed base64 string
     """
     minified = _minify_keys(schedule_data)
     mini_json = json.dumps(minified, separators=(',', ':'), ensure_ascii=False)
     compressed = zlib.compress(mini_json.encode('utf-8'), level=9)
     full_b64 = base64.b64encode(compressed).decode('utf-8')
 
-    # Calculate optimal segment count so each segment is comfortably scannable
-    num_segments = max(2, (len(full_b64) + max_seg_len - 1) // max_seg_len)
     seg_size = (len(full_b64) + num_segments - 1) // num_segments
-    
     segments = []
     for i in range(num_segments):
         start = i * seg_size
         end = min((i + 1) * seg_size, len(full_b64))
         chunk = full_b64[start:end]
-        segments.append(f"CZ:{i+1}/{num_segments}:{chunk}")
+        segments.append(f"[COSTA-PART {i+1}/{num_segments}]\n{chunk}")
 
     return segments, full_b64
 

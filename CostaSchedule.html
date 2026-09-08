@@ -4003,22 +4003,32 @@ async function parseWhatsAppPayload(text) {
 
   let rawText = text.trim();
 
-  // ── 1. COMPRESSED QR FORMAT (CZ:n/t:base64) ──
-  const czPattern = /CZ:(\d+)\/(\d+):([A-Za-z0-9+/=]+)/g;
+  // ── 1. COMPRESSED QR FORMAT ([COSTA-PART n/t] or legacy CZ:n/t:base64) ──
+  const czPattern = /(?:\[COSTA[- ]PART\s*|COSTA\s*|CZ:?)(\d+)\s*\/\s*(\d+)\]?:?\s*([\sA-Za-z0-9+/=]{10,})/gi;
   let match;
   let hasCZ = false;
 
   let saved = {};
   try {
     const rawSaved = safeStorage.getItem('costa_pending_qr');
-    if (rawSaved) saved = JSON.parse(rawSaved);
+    if (rawSaved) {
+      const parsed = JSON.parse(rawSaved);
+      if (parsed._savedAt && (Date.now() - parsed._savedAt > 30 * 60 * 1000)) {
+        safeStorage.removeItem('costa_pending_qr');
+      } else {
+        saved = parsed;
+      }
+    }
   } catch(e) { saved = {}; }
 
   while ((match = czPattern.exec(rawText)) !== null) {
     hasCZ = true;
     const part = parseInt(match[1], 10);
     const total = parseInt(match[2], 10);
-    saved[part] = match[3];
+    if (part === 1 && !saved[2]) {
+      saved = {};
+    }
+    saved[part] = match[3].replace(/\s+/g, '');
     saved._total = total;
   }
 
@@ -4052,6 +4062,7 @@ async function parseWhatsAppPayload(text) {
         throw new Error('Failed to decompress QR data: ' + err.message);
       }
     } else {
+      saved._savedAt = Date.now();
       safeStorage.setItem('costa_pending_qr', JSON.stringify(saved));
       const remaining = [];
       for (let i = 1; i <= total; i++) {
