@@ -372,12 +372,12 @@ function initApp() {
   } catch (err) {
     console.error('App initialization error:', err);
   } finally {
-    // Dismiss opening spinner smoothly once schedule is rendered (150ms)
+    // Dismiss opening spinner after hardcoded 1.8s branding animation
     setTimeout(() => {
       if (typeof window.dismissSplashOverlay === 'function') {
         window.dismissSplashOverlay();
       }
-    }, 150);
+    }, 1800);
   }
 }
 

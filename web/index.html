@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- Guaranteed Failsafe Splash Controller (Instant Touch / 600ms Max Timeout / Clean Removal) -->
+  <!-- Costa Opening Branding Controller (Hardcoded 1.8s animation, smooth fade-out, instant touch skip) -->
   <script>
     (function() {
       var isDismissed = false;
@@ -36,19 +36,22 @@
         var splash = document.getElementById('splashOverlay');
         if (splash) {
           splash.classList.add('fade-out');
-          splash.style.display = 'none';
-          try {
-            if (splash.parentNode) splash.parentNode.removeChild(splash);
-          } catch (e) {}
+          setTimeout(function() {
+            splash.style.display = 'none';
+            try {
+              if (splash.parentNode) splash.parentNode.removeChild(splash);
+            } catch (e) {}
+          }, 350);
         }
       };
-      // 600ms guaranteed failsafe timer (prevents iPhone Safari timer throttling)
+      // Hardcoded 1.8 seconds opening branding animation
       setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
-      }, 600);
-      window.addEventListener('load', function() {
+      }, 1800);
+      // Failsafe backup
+      setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
-      });
+      }, 2500);
     })();
   </script>
 
@@ -772,7 +775,7 @@
   <script>
     // Final failsafe: guarantee splash overlay dismissal in all iOS/Android browsers
     if (typeof window.dismissSplashOverlay === 'function') {
-      setTimeout(window.dismissSplashOverlay, 700);
+      setTimeout(window.dismissSplashOverlay, 2500);
     }
   </script>
 </body>
