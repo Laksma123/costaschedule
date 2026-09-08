@@ -72,11 +72,13 @@ html, body {
   align-items: center;
   justify-content: center;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  cursor: pointer;
 }
 
 .splash-overlay.fade-out {
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
 }
 
 .splash-content {

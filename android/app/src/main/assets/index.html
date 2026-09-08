@@ -15,7 +15,7 @@
 </head>
 <body class="newspaper-theme">
   <!-- Splash Loading & Validation Overlay -->
-  <div id="splashOverlay" class="splash-overlay">
+  <div id="splashOverlay" class="splash-overlay" onclick="if(window.dismissSplashOverlay)window.dismissSplashOverlay();">
     <div class="splash-content">
       <div class="splash-logo-wrap">
         <img src="logo.png" alt="Costa Logo" class="splash-logo-img">
@@ -25,6 +25,30 @@
       <div class="splash-subtext">Validating Schedule & Profile...</div>
     </div>
   </div>
+
+  <!-- Guaranteed Failsafe Splash Controller (Executes immediately; guarantees splash dismissal after 3.0s in any sandbox/iOS preview) -->
+  <script>
+    (function() {
+      var isDismissed = false;
+      window.dismissSplashOverlay = function() {
+        if (isDismissed) return;
+        isDismissed = true;
+        var splash = document.getElementById('splashOverlay');
+        if (splash) {
+          splash.classList.add('fade-out');
+          setTimeout(function() {
+            if (splash && splash.parentNode) {
+              splash.parentNode.removeChild(splash);
+            }
+          }, 500);
+        }
+      };
+      // Hardcoded 3.0-second guaranteed timer
+      setTimeout(function() {
+        if (window.dismissSplashOverlay) window.dismissSplashOverlay();
+      }, 3000);
+    })();
+  </script>
 
   <!-- Minimalist Clean White Top App Header (The Shell Does Not Move) -->
   <header class="app-header">

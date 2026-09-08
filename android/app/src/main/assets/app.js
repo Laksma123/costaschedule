@@ -3,12 +3,62 @@
  * 100% Offline Progressive Web App
  */
 
-// Service Worker Registration for Offline Caching
-if ('serviceWorker' in navigator) {
+// Safe Storage System (Guarantees zero-crash operation in iOS Safari, WKWebView & WhatsApp Sandboxes)
+const safeStorage = (function() {
+  const memoryStore = {};
+  let hasStorage = false;
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const testKey = '__costa_test__';
+      window.localStorage.setItem(testKey, '1');
+      window.localStorage.removeItem(testKey);
+      hasStorage = true;
+    }
+  } catch (e) {
+    hasStorage = false;
+  }
+
+  return {
+    getItem: function(key) {
+      if (hasStorage) {
+        try {
+          return window.localStorage.getItem(key);
+        } catch (e) {}
+      }
+      return memoryStore[key] !== undefined ? memoryStore[key] : null;
+    },
+    setItem: function(key, val) {
+      const strVal = String(val);
+      if (hasStorage) {
+        try {
+          window.localStorage.setItem(key, strVal);
+          return;
+        } catch (e) {}
+      }
+      memoryStore[key] = strVal;
+    },
+    removeItem: function(key) {
+      if (hasStorage) {
+        try {
+          window.localStorage.removeItem(key);
+          return;
+        } catch (e) {}
+      }
+      delete memoryStore[key];
+    }
+  };
+})();
+
+// Service Worker Registration for Offline Caching (Only on HTTP/HTTPS to prevent iOS file:// SecurityError)
+if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
-      console.log('SW registration skipped:', err);
-    });
+    try {
+      navigator.serviceWorker.register('./sw.js').catch(err => {
+        console.log('SW registration skipped:', err);
+      });
+    } catch (err) {
+      console.log('SW registration failed:', err);
+    }
   });
 }
 
@@ -18,13 +68,13 @@ const state = {
   currentMeal: 'LUNCH',     // 'BREAKFAST' | 'LUNCH' | 'DINNER'
   searchQuery: '',
   profile: {
-    name: localStorage.getItem('costa_user_name') || ''
+    name: safeStorage.getItem('costa_user_name') || ''
   },
   alarm: {
-    enabled: localStorage.getItem('costa_alarm_enabled') !== 'false', // default: true
-    option: localStorage.getItem('costa_alarm_option') || '60',       // '60' | '30' | 'custom'
-    customHours: parseInt(localStorage.getItem('costa_alarm_custom_h') || '1', 10),
-    customMinutes: parseInt(localStorage.getItem('costa_alarm_custom_m') || '0', 10)
+    enabled: safeStorage.getItem('costa_alarm_enabled') !== 'false', // default: true
+    option: safeStorage.getItem('costa_alarm_option') || '60',       // '60' | '30' | 'custom'
+    customHours: parseInt(safeStorage.getItem('costa_alarm_custom_h') || '1', 10),
+    customMinutes: parseInt(safeStorage.getItem('costa_alarm_custom_m') || '0', 10)
   },
   schedules: loadStoredSchedules(),
   allExpanded: false,
@@ -324,12 +374,16 @@ function initApp() {
   } finally {
     // Hardcoded 3-second opening spinner before transitioning to UI
     setTimeout(() => {
-      const splash = document.getElementById('splashOverlay');
-      if (splash) {
-        splash.classList.add('fade-out');
-        setTimeout(() => {
-          if (splash.parentNode) splash.parentNode.removeChild(splash);
-        }, 500);
+      if (typeof window.dismissSplashOverlay === 'function') {
+        window.dismissSplashOverlay();
+      } else {
+        const splash = document.getElementById('splashOverlay');
+        if (splash) {
+          splash.classList.add('fade-out');
+          setTimeout(() => {
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+          }, 500);
+        }
       }
     }, 3000);
   }
@@ -352,7 +406,7 @@ function loadStoredSchedules() {
   };
 
   try {
-    const raw = localStorage.getItem('costa_schedules');
+    const raw = safeStorage.getItem('costa_schedules');
     if (!raw) return defaultStructure;
     const data = JSON.parse(raw);
 
@@ -362,7 +416,7 @@ function loadStoredSchedules() {
       data.yesterday = data.today;
       data.today = { BREAKFAST: null, LUNCH: null, DINNER: null };
       data.lastUpdated = now;
-      localStorage.setItem('costa_schedules', JSON.stringify(data));
+      safeStorage.setItem('costa_schedules', JSON.stringify(data));
     }
     return data;
   } catch (e) {
@@ -372,8 +426,14 @@ function loadStoredSchedules() {
 }
 
 function saveStoredSchedules() {
-  state.schedules.lastUpdated = Date.now();
-  localStorage.setItem('costa_schedules', JSON.stringify(state.schedules));
+  try {
+    if (state && state.schedules) {
+      state.schedules.lastUpdated = Date.now();
+      safeStorage.setItem('costa_schedules', JSON.stringify(state.schedules));
+    }
+  } catch (e) {
+    console.warn('Failed to save schedules to safeStorage:', e);
+  }
 }
 
 // ==========================================
@@ -2192,7 +2252,6 @@ function setupEventListeners() {
   // Modals & Popups
   document.getElementById('openPasteModalBtn').addEventListener('click', () => {
     document.getElementById('pasteModal').classList.remove('hidden');
-    document.getElementById('pasteTextarea').focus();
   });
 
   document.querySelectorAll('[data-close]').forEach(el => {
@@ -2221,13 +2280,15 @@ function setupEventListeners() {
   // Smart Paste from Clipboard
   document.getElementById('autoPasteClipboardBtn').addEventListener('click', async () => {
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) {
-        document.getElementById('pasteTextarea').value = text;
-        processSchedulePaste(text);
-      } else {
-        showToast('Clipboard is empty. Please paste manually.');
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById('pasteTextarea').value = text;
+          processSchedulePaste(text);
+          return;
+        }
       }
+      showToast('Please paste manually into the box below.');
     } catch (err) {
       showToast('Please paste manually into the box below.');
     }
@@ -2283,21 +2344,21 @@ function setupEventListeners() {
   // Save Settings Button
   document.getElementById('saveSettingsBtn').addEventListener('click', () => {
     state.profile.name = document.getElementById('profileNameInput').value.trim();
-    localStorage.setItem('costa_user_name', state.profile.name);
-    localStorage.removeItem('costa_user_id');
+    safeStorage.setItem('costa_user_name', state.profile.name);
+    safeStorage.removeItem('costa_user_id');
 
     state.alarm.enabled = document.getElementById('alarmToggleInput').checked;
-    localStorage.setItem('costa_alarm_enabled', state.alarm.enabled);
+    safeStorage.setItem('costa_alarm_enabled', state.alarm.enabled);
 
     state.alarm.option = activeAlarmOption;
-    localStorage.setItem('costa_alarm_option', state.alarm.option);
+    safeStorage.setItem('costa_alarm_option', state.alarm.option);
 
     const customH = parseInt(document.getElementById('alarmCustomHours').value || '0', 10);
     const customM = parseInt(document.getElementById('alarmCustomMinutes').value || '0', 10);
     state.alarm.customHours = isNaN(customH) ? 1 : customH;
     state.alarm.customMinutes = isNaN(customM) ? 0 : customM;
-    localStorage.setItem('costa_alarm_custom_h', state.alarm.customHours);
-    localStorage.setItem('costa_alarm_custom_m', state.alarm.customMinutes);
+    safeStorage.setItem('costa_alarm_custom_h', state.alarm.customHours);
+    safeStorage.setItem('costa_alarm_custom_m', state.alarm.customMinutes);
 
     updateAlarmButtonVisibility();
     updateUserProfilePill();
