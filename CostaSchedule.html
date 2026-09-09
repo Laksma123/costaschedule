@@ -191,6 +191,54 @@ html, body {
 }
 
 /* =============================================================
+   IOS WHATSAPP QUICKLOOK GUIDANCE BANNER
+   (Visible only when JavaScript is sandboxed/disabled)
+   ============================================================= */
+.ios-preview-banner {
+  background: #FFFDF5;
+  border-bottom: 1.5px solid #F9B000;
+  padding: 12px 16px;
+  position: relative;
+  z-index: 790;
+  box-shadow: 0 2px 8px rgba(249, 176, 0, 0.08);
+}
+
+.ios-preview-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ios-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 113, 163, 0.25);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0071A3;
+  width: fit-content;
+  letter-spacing: 0.3px;
+}
+
+.ios-preview-note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #0A2A38;
+}
+
+.ios-preview-note strong {
+  color: #0071A3;
+  font-weight: 600;
+}
+
+/* =============================================================
    MINIMALIST CLEAN WHITE TOP APP HEADER (Fixed Shell)
    ============================================================= */
 .app-header {
@@ -1333,6 +1381,58 @@ html, body {
   font-size: 0.7rem;
 }
 
+/* iOS WhatsApp QuickLook Guidance Banner */
+.ios-preview-banner {
+  background-color: #FFF8E8;
+  border-bottom: 1px solid #F7DFA6;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ios-banner-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #6B4E00;
+  text-transform: uppercase;
+  background: rgba(107, 78, 0, 0.08);
+  padding: 2px 8px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.ios-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ios-banner-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0A2A38;
+}
+
+.ios-banner-desc {
+  font-size: 0.78rem;
+  color: #5F7079;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.ios-banner-desc strong {
+  color: #0A2A38;
+}
+
+.ios-share-inline-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  stroke: #0071A3;
+}
+
 /* =============================================================
    BOTTOM NAVIGATION BAR (COSTA APP TAB BAR)
    ============================================================= */
@@ -1350,6 +1450,8 @@ html, body {
   z-index: 900;
   box-shadow: 0 -2px 10px rgba(0, 50, 74, 0.04);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .nav-tab-btn {
@@ -1370,10 +1472,14 @@ html, body {
 }
 
 .nav-tab-btn .nav-svg-icon {
-  width: 22px;
-  height: 22px;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
   stroke: var(--costa-slate);
   transition: stroke 0.15s ease;
+  display: block !important;
+  flex-shrink: 0;
 }
 
 .nav-tab-btn .nav-tab-label {
@@ -2864,6 +2970,29 @@ input:checked + .slider:before {
     </div>
   </header>
 
+  <!-- iOS QuickLook Preview Guidance Banner (Visible only in iPhone WhatsApp QuickLook preview where JS is sandboxed) -->
+  <div id="iosPreviewBanner" class="ios-preview-banner">
+    <div class="ios-preview-inner">
+      <div class="ios-preview-badge">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+          <polyline points="16 6 12 2 8 6"/>
+          <line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+        <span>iPhone WhatsApp Preview Mode</span>
+      </div>
+      <p class="ios-preview-note">
+        Apple QuickLook disables interactive scripts in document preview. Tap the <strong>Share icon [↑]</strong> at the bottom right &rarr; select <strong>"Open in Safari"</strong> to unlock live search, profile duties & instant roster tabs.
+      </p>
+    </div>
+  </div>
+  <script>
+    (function(){
+      var b = document.getElementById('iosPreviewBanner');
+      if (b) b.style.display = 'none';
+    })();
+  </script>
+
   <!-- Main Container With 4 Tabs -->
   <main class="app-main">
 
@@ -2985,7 +3114,7 @@ input:checked + .slider:before {
       </div>
 
       <!-- Empty State (When no schedule is loaded yet) -->
-      <div id="emptyState" class="empty-state">
+      <div id="emptyState" class="empty-state hidden">
         <div class="empty-icon-wrap">
           <svg class="empty-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
             <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
@@ -3026,7 +3155,7 @@ input:checked + .slider:before {
 
           <!-- Tweet Message Body -->
           <div class="tweet-content-box" id="tweetMessageContent">
-            <!-- Dynamically generated via JS -->
+            <p style="margin:0;">Hey shipmate! Welcome to Costa Smeralda Restaurant Service. Tap the Share button [↑] at bottom right and select "Open in Safari" to check your live station assignment, duty roster, and bedside alarm. Have a great shift on board! ☀️🌊</p>
           </div>
 
           <!-- Tweet Footer Actions -->
@@ -3237,28 +3366,28 @@ input:checked + .slider:before {
   <!-- ============================================================== -->
   <nav class="bottom-nav-bar" id="bottomNavBar" aria-label="Main Navigation">
     <button class="nav-tab-btn active" data-tab="tabSchedule" id="navBtnSchedule">
-      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="nav-svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
       </svg>
       <span class="nav-tab-label">Schedule</span>
     </button>
 
     <button class="nav-tab-btn" data-tab="tabVenues" id="navBtnVenues">
-      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="nav-svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5F7079" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 2v8a3 3 0 0 1-3 3h-1"/><path d="M18 13v9"/><path d="M3 2v6a3 3 0 0 0 3 3h1"/><path d="M6 11v11"/><path d="M7 2v4"/><path d="M5 2v4"/>
       </svg>
       <span class="nav-tab-label">Venues</span>
     </button>
 
     <button class="nav-tab-btn" data-tab="tabOperations" id="navBtnOperations">
-      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="nav-svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5F7079" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>
       </svg>
       <span class="nav-tab-label">Operations</span>
     </button>
 
     <button class="nav-tab-btn" data-tab="tabMore" id="navBtnMore">
-      <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="nav-svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5F7079" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/>
       </svg>
       <span class="nav-tab-label">More</span>
@@ -3923,6 +4052,10 @@ const SAMPLE_SCHEDULE = {
 // Initialize App
 function initApp() {
   try {
+    // Auto-hide iOS QuickLook preview banner when JS runs
+    const iosBanner = document.getElementById('iosPreviewBanner');
+    if (iosBanner) iosBanner.style.display = 'none';
+
     setupEventListeners();
     
     // Set sample as default for today lunch if empty

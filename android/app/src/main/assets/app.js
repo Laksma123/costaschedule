@@ -360,6 +360,10 @@ const SAMPLE_SCHEDULE = {
 // Initialize App
 function initApp() {
   try {
+    // Auto-hide iOS QuickLook preview banner when JS runs
+    const iosBanner = document.getElementById('iosPreviewBanner');
+    if (iosBanner) iosBanner.style.display = 'none';
+
     setupEventListeners();
     
     // Set sample as default for today lunch if empty
