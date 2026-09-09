@@ -21,6 +21,7 @@ import json
 import datetime
 import webbrowser
 from PIL import Image as PILImage, ImageDraw
+import tkinter as tk
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
@@ -717,13 +718,13 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         # File vector icon
         file_icon = VectorIcons.get("folder", size=14, color=TK["fg_secondary"])
-        ctk.CTkLabel(file_pill, image=file_icon, text="").pack(side="left", padx=(12, 6))
+        ctk.CTkLabel(file_pill, image=file_icon, text="").pack(side="left", padx=(12, 6), pady=3)
 
         self.lbl_file = ctk.CTkLabel(
             file_pill, text=self._file_display_text(),
             font=Fonts.get("body"), text_color=TK["fg_secondary"], anchor="w"
         )
-        self.lbl_file.pack(side="left", fill="both", expand=True)
+        self.lbl_file.pack(side="left", fill="x", expand=True, pady=3)
 
         # Browse Button (Outline Pill)
         browse_icon = VectorIcons.get("folder", size=13, color=TK["fg_primary"])
@@ -734,7 +735,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             border_width=1, border_color=TK["border_card"],
             text_color=TK["fg_primary"], width=90, height=26, corner_radius=13,
             command=self.browse_file
-        ).pack(side="right", padx=5)
+        ).pack(side="right", padx=5, pady=4)
 
         # Reload Button (Outline Pill)
         reload_icon = VectorIcons.get("refresh", size=12, color=TK["fg_secondary"])
@@ -745,7 +746,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             border_width=1, border_color=TK["border_card"],
             text_color=TK["fg_secondary"], width=80, height=26, corner_radius=13,
             command=self.process_schedule
-        ).pack(side="right", padx=(0, 3))
+        ).pack(side="right", padx=(0, 3), pady=4)
 
         # Meal Shift Selector (HTML/APK Outline Pill Style)
         shift_box = ctk.CTkFrame(r1, fg_color="transparent")
@@ -779,24 +780,24 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         search_wrap.pack_propagate(False)
 
         search_icon = VectorIcons.get("search", size=14, color=TK["fg_subtle"])
-        ctk.CTkLabel(search_wrap, image=search_icon, text="").pack(side="left", padx=(12, 6))
+        ctk.CTkLabel(search_wrap, image=search_icon, text="").pack(side="left", padx=(12, 6), pady=3)
 
         self.search_entry = ctk.CTkEntry(
             search_wrap,
             placeholder_text="Search crew name, station, table, duty...",
             placeholder_text_color=TK["fg_subtle"],
             fg_color="transparent", border_width=0,
-            font=Fonts.get("body"), text_color=TK["fg_primary"], height=30
+            font=Fonts.get("body"), text_color=TK["fg_primary"], height=24
         )
-        self.search_entry.pack(side="left", fill="both", expand=True, padx=4)
+        self.search_entry.pack(side="left", fill="x", expand=True, padx=4, pady=3)
         self.search_entry.bind("<KeyRelease>", self._on_search_key)
 
         clear_icon = VectorIcons.get("clear", size=12, color=TK["fg_subtle"])
         ctk.CTkButton(
-            search_wrap, image=clear_icon, text="", width=24, height=24, corner_radius=12,
+            search_wrap, image=clear_icon, text="", width=22, height=22, corner_radius=11,
             fg_color="transparent", hover_color=TK["surface_hover"],
             command=self._clear_search
-        ).pack(side="right", padx=6)
+        ).pack(side="right", padx=6, pady=4)
 
         # Filter Pills (HTML/APK Outline Pill Style)
         self.filter_pills = OutlinePillGroup(
@@ -1251,39 +1252,42 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         # Thin divider
         ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
-        body = ctk.CTkFrame(card, fg_color="transparent")
+        body = tk.Frame(card, bg=TK["surface_card"])
         body.pack(fill="x", padx=12, pady=(4, 10))
 
         for idx, a in enumerate(assignments):
-            bg = TK["surface_inner"] if idx % 2 == 0 else TK["bg_base"]
-            row = ctk.CTkFrame(body, fg_color=bg, corner_radius=4)
+            bg = TK["surface_inner"] if idx % 2 == 0 else TK["surface_card"]
+            row = tk.Frame(body, bg=bg)
             row.pack(fill="x", pady=1, padx=4)
 
             # Station badge
-            ctk.CTkLabel(
+            tk.Label(
                 row, text=a.get("station", "—"),
-                font=Fonts.get("small_bold"), text_color=TK["accent"],
-                width=64
-            ).pack(side="left", padx=8, pady=5)
+                font=Fonts.get("small_bold"), fg=TK["accent"], bg=bg,
+                width=8, anchor="center"
+            ).pack(side="left", padx=(8, 4), pady=5)
 
             # Waiter
-            ctk.CTkLabel(
+            tk.Label(
                 row, text=a.get("waiterName", "—"),
-                font=Fonts.get("body_bold"), text_color=TK["fg_primary"], anchor="w"
+                font=Fonts.get("body_bold"), fg=TK["fg_primary"], bg=bg,
+                anchor="w"
             ).pack(side="left", padx=6)
 
             # Attendant
             if a.get("attendantName"):
-                ctk.CTkLabel(
+                tk.Label(
                     row, text=f"/ {a['attendantName']}",
-                    font=Fonts.get("body"), text_color=TK["fg_secondary"], anchor="w"
+                    font=Fonts.get("body"), fg=TK["fg_secondary"], bg=bg,
+                    anchor="w"
                 ).pack(side="left", padx=4)
 
             # Tables in clean monospace
             if a.get("tables"):
-                ctk.CTkLabel(
+                tk.Label(
                     row, text=a["tables"],
-                    font=Fonts.get("mono_sm"), text_color=TK["fg_subtle"]
+                    font=Fonts.get("mono_sm"), fg=TK["fg_subtle"], bg=bg,
+                    anchor="e"
                 ).pack(side="right", padx=8, pady=5)
 
     def _card_buffet(self, name, timing, lead, crew):
@@ -1307,24 +1311,20 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
-        body = ctk.CTkFrame(card, fg_color="transparent")
+        body = tk.Frame(card, bg=TK["surface_card"])
         body.pack(fill="x", padx=12, pady=(4, 10))
 
-        chip_row = ctk.CTkFrame(body, fg_color="transparent")
+        chip_row = tk.Frame(body, bg=TK["surface_card"])
         chip_row.pack(fill="x")
 
         for c in crew:
             role = f" — {c['role']}" if c.get("role") else ""
-            chip = ctk.CTkFrame(
-                chip_row, fg_color=TK["surface_inner"], corner_radius=6,
-                border_width=1, border_color=TK["border_subtle"]
-            )
-            chip.pack(side="left", padx=3, pady=3)
-
-            ctk.CTkLabel(
-                chip, text=f"{c.get('name', '')}{role}",
-                font=Fonts.get("small"), text_color=TK["fg_primary"]
-            ).pack(padx=8, pady=3)
+            tk.Label(
+                chip_row, text=f"  {c.get('name', '')}{role}  ",
+                font=Fonts.get("small"), fg=TK["fg_primary"], bg=TK["surface_inner"],
+                highlightthickness=1, highlightbackground=TK["border_subtle"],
+                pady=2
+            ).pack(side="left", padx=3, pady=3)
 
     def _card_side_duty(self, name, timing, crew):
         card = self._card_shell(self.cards_frame)
@@ -1344,19 +1344,19 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
-        body = ctk.CTkFrame(card, fg_color="transparent")
+        body = tk.Frame(card, bg=TK["surface_card"])
         body.pack(fill="x", padx=12, pady=(4, 8))
 
+        chip_row = tk.Frame(body, bg=TK["surface_card"])
+        chip_row.pack(fill="x")
+
         for c in crew:
-            chip = ctk.CTkFrame(
-                body, fg_color=TK["surface_inner"], corner_radius=4,
-                border_width=1, border_color=TK["border_subtle"]
-            )
-            chip.pack(side="left", padx=3, pady=2)
-            ctk.CTkLabel(
-                chip, text=c.get("name", ""),
-                font=Fonts.get("small"), text_color=TK["fg_secondary"]
-            ).pack(padx=7, pady=2)
+            tk.Label(
+                chip_row, text=f"  {c.get('name', '')}  ",
+                font=Fonts.get("small"), fg=TK["fg_secondary"], bg=TK["surface_inner"],
+                highlightthickness=1, highlightbackground=TK["border_subtle"],
+                pady=2
+            ).pack(side="left", padx=3, pady=2)
 
     def _card_special_events(self, events):
         card = self._card_shell(self.cards_frame)
@@ -1368,35 +1368,32 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
-        body = ctk.CTkFrame(card, fg_color="transparent")
+        body = tk.Frame(card, bg=TK["surface_card"])
         body.pack(fill="x", padx=12, pady=(4, 10))
 
         for ev in events:
-            ev_box = ctk.CTkFrame(
-                body, fg_color=TK["surface_inner"], corner_radius=6,
-                border_width=1, border_color=TK["border_subtle"]
+            ev_box = tk.Frame(
+                body, bg=TK["surface_inner"],
+                highlightthickness=1, highlightbackground=TK["border_subtle"]
             )
             ev_box.pack(fill="x", pady=3)
 
-            ctk.CTkLabel(
+            tk.Label(
                 ev_box,
                 text=f"{ev.get('title')}  —  {ev.get('location')}",
-                font=Fonts.get("body_bold"), text_color=TK["fg_primary"], anchor="w"
+                font=Fonts.get("body_bold"), fg=TK["fg_primary"], bg=TK["surface_inner"], anchor="w"
             ).pack(fill="x", padx=10, pady=(6, 4))
 
-            p_frame = ctk.CTkFrame(ev_box, fg_color="transparent")
+            p_frame = tk.Frame(ev_box, bg=TK["surface_inner"])
             p_frame.pack(fill="x", padx=8, pady=(0, 6))
             for p in ev.get("participants", []):
-                chip = ctk.CTkFrame(
-                    p_frame, fg_color=TK["bg_base"], corner_radius=4,
-                    border_width=1, border_color=TK["border_card"]
-                )
-                chip.pack(side="left", padx=2, pady=2)
-                ctk.CTkLabel(
-                    chip,
-                    text=f"{p.get('name')} [{p.get('uniform')}]",
-                    font=Fonts.get("mono_sm"), text_color=TK["fg_secondary"]
-                ).pack(padx=5, pady=2)
+                tk.Label(
+                    p_frame,
+                    text=f"  {p.get('name')} [{p.get('uniform')}]  ",
+                    font=Fonts.get("mono_sm"), fg=TK["fg_secondary"], bg=TK["surface_card"],
+                    highlightthickness=1, highlightbackground=TK["border_card"],
+                    pady=2
+                ).pack(side="left", padx=2, pady=2)
 
     def _card_sick_leave(self, sick_list):
         card = self._card_shell(self.cards_frame)
@@ -1408,19 +1405,19 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         ctk.CTkFrame(card, height=1, fg_color=TK["border_subtle"]).pack(fill="x", padx=16)
 
-        body = ctk.CTkFrame(card, fg_color="transparent")
+        body = tk.Frame(card, bg=TK["surface_card"])
         body.pack(fill="x", padx=12, pady=(4, 8))
 
+        chip_row = tk.Frame(body, bg=TK["surface_card"])
+        chip_row.pack(fill="x")
+
         for sk in sick_list:
-            chip = ctk.CTkFrame(
-                body, fg_color=TK["bad_bg"], corner_radius=4,
-                border_width=1, border_color=TK["bad_border"]
-            )
-            chip.pack(side="left", padx=3, pady=2)
-            ctk.CTkLabel(
-                chip, text=sk.get("name", ""),
-                font=Fonts.get("small_bold"), text_color=TK["bad_ink"]
-            ).pack(padx=8, pady=3)
+            tk.Label(
+                chip_row, text=f"  {sk.get('name', '')}  ",
+                font=Fonts.get("small_bold"), fg=TK["bad_ink"], bg=TK["bad_bg"],
+                highlightthickness=1, highlightbackground=TK["bad_border"],
+                pady=2
+            ).pack(side="left", padx=3, pady=2)
 
     def _card_shell(self, parent):
         """Create an editorial newspaper card frame."""

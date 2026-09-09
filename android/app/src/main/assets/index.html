@@ -36,22 +36,25 @@
         var splash = document.getElementById('splashOverlay');
         if (splash) {
           splash.classList.add('fade-out');
+          splash.style.opacity = '0';
+          splash.style.pointerEvents = 'none';
           setTimeout(function() {
             splash.style.display = 'none';
+            splash.style.visibility = 'hidden';
             try {
               if (splash.parentNode) splash.parentNode.removeChild(splash);
             } catch (e) {}
-          }, 350);
+          }, 250);
         }
       };
       // Hardcoded 1.8 seconds opening branding animation
       setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
       }, 1800);
-      // Failsafe backup
+      // Hardcoded 2.0s failsafe backup
       setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
-      }, 2500);
+      }, 2000);
     })();
   </script>
 
@@ -775,7 +778,7 @@
   <script>
     // Final failsafe: guarantee splash overlay dismissal in all iOS/Android browsers
     if (typeof window.dismissSplashOverlay === 'function') {
-      setTimeout(window.dismissSplashOverlay, 2500);
+      setTimeout(window.dismissSplashOverlay, 2000);
     }
   </script>
 </body>

@@ -99,6 +99,31 @@ html, body {
   margin-left: 1px;
 }
 
+/* Splash Auto-Dismiss Animation (Hardcoded 1.8s - 2.0s opening branding, zero-JS failsafe) */
+@keyframes splashAutoExit {
+  0% {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  82% {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  96% {
+    opacity: 0;
+    visibility: visible;
+    pointer-events: none;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    display: none;
+  }
+}
+
 /* Splash Overlay */
 .splash-overlay {
   position: fixed;
@@ -110,12 +135,14 @@ html, body {
   justify-content: center;
   transition: opacity 0.3s ease, visibility 0.3s ease;
   cursor: pointer;
+  animation: splashAutoExit 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0s 1 normal forwards;
+  -webkit-animation: splashAutoExit 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0s 1 normal forwards;
 }
 
 .splash-overlay.fade-out {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .splash-content {
@@ -2795,22 +2822,25 @@ input:checked + .slider:before {
         var splash = document.getElementById('splashOverlay');
         if (splash) {
           splash.classList.add('fade-out');
+          splash.style.opacity = '0';
+          splash.style.pointerEvents = 'none';
           setTimeout(function() {
             splash.style.display = 'none';
+            splash.style.visibility = 'hidden';
             try {
               if (splash.parentNode) splash.parentNode.removeChild(splash);
             } catch (e) {}
-          }, 350);
+          }, 250);
         }
       };
       // Hardcoded 1.8 seconds opening branding animation
       setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
       }, 1800);
-      // Failsafe backup
+      // Hardcoded 2.0s failsafe backup
       setTimeout(function() {
         if (window.dismissSplashOverlay) window.dismissSplashOverlay();
-      }, 2500);
+      }, 2000);
     })();
   </script>
 
@@ -6114,7 +6144,7 @@ function escapeHtml(str) {
   <script>
     // Final failsafe: guarantee splash overlay dismissal in all iOS/Android browsers
     if (typeof window.dismissSplashOverlay === 'function') {
-      setTimeout(window.dismissSplashOverlay, 2500);
+      setTimeout(window.dismissSplashOverlay, 2000);
     }
   </script>
 </body>
