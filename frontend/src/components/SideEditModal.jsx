@@ -13,6 +13,9 @@ import {
   Salad,
   Zap,
   HeartPulse,
+  User,
+  Users,
+  Plus,
 } from 'lucide-react'
 import { extractAllSections } from '../utils/rosterUtils'
 
@@ -219,7 +222,9 @@ export default function SideEditModal({
                   </span>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">👤</span>
+                      <div className="w-6 h-6 rounded-full bg-[var(--surface-badge)] border border-[var(--border-card)] flex items-center justify-center shrink-0">
+                        <User size={13} className="text-[#0071A3]" />
+                      </div>
                       <div>
                         <div className="text-xs font-bold text-[var(--text-primary)]">
                           {target.crew?.name || 'Unknown'}
@@ -283,7 +288,7 @@ export default function SideEditModal({
                         onChange={(e) => setSelectedStationIndex(e.target.value)}
                         className="w-full px-3 py-2 rounded-lg text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] cursor-pointer"
                       >
-                        <option value="new">➕ Add New Station Row</option>
+                        <option value="new">+ Add New Station Row</option>
                         {(activeSelectedSection.stations || []).map(stn => (
                           <option key={stn.assignmentIndex} value={stn.assignmentIndex}>
                             {stn.station} (Waiter: {stn.waiterName || 'Empty'} | Att: {stn.attendantName || 'Empty'})
@@ -315,24 +320,26 @@ export default function SideEditModal({
                         <button
                           type="button"
                           onClick={() => setSelectedRole('waiter')}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                             selectedRole === 'waiter'
-                              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)]'
-                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
+                              ? 'bg-[#0A2A38] text-white border-[#0A2A38]'
+                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[#CBD5E1]'
                           }`}
                         >
-                          👤 Waiter
+                          <User size={13} />
+                          <span>Waiter</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setSelectedRole('attendant')}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                             selectedRole === 'attendant'
-                              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)]'
-                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
+                              ? 'bg-[#0A2A38] text-white border-[#0A2A38]'
+                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[#CBD5E1]'
                           }`}
                         >
-                          👥 Attendant
+                          <Users size={13} />
+                          <span>Attendant</span>
                         </button>
                       </div>
                     </div>
@@ -586,24 +593,26 @@ export default function SideEditModal({
                         <button
                           type="button"
                           onClick={() => setSelectedRole('waiter')}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                             selectedRole === 'waiter'
-                              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)]'
-                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
+                              ? 'bg-[#0A2A38] text-white border-[#0A2A38]'
+                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[#CBD5E1]'
                           }`}
                         >
-                          👤 Waiter
+                          <User size={13} />
+                          <span>Waiter</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setSelectedRole('attendant')}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                             selectedRole === 'attendant'
-                              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)]'
-                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
+                              ? 'bg-[#0A2A38] text-white border-[#0A2A38]'
+                              : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[#CBD5E1]'
                           }`}
                         >
-                          👥 Attendant
+                          <Users size={13} />
+                          <span>Attendant</span>
                         </button>
                       </div>
                     </div>

@@ -12,6 +12,11 @@ import {
   AlertTriangle,
   AlertCircle,
   Copy,
+  User,
+  Users,
+  Star,
+  Calendar,
+  CheckCircle2,
 } from 'lucide-react'
 import ContextMenu from './ContextMenu'
 import SideEditModal from './SideEditModal'
@@ -221,7 +226,7 @@ function VenueCard({ venue, venueIndex, flaggedMap = {}, onContextMenuOpen, onEd
                   }`}
                   title={waiterFlag ? waiterFlag.message : 'Right-click to Move or Edit Waiter'}
                 >
-                  <span className="text-xs">👤</span>
+                  <User size={13} className="text-[#0071A3] shrink-0" />
                   {a.waiterName ? (
                     <span className="font-bold">
                       {a.waiterName}
@@ -251,7 +256,7 @@ function VenueCard({ venue, venueIndex, flaggedMap = {}, onContextMenuOpen, onEd
                     }`}
                     title={attendantFlag ? attendantFlag.message : 'Right-click to Move or Edit Attendant'}
                   >
-                    <span className="text-xs">👥</span>
+                    <Users size={13} className="text-[var(--text-subtle)] shrink-0" />
                     <span className="font-medium">
                       Att: {a.attendantName}
                     </span>
@@ -297,7 +302,7 @@ function VenueCard({ venue, venueIndex, flaggedMap = {}, onContextMenuOpen, onEd
                   title="Click or right-click to edit tables"
                 >
                   <Armchair size={11} />
-                  <span>{a.tables ? `🪑 ${a.tables}` : '+ Tables'}</span>
+                  <span>{a.tables ? a.tables : '+ Tables'}</span>
                 </button>
               </div>
             </div>
@@ -385,16 +390,18 @@ function BuffetCard({ item, buffetIndex, flaggedMap = {}, onContextMenuOpen }) {
           <Salad size={15} className="text-[#10B981]" />
           <span className="font-bold text-sm text-[var(--text-primary)]">{item.name}</span>
           {item.lead && (
-            <span className="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] dark:bg-[#2B1D08] border border-[#FDE68A] dark:border-[#92400E] text-xs font-semibold text-[#D97706] dark:text-[#F59E0B]">
-              ⭐ Lead: {item.lead}
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF3C7] dark:bg-[#2B1D08] border border-[#FDE68A] dark:border-[#92400E] text-xs font-semibold text-[#D97706] dark:text-[#F59E0B]">
+              <Star size={11} className="shrink-0" />
+              <span>Lead: {item.lead}</span>
             </span>
           )}
           <span className="text-[9.5px] text-[var(--text-subtle)] bg-[var(--surface-badge)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
             Right-click header to edit
           </span>
         </div>
-        <div className="text-xs font-semibold text-[var(--text-secondary)] px-3 py-1 rounded-full bg-[var(--surface-inner)] border border-[var(--border-subtle)]">
-          ⏰ {item.timing || '—'} • {crew.length} Crew
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] px-3 py-1 rounded-full bg-[var(--surface-inner)] border border-[var(--border-subtle)]">
+          <Clock size={11} className="shrink-0 text-[var(--text-subtle)]" />
+          <span>{item.timing || '—'} • {crew.length} Crew</span>
         </div>
       </div>
 
@@ -515,8 +522,9 @@ function SideDutyCard({ item, sideDutyIndex, flaggedMap = {}, onContextMenuOpen 
             Right-click header to edit
           </span>
         </div>
-        <div className="px-3 py-1 rounded-full bg-[#EDE9FE] dark:bg-[#230F38] border border-[#DDD6FE] dark:border-[#5B21B6] text-xs font-semibold text-[#7C3AED] dark:text-[#A855F7]">
-          ⏰ {item.timing || '—'} • {crew.length} Crew
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EDE9FE] dark:bg-[#230F38] border border-[#DDD6FE] dark:border-[#5B21B6] text-xs font-semibold text-[#7C3AED] dark:text-[#A855F7]">
+          <Clock size={11} className="shrink-0" />
+          <span>{item.timing || '—'} • {crew.length} Crew</span>
         </div>
       </div>
 
@@ -569,8 +577,9 @@ function SpecialEventsCard({ events, onContextMenuOpen }) {
       <div className="p-4 space-y-3">
         {events.map((ev, ei) => (
           <div key={ei} className="rounded-lg bg-[var(--surface-inner)] border border-[var(--border-subtle)] p-3">
-            <div className="font-bold text-sm text-[var(--text-primary)] mb-2">
-              📌 {ev.title} — {ev.location}
+            <div className="font-bold text-sm text-[var(--text-primary)] mb-2 flex items-center gap-1.5">
+              <Calendar size={13} className="text-[#0071A3] shrink-0" />
+              <span>{ev.title} — {ev.location}</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {(ev.participants || []).map((p, pi) => (
@@ -624,7 +633,7 @@ function SickLeaveCard({ sickList, flaggedMap = {}, onContextMenuOpen }) {
       x: e.clientX,
       y: e.clientY,
       targetType: 'section_header',
-      title: '🏥 Sick Leave / Off Duty',
+      title: 'Sick Leave / Off Duty',
       subtitle: `${sickList.length} Personnel Currently Off Duty`,
       canChangeTiming: false,
       canMove: false,
@@ -645,7 +654,7 @@ function SickLeaveCard({ sickList, flaggedMap = {}, onContextMenuOpen }) {
       x: e.clientX,
       y: e.clientY,
       targetType: 'sick_crew',
-      title: `🏥 Sick / Off: ${sk.name}`,
+      title: `Sick / Off: ${sk.name}`,
       subtitle: 'Right-click to Move back to active outlet',
       canChangeTiming: false,
       isSickLeave: true,
@@ -922,30 +931,30 @@ export default function BentoExplorer({
       {/* 4 Metrics Cards */}
       <div className="grid grid-cols-4 gap-3">
         <MetricCard
-          tag="📍 Port & Meal"
+          tag="Port & Meal"
           value={`${data.port || '—'} • ${data.meal || 'LUNCH'}`}
-          subtitle={`📅 ${data.date || '—'}`}
+          subtitle={data.date || '—'}
           accentColor="#38BDF8"
           delay={0}
         />
         <MetricCard
           tag={
             isDeficit
-              ? `⚠️ ROSTER DEFICIT (-${deficitCount})`
+              ? `ROSTER DEFICIT (-${deficitCount})`
               : isSurplus
-              ? `⚠️ ROSTER SURPLUS (+${surplusCount})`
+              ? `ROSTER SURPLUS (+${surplusCount})`
               : isMatch
-              ? `✓ ROSTER COMPLETE`
-              : '👥 Active Roster'
+              ? `ROSTER COMPLETE`
+              : 'Active Roster'
           }
           value={`${currentCrew} Crew Members`}
           subtitle={
             isDeficit
-              ? `⚠️ Missing ${deficitCount} of ${targetNum} target crew!`
+              ? `Missing ${deficitCount} of ${targetNum} target crew!`
               : isSurplus
-              ? `⚠️ +${surplusCount} Extra beyond target ${targetNum} (check for duplicates!)`
+              ? `+${surplusCount} Extra beyond target ${targetNum} (check for duplicates!)`
               : hasTarget
-              ? `✓ Perfect match! All ${targetNum} crew accounted for`
+              ? `Perfect match! All ${targetNum} crew accounted for`
               : `${t.sectionCount || 0} Duty Sections`
           }
           accentColor={isDeficit ? '#F59E0B' : isSurplus ? '#A855F7' : isMatch ? '#10B981' : 'var(--accent-color)'}
@@ -954,14 +963,14 @@ export default function BentoExplorer({
           alertStyle={getBentoAlertStyles()}
         />
         <MetricCard
-          tag="🍽️ Dining Stations"
+          tag="Dining Stations"
           value={`${t.stationCount || 0} Active Tables`}
           subtitle={`${(data.venues || []).length} Restaurant Venues`}
           accentColor="#F59E0B"
           delay={0.1}
         />
         <MetricCard
-          tag="⚡ Stream Encoding"
+          tag="Stream Encoding"
           value={`${(t.payloadChars || 0).toLocaleString()} Chars`}
           subtitle={`${(t.b64Bytes || 0).toLocaleString()} Bytes Base64`}
           accentColor="#10B981"
@@ -992,7 +1001,7 @@ export default function BentoExplorer({
             {duplicateReport.idDuplicates.map((d, i) => (
               <div key={`id-warn-${i}`} className="p-2 rounded-lg bg-white/60 dark:bg-black/40 border border-[#FECDD3] dark:border-[#881337]">
                 <div className="font-bold text-[#DC2626] dark:text-[#F87171] flex items-center gap-1">
-                  <span>🆔 Duplicate ID: #{d.id}</span>
+                  <span>Duplicate ID: #{d.id}</span>
                 </div>
                 <div className="text-[10px] opacity-90 truncate mt-0.5">
                   Names: {d.names.join(' / ')}
@@ -1006,7 +1015,7 @@ export default function BentoExplorer({
             {duplicateReport.nameDuplicates.map((d, i) => (
               <div key={`name-warn-${i}`} className="p-2 rounded-lg bg-white/60 dark:bg-black/40 border border-[#FECDD3] dark:border-[#881337]">
                 <div className="font-bold text-[#DC2626] dark:text-[#F87171] flex items-center gap-1">
-                  <span>👤 Duplicate Name: {d.cleanName}</span>
+                  <span>Duplicate Name: {d.cleanName}</span>
                 </div>
                 <div className="text-[10px] opacity-90 truncate mt-0.5">
                   Appears in {d.count} different duties
@@ -1020,7 +1029,7 @@ export default function BentoExplorer({
             {duplicateReport.fuzzyDuplicates.map((d, i) => (
               <div key={`fuz-warn-${i}`} className="p-2 rounded-lg bg-white/60 dark:bg-black/40 border border-[#FED7AA] dark:border-[#7C2D12] text-[#9A3412] dark:text-[#FDBA74]">
                 <div className="font-bold flex items-center gap-1">
-                  <span>⚠️ Typo Match:</span>
+                  <span>Typo Match:</span>
                 </div>
                 <div className="text-[10px] truncate mt-0.5 font-mono">
                   "{d.name1}" ≈ "{d.name2}"

@@ -28,7 +28,7 @@ export function extractAllSections(data) {
         tables: a.tables || '',
       })),
       group: 'Main Dining Restaurants',
-      badge: '🏛️ Venue',
+      badge: 'Venue',
     })
   })
 
@@ -43,7 +43,7 @@ export function extractAllSections(data) {
       lead: b.lead || '',
       crewCount: (b.crew || []).length,
       group: 'Buffet & Specialty Outlets',
-      badge: '🥗 Buffet/Outlet',
+      badge: 'Buffet/Outlet',
     })
   })
 
@@ -57,7 +57,7 @@ export function extractAllSections(data) {
       timing: s.timing || '',
       crewCount: (s.crew || []).length,
       group: 'Sub-Teams & Side Duties',
-      badge: '⚡ Side Duty',
+      badge: 'Side Duty',
     })
   })
 
@@ -65,10 +65,10 @@ export function extractAllSections(data) {
   sections.push({
     type: 'sickLeave',
     id: 'sick-leave',
-    name: '🏥 SICK LEAVE / OFF DUTY',
+    name: 'SICK LEAVE / OFF DUTY',
     crewCount: (data.sickLeave || []).length,
     group: 'Sick Leave / Off Duty',
-    badge: '🏥 Sick Leave',
+    badge: 'Sick Leave',
   })
 
   return sections
@@ -133,9 +133,9 @@ export function generateWhatsAppPayload(scheduleData) {
     const b64 = btoa(unescape(encodeURIComponent(jsonStr)))
 
     const payload = [
-      `🚢 ${scheduleData.ship || 'COSTA SMERALDA'} — RESTAURANT SCHEDULE`,
-      `📅 Date    : ${scheduleData.date || '—'}`,
-      `🍽️ Shift   : ${scheduleData.shift || '—'}`,
+      `${scheduleData.ship || 'COSTA SMERALDA'} — RESTAURANT SCHEDULE`,
+      `Date    : ${scheduleData.date || '—'}`,
+      `Shift   : ${scheduleData.shift || '—'}`,
       `--------------------------------------------`,
       `[COSTA-DATA-START]`,
       b64,
@@ -522,7 +522,7 @@ export function detectDuplicates(data) {
       entries.push({
         rawName: (sk.name || '').trim(),
         cleanName: normalizeCrewName(sk.name),
-        location: '🏥 Sick Leave / Off Duty',
+        location: 'Sick Leave / Off Duty',
         locationType: 'sickLeave',
         sickIndex: skIdx,
       })

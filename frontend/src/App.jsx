@@ -27,7 +27,7 @@ export default function App() {
 
   // ── Theme State: 'dark' | 'light' | 'sakura' ──
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('costa_theme') || 'sakura'
+    return localStorage.getItem('costa_theme') || 'light'
   })
 
   useEffect(() => {

@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   AlertCircle,
+  FileSpreadsheet,
 } from 'lucide-react'
 
 export default function Sidebar({
@@ -72,8 +73,9 @@ export default function Sidebar({
             />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-black text-sm tracking-tight text-[var(--text-primary)]">
-              COSTA SCHEDULE
+            <span className="font-black text-sm tracking-tight text-[var(--text-primary)] flex items-center">
+              <span>COSTA SCHEDULE</span>
+              <span className="costa-dot">.</span>
             </span>
             <span className="inline-flex px-2 py-0.5 rounded-full text-[8.5px] font-bold tracking-wider bg-[var(--accent-dim)] text-[var(--accent-text)] border border-[var(--accent-border)] w-max">
               PRECISION ENGINE v2.6
@@ -126,7 +128,8 @@ export default function Sidebar({
             </motion.button>
 
             <div className="flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg bg-[var(--surface-inner)] border border-dashed border-[var(--border-subtle)] text-[9.5px] font-semibold text-[var(--text-subtle)]">
-              <span>📥 Drag & Drop .xlsx anywhere</span>
+              <FileSpreadsheet size={11} className="shrink-0 text-[var(--accent-color)]" />
+              <span>Drag & Drop .xlsx anywhere</span>
             </div>
           </div>
         </div>
@@ -208,18 +211,18 @@ export default function Sidebar({
                   Total Crew Roster
                 </span>
                 {isDeficit && (
-                  <span className="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded bg-white/40 dark:bg-black/40">
-                    ⚠️ {deficitCount} missing
+                  <span className="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded bg-white/40 dark:bg-black/40 flex items-center gap-1">
+                    <AlertTriangle size={9} /> {deficitCount} missing
                   </span>
                 )}
                 {isSurplus && (
-                  <span className="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded bg-white/40 dark:bg-black/40">
-                    ⚠️ +{surplusCount} extra
+                  <span className="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded bg-white/40 dark:bg-black/40 flex items-center gap-1">
+                    <AlertTriangle size={9} /> +{surplusCount} extra
                   </span>
                 )}
                 {isMatch && (
-                  <span className="text-[9.5px] font-bold">
-                    ✓ Perfect
+                  <span className="text-[9.5px] font-bold flex items-center gap-1">
+                    <CheckCircle2 size={9} /> Perfect
                   </span>
                 )}
               </div>

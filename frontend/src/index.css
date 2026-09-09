@@ -3,30 +3,70 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant sakura (&:where(.sakura, .sakura *));
 
+/* ── Brand Typography: Poppins Local Font Faces ── */
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── THEME CSS VARIABLES ── */
 :root {
-  /* Default: Light Theme */
-  --bg-app: #FAFAFA;
+  /* Default: Costa Newspaper Elegance (Pure White Canvas) */
+  --bg-app: #FFFFFF;
   --bg-sidebar: #FFFFFF;
   --surface-card: #FFFFFF;
-  --surface-inner: #F7F7FA;
-  --surface-hover: #F0F0F5;
-  --border-subtle: #EBEBF0;
-  --border-card: #DCDCE5;
-  --text-primary: #1A1A2E;
-  --text-secondary: #555566;
-  --text-subtle: #8E8E9E;
-  --accent-color: #5E6AD2;
-  --accent-hover: #4F5ABF;
-  --accent-dim: #EDEEF8;
-  --accent-text: #434AA8;
-  --accent-border: #D5D8F2;
+  --surface-inner: #F8FAFC;
+  --surface-hover: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-card: #CBD5E1;
+  --text-primary: #0A2A38;     /* Costa Ink */
+  --text-secondary: #5F7079;   /* Costa Slate */
+  --text-subtle: #94A6AE;      /* Costa Faint */
+  --accent-color: #0071A3;     /* Costa Blue */
+  --accent-hover: #005A82;
+  --accent-dim: #EBF5FA;       /* Costa Blue Faint */
+  --accent-text: #0071A3;
+  --accent-border: #BAE6FD;
+  --costa-yellow: #F9B000;     /* Costa Yellow */
+  --costa-navy: #00324A;       /* Costa Navy */
+  --costa-ink: #0A2A38;
   --status-ready-bg: #F0FDF4;
   --status-ready-border: #DCFCE7;
   --status-ready-text: #047857;
-  --badge-vessel-bg: #EDEEF8;
-  --badge-vessel-text: #434AA8;
-  --badge-vessel-border: #D5D8F2;
+  --badge-vessel-bg: #EBF5FA;
+  --badge-vessel-text: #0071A3;
+  --badge-vessel-border: #BAE6FD;
 }
 
 :root.dark, html.dark {
@@ -41,17 +81,20 @@
   --text-primary: #EDEDEF;
   --text-secondary: #8A8F98;
   --text-subtle: #525660;
-  --accent-color: #5E6AD2;
-  --accent-hover: #6872D9;
-  --accent-dim: #121326;
-  --accent-text: #7B85E6;
-  --accent-border: #2E3466;
+  --accent-color: #0071A3;
+  --accent-hover: #38BDF8;
+  --accent-dim: #092535;
+  --accent-text: #38BDF8;
+  --accent-border: #0C4A6E;
+  --costa-yellow: #F9B000;
+  --costa-navy: #00324A;
+  --costa-ink: #EDEDEF;
   --status-ready-bg: rgba(6, 40, 29, 0.6);
   --status-ready-border: #0D4D38;
   --status-ready-text: #34D399;
-  --badge-vessel-bg: #121326;
-  --badge-vessel-text: #7B85E6;
-  --badge-vessel-border: #2E3466;
+  --badge-vessel-bg: #092535;
+  --badge-vessel-text: #38BDF8;
+  --badge-vessel-border: #0C4A6E;
 }
 
 :root.sakura, html.sakura {
@@ -71,6 +114,9 @@
   --accent-dim: #FFE4EE;
   --accent-text: #B81D52;
   --accent-border: #F9B6CE;
+  --costa-yellow: #F9B000;
+  --costa-navy: #3B0E1B;
+  --costa-ink: #3B0E1B;
   --status-ready-bg: #FFF0F4;
   --status-ready-border: #F9CADB;
   --status-ready-text: #D44472;
@@ -80,10 +126,10 @@
 }
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
 
-  /* Linear Indigo Accent */
+  /* Accent */
   --color-accent: var(--accent-color);
   --color-accent-hover: var(--accent-hover);
   --color-accent-dim: var(--accent-dim);
@@ -159,9 +205,86 @@ body {
 
 /* ── Selection ── */
 ::selection {
-  background: rgba(94, 106, 210, 0.3);
+  background: rgba(0, 113, 163, 0.2);
 }
 
-.sakura ::selection {
-  background: rgba(232, 93, 136, 0.3);
+/* ── Costa Brand Utilities ── */
+.costa-dot {
+  color: #F9B000;
+  font-size: 1.22em;
+  font-weight: 900;
+  line-height: 0;
+  display: inline-block;
+  margin-left: 1px;
+}
+
+/* Outline Pill Button (Exact match with CostaSchedule.html & APK) */
+.outline-pill-btn {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-card);
+  color: var(--costa-ink);
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.outline-pill-btn:hover {
+  background-color: #F8FAFC;
+  border-color: var(--text-secondary);
+}
+
+.outline-pill-btn.active {
+  background-color: #0A2A38;
+  border-color: #0A2A38;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.dark .outline-pill-btn {
+  background-color: #121218;
+  border-color: #1E1E28;
+  color: #EDEDEF;
+}
+
+.dark .outline-pill-btn:hover {
+  background-color: #181822;
+  border-color: #525660;
+}
+
+.dark .outline-pill-btn.active {
+  background-color: #0071A3;
+  border-color: #0071A3;
+  color: #FFFFFF;
+}
+
+/* Primary Yellow Action Button (One Primary Yellow Button per Screen Rule) */
+.costa-primary-btn {
+  background-color: #F9B000;
+  color: #0A2A38;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(249, 176, 0, 0.3);
+  transition: transform 0.12s ease, filter 0.15s ease;
+}
+
+.costa-primary-btn:hover {
+  filter: brightness(1.04);
+}
+
+.costa-primary-btn:active {
+  transform: scale(0.98);
 }

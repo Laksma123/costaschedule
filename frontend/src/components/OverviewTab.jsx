@@ -6,13 +6,13 @@ export default function OverviewTab({ data, onCopyText, onExportJson, onSaveBack
   const overviewText = useMemo(() => {
     if (!data) return ''
     const lines = []
-    lines.push(`🚢 VESSEL : ${data.ship || ''}`)
-    lines.push(`📅 DATE   : ${data.date || ''}  |  PORT: ${data.port || ''}`)
-    lines.push(`🍽️ SHIFT  : ${data.shift || ''} [${data.meal || ''}]`)
+    lines.push(`VESSEL : ${data.ship || ''}`)
+    lines.push(`DATE   : ${data.date || ''}  |  PORT: ${data.port || ''}`)
+    lines.push(`SHIFT  : ${data.shift || ''} [${data.meal || ''}]`)
     lines.push('─'.repeat(68))
     lines.push('')
 
-    lines.push('🏛️ MAIN RESTAURANTS & STATIONS:')
+    lines.push('MAIN RESTAURANTS & STATIONS:')
     for (const v of (data.venues || [])) {
       lines.push(`  ┌ ${v.name} (Report: ${v.reportTime || '—'})`)
       for (const a of (v.assignments || [])) {
@@ -24,7 +24,7 @@ export default function OverviewTab({ data, onCopyText, onExportJson, onSaveBack
     }
     lines.push('')
 
-    lines.push('🥗 BUFFET & SPECIALTY RESTAURANTS:')
+    lines.push('BUFFET & SPECIALTY RESTAURANTS:')
     for (const b of (data.buffetAndVenues || [])) {
       const lead = b.lead ? ` (Lead: ${b.lead})` : ''
       lines.push(`  • ${b.name} | Timing: ${b.timing || '—'}${lead}`)
@@ -33,7 +33,7 @@ export default function OverviewTab({ data, onCopyText, onExportJson, onSaveBack
     }
     lines.push('')
 
-    lines.push('⚡ SUB-TEAMS & SIDE DUTIES:')
+    lines.push('SUB-TEAMS & SIDE DUTIES:')
     for (const s of (data.sideDuties || [])) {
       lines.push(`  • ${s.name} (Timing: ${s.timing || '—'})`)
       const crew = (s.crew || []).map(c => `${c.name}`).join(', ')
@@ -42,7 +42,7 @@ export default function OverviewTab({ data, onCopyText, onExportJson, onSaveBack
     lines.push('')
 
     if (data.specialEvents?.length) {
-      lines.push('🎭 SPECIAL EVENTS & TRAVEL TALK:')
+      lines.push('SPECIAL EVENTS & TRAVEL TALK:')
       for (const ev of data.specialEvents) {
         lines.push(`  • ${ev.title} (${ev.location})`)
         for (const p of (ev.participants || [])) {
@@ -53,7 +53,7 @@ export default function OverviewTab({ data, onCopyText, onExportJson, onSaveBack
     }
 
     if (data.sickLeave?.length) {
-      lines.push('🏥 SICK LEAVE / OFF:')
+      lines.push('SICK LEAVE / OFF:')
       for (const sk of data.sickLeave) {
         lines.push(`  • ${sk.name}`)
       }

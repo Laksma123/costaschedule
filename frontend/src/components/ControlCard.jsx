@@ -42,28 +42,17 @@ export default function ControlCard({
           </motion.button>
         </div>
 
-        {/* Right: Meal Shift Segmented Buttons */}
-        <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--surface-inner)] border border-[var(--border-subtle)] shrink-0">
+        {/* Right: Meal Shift Segmented Buttons (HTML/APK Outline Pill Style) */}
+        <div className="flex items-center gap-1.5 shrink-0">
           {shifts.map((shift) => {
             const isActive = mealShift === shift
             return (
               <button
                 key={shift}
                 onClick={() => onShiftChange && onShiftChange(shift)}
-                className={`relative px-4 py-1.5 rounded-full text-xs font-bold transition-colors duration-150 cursor-pointer ${
-                  isActive 
-                    ? 'text-white' 
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
+                className={`outline-pill-btn ${isActive ? 'active' : ''}`}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="shiftIndicator"
-                    className="absolute inset-0 bg-[var(--accent-color)] rounded-full shadow-xs"
-                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-                  />
-                )}
-                <span className="relative z-10">{shift}</span>
+                {shift}
               </button>
             )
           })}
@@ -80,7 +69,7 @@ export default function ControlCard({
             value={searchQuery}
             onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
             placeholder="Filter crew name, station, table, or duty..."
-            className="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-[var(--surface-inner)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)] transition-all duration-150"
+            className="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-[var(--surface-inner)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[#0071A3] focus:ring-1 focus:ring-[#0071A3] transition-all duration-150"
           />
           {searchQuery && (
             <button
@@ -92,24 +81,18 @@ export default function ControlCard({
           )}
         </div>
 
-        {/* Right: Quick Category Filter Pills */}
+        {/* Right: Quick Category Filter Pills (HTML/APK Outline Pill Style) */}
         <div className="flex items-center gap-1.5 shrink-0">
           {filters.map((filter) => {
             const isActive = activeFilter === filter
             return (
-              <motion.button
+              <button
                 key={filter}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
                 onClick={() => onFilterChange && onFilterChange(filter)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-150 cursor-pointer ${
-                  isActive
-                    ? 'bg-[var(--accent-dim)] text-[var(--accent-text)] border border-[var(--accent-border)] shadow-xs'
-                    : 'bg-[var(--surface-inner)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-[var(--accent-border)]'
-                }`}
+                className={`outline-pill-btn ${isActive ? 'active' : ''}`}
               >
                 {filter}
-              </motion.button>
+              </button>
             )
           })}
         </div>

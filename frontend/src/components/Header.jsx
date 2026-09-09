@@ -6,9 +6,10 @@ export default function Header({ data }) {
 
   return (
     <header className="flex items-center justify-between w-full shrink-0 select-none gap-4">
-      {/* Title only (no long subtitle) */}
-      <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tight leading-none truncate">
-        Costa Schedule Exporter
+      {/* Costa Brand Title with Dot */}
+      <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight leading-none truncate flex items-center">
+        <span>{ship || 'COSTA SMERALDA'}</span>
+        <span className="costa-dot">.</span>
       </h1>
 
       {/* Right Telemetry Badges — Strictly 1 Single Line */}

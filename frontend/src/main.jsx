@@ -22,7 +22,7 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '24px', color: '#EF4444', backgroundColor: '#18181B', height: '100vh', fontFamily: 'monospace', overflow: 'auto' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px' }}>⚠️ Application Runtime Error</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px' }}>Application Runtime Error</h2>
           <div style={{ padding: '12px', backgroundColor: '#27272A', borderRadius: '8px', marginBottom: '16px', color: '#FCA5A5' }}>
             {this.state.error && this.state.error.toString()}
           </div>

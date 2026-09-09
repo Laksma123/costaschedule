@@ -10,9 +10,9 @@ const tabs = [
 export default function TabView({ activeTab, onTabChange, children }) {
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Tab Pills */}
+      {/* Tab Pills (HTML/APK Outline Pill Style) */}
       <div className="flex items-center justify-center py-1.5">
-        <div className="inline-flex items-center gap-1 p-1 rounded-full bg-[var(--surface-inner)] border border-[var(--border-subtle)]">
+        <div className="inline-flex items-center gap-2">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
@@ -20,26 +20,10 @@ export default function TabView({ activeTab, onTabChange, children }) {
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`
-                  relative flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold
-                  transition-colors duration-200 ease-out cursor-pointer select-none
-                  ${isActive
-                    ? 'text-white'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }
-                `}
+                className={`outline-pill-btn flex items-center gap-2 px-5 py-1.5 text-xs font-semibold ${isActive ? 'active' : ''}`}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 bg-[var(--accent-color)] rounded-full shadow-xs"
-                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-2">
-                  <Icon size={14} />
-                  {tab.label}
-                </span>
+                <Icon size={13} />
+                <span>{tab.label}</span>
               </button>
             )
           })}
