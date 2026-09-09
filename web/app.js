@@ -360,9 +360,10 @@ const SAMPLE_SCHEDULE = {
 // Initialize App
 function initApp() {
   try {
-    // Auto-hide iOS QuickLook preview banner when JS runs
-    const iosBanner = document.getElementById('iosPreviewBanner');
-    if (iosBanner) iosBanner.style.display = 'none';
+    // Ensure js-ready class is present and hide QuickLook guidance screen
+    document.documentElement.classList.add('js-ready');
+    const qlScreen = document.getElementById('iosQuickLookScreen');
+    if (qlScreen) qlScreen.style.display = 'none';
 
     setupEventListeners();
     

@@ -12,6 +12,9 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="style.css">
+  <script>
+    document.documentElement.classList.add('js-ready');
+  </script>
 </head>
 <body class="newspaper-theme">
   <!-- Splash Loading & Validation Overlay (Instant Touch / Failsafe Dismissal) -->
@@ -78,28 +81,99 @@
     </div>
   </header>
 
-  <!-- iOS QuickLook Preview Guidance Banner (Visible only in iPhone WhatsApp QuickLook preview where JS is sandboxed) -->
-  <div id="iosPreviewBanner" class="ios-preview-banner">
-    <div class="ios-preview-inner">
-      <div class="ios-preview-badge">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-          <polyline points="16 6 12 2 8 6"/>
-          <line x1="12" y1="2" x2="12" y2="15"/>
+  <!-- ============================================================== -->
+  <!-- IPHONE QUICKLOOK DEDICATED GUIDANCE SCREEN (NO-JS LANDING)      -->
+  <!-- ============================================================== -->
+  <div id="iosQuickLookScreen" class="ios-quicklook-screen">
+    
+    <!-- Top Mode Badge -->
+    <div class="ql-badge-wrap">
+      <span class="ql-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
         </svg>
-        <span>iPhone WhatsApp Preview Mode</span>
-      </div>
-      <p class="ios-preview-note">
-        Apple disables interactive scripts in document preview. To enable live search, shift tabs & interactive roster on iPhone: install free <strong>Microsoft Edge</strong> from the App Store, then tap the <strong>Share icon [↑]</strong> at the bottom right &rarr; select <strong>Edge</strong>.
+        IPHONE PREVIEW MODE
+      </span>
+    </div>
+
+    <!-- Editorial Masthead -->
+    <div class="ql-masthead">
+      <div class="ql-brand-sub">COSTA SMERALDA &bull; RESTAURANT SERVICE</div>
+      <h1 class="ql-hero-title">Open in Edge to Access Live Schedule<span class="costa-dot">.</span></h1>
+      <p class="ql-hero-desc">
+        Apple WhatsApp opens documents in a read-only preview where scripts are locked. To unlock real-time roster search, personal shift assignments, and bedside alarms, please open in <strong>Edge</strong> browser:
       </p>
     </div>
+
+    <!-- Step Cards -->
+    <div class="ql-steps-container">
+
+      <!-- Step 1 -->
+      <div class="ql-step-card">
+        <div class="ql-step-header">
+          <div class="ql-step-num">1</div>
+          <div class="ql-step-info">
+            <h3 class="ql-step-title">Install Free Edge Browser</h3>
+            <span class="ql-step-subtitle">Available on Apple App Store</span>
+          </div>
+          <div class="ql-step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+        </div>
+        <p class="ql-step-body">
+          If you don't have it yet, download <strong>Microsoft Edge</strong> from the App Store on your iPhone. It is 100% free and requires no sign-in.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="ql-step-card ql-step-primary">
+        <div class="ql-step-header">
+          <div class="ql-step-num">2</div>
+          <div class="ql-step-info">
+            <h3 class="ql-step-title">Tap Share &rarr; Select "Edge"</h3>
+            <span class="ql-step-subtitle">Look at the bottom right corner</span>
+          </div>
+          <div class="ql-step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+          </div>
+        </div>
+        <p class="ql-step-body">
+          Tap the iOS <strong>Share button [↑]</strong> located at the bottom right corner of this screen, scroll to the bottom of the apps list, and tap <strong>Edge</strong>.
+        </p>
+        <div class="ql-app-badge-pill">
+          <span class="ql-app-badge-dot"></span>
+          <span>App name in list: <strong>Edge</strong></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Direction Callout Box -->
+    <div class="ql-callout-box">
+      <div class="ql-callout-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071A3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4"/>
+        </svg>
+      </div>
+      <div class="ql-callout-text">
+        <strong>Ready to view your duty roster?</strong><br>
+        Tap the floating circular share button <span class="ql-share-btn-glyph">[↑]</span> at the bottom-right corner of your screen now.
+      </div>
+    </div>
+
+    <!-- Offline Reassurance Note -->
+    <div class="ql-offline-footer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F7079" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+      <span>100% Offline Ready: Works in Edge at sea without internet or mobile data</span>
+    </div>
+
   </div>
-  <script>
-    (function(){
-      var b = document.getElementById('iosPreviewBanner');
-      if (b) b.style.display = 'none';
-    })();
-  </script>
 
   <!-- Main Container With 4 Tabs -->
   <main class="app-main">
