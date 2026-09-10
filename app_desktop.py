@@ -601,7 +601,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         if os.path.exists(logo):
             try:
                 pil = PILImage.open(logo)
-                return ctk.CTkImage(light_image=pil, dark_image=pil, size=(34, 34))
+                return ctk.CTkImage(light_image=pil, dark_image=pil, size=(34, 40))
             except Exception:
                 pass
         return None
@@ -659,9 +659,18 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         badge_box = ctk.CTkFrame(inner, fg_color="transparent")
         badge_box.pack(side="right", fill="y")
 
-        self.badge_vessel = self._make_telemetry_badge(badge_box, "ship", "COSTA SERENA", TK["fg_accent"], TK["accent_dim"], TK["accent_border"])
-        self.badge_date = self._make_telemetry_badge(badge_box, "calendar", "August 23, 2026", TK["fg_secondary"])
-        self.badge_port = self._make_telemetry_badge(badge_box, "map_pin", "KAOHSIUNG", TK["fg_secondary"])
+        self.badge_date = self._make_telemetry_badge(
+            badge_box, "calendar", "August 23, 2026",
+            text_color=TK["fg_secondary"],
+            bg_color=TK["surface_inner"],
+            border_color=TK["border_card"]
+        )
+        self.badge_port = self._make_telemetry_badge(
+            badge_box, "map_pin", "KAOHSIUNG",
+            text_color=TK["fg_accent"],
+            bg_color=TK["accent_dim"],
+            border_color=TK["accent_border"]
+        )
 
         # Hairline Bottom Border
         ctk.CTkFrame(self, height=1, fg_color=TK["border_inner"], corner_radius=0).pack(fill="x")
@@ -669,21 +678,36 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
     def _make_telemetry_badge(self, parent, icon_name, text, text_color, bg_color=None, border_color=None):
         pill = ctk.CTkFrame(
             parent,
-            fg_color=bg_color or TK["surface_inner"],
+            height=32,
             corner_radius=16,
+            fg_color=bg_color or TK["surface_inner"],
             border_width=1,
             border_color=border_color or TK["border_card"]
         )
         pill.pack(side="left", padx=4, pady=12)
 
         icon_img = VectorIcons.get(icon_name, size=13, color=text_color)
-        ctk.CTkLabel(pill, image=icon_img, text="").pack(side="left", padx=(10, 4), pady=4)
-
         lbl = ctk.CTkLabel(
-            pill, text=text,
-            font=Fonts.get("small_bold"), text_color=text_color
+            pill,
+            image=icon_img,
+            text=f"  {text}",
+            compound="left",
+            font=Fonts.get("small_bold"),
+            text_color=text_color,
+            height=30
         )
-        lbl.pack(side="left", padx=(0, 10), pady=4)
+        lbl.pack(padx=12, pady=1)
+
+        # Ensure future .configure(text=...) calls preserve leading space
+        orig_configure = lbl.configure
+        def _safe_configure(**kwargs):
+            if "text" in kwargs:
+                t = str(kwargs["text"])
+                if not t.startswith("  "):
+                    kwargs["text"] = f"  {t}"
+            return orig_configure(**kwargs)
+        lbl.configure = _safe_configure
+
         return lbl
 
     # ─────────────────────────────────────────────────────────
@@ -1535,7 +1559,6 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.lbl_brand_title.configure(text=ship_name)
 
         # Update Badges
-        self.badge_vessel.configure(text=ship_name)
         self.badge_date.configure(text=d.get("date", "—"))
         self.badge_port.configure(text=d.get("port", "—"))
 
@@ -1633,10 +1656,24 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             messagebox.showinfo("Exported", f"Saved to:\n{out}")
 
     def open_webapp(self):
+        from pathlib import Path
         base = os.path.dirname(os.path.abspath(__file__))
         html = os.path.join(base, "CostaSchedule.html")
+        build_script = os.path.join(base, "build_single_html.py")
+        web_index = os.path.join(base, "web", "index.html")
+
+        # Automatically re-bundle if web sources are newer than single-file html
+        if os.path.exists(build_script) and os.path.exists(web_index) and os.path.exists(html):
+            try:
+                if os.path.getmtime(web_index) > os.path.getmtime(html):
+                    import subprocess
+                    subprocess.run([sys.executable, build_script], cwd=base, timeout=5)
+            except Exception:
+                pass
+
         if os.path.exists(html):
-            webbrowser.open(f"file://{html}")
+            uri = Path(html).resolve().as_uri()
+            webbrowser.open(uri)
         else:
             messagebox.showwarning("Missing", "CostaSchedule.html not found.")
 
