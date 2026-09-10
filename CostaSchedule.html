@@ -206,9 +206,10 @@ html, body {
   box-sizing: border-box;
 }
 
-/* In No-JS / QuickLook, hide the main app content and bottom nav */
+/* In No-JS / QuickLook, hide the main app content, bottom nav, AND header profile actions */
 .app-main,
-.bottom-nav-bar {
+.bottom-nav-bar,
+.header-actions {
   display: none !important;
 }
 
@@ -222,6 +223,10 @@ html.js-ready .app-main {
 }
 
 html.js-ready .bottom-nav-bar {
+  display: flex !important;
+}
+
+html.js-ready .header-actions {
   display: flex !important;
 }
 
@@ -403,11 +408,33 @@ html.js-ready .bottom-nav-bar {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  max-width: 360px;
+  margin: 12px auto 0;
+  padding: 0 4px;
+}
+
+.ql-offline-icon-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid #CBD5E1;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ql-offline-text {
   font-size: 0.72rem;
+  line-height: 1.35;
   color: #5F7079;
-  text-align: center;
-  padding-top: 6px;
+  text-align: left;
+}
+
+.ql-offline-text strong {
+  color: #0A2A38;
 }
 
 /* =============================================================
@@ -3228,10 +3255,14 @@ input:checked + .slider:before {
 
     <!-- Offline Reassurance Note -->
     <div class="ql-offline-footer">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5F7079" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
-      </svg>
-      <span>100% Offline Ready: Works in Edge at sea without internet or mobile data</span>
+      <div class="ql-offline-icon-circle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5F7079" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+      </div>
+      <div class="ql-offline-text">
+        <span><strong>100% Offline Ready:</strong> Works in Edge at sea without internet or mobile data</span>
+      </div>
     </div>
 
   </div>
