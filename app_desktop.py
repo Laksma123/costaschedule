@@ -385,6 +385,18 @@ class QRModal(ctk.CTkToplevel):
         except Exception:
             pass
 
+        # Ensure keyboard focus for Esc and Space shortcuts (macOS & Windows)
+        self.lift()
+        self.focus_force()
+        self.after(60, self._ensure_focus)
+
+    def _ensure_focus(self):
+        try:
+            self.lift()
+            self.focus_force()
+        except Exception:
+            pass
+
     def _build_ui(self):
         # Top Blue Accent Line (3px)
         ctk.CTkFrame(self, height=3, fg_color=TK["accent"], corner_radius=0).pack(fill="x")
@@ -475,10 +487,28 @@ class QRModal(ctk.CTkToplevel):
         self.btn_next.pack(side="left", fill="x", expand=True, padx=(8, 0))
 
     def _bind_keys(self):
-        self.bind("<Left>", lambda e: self._on_prev())
-        self.bind("<Right>", lambda e: self._on_next())
-        self.bind("<space>", lambda e: self._on_next())
-        self.bind("<Escape>", lambda e: self.destroy())
+        self.bind("<KeyPress>", self._on_key_press)
+        # Re-claim focus if user clicks anywhere in the modal dialog
+        self.bind("<Button-1>", lambda e: self.focus_set())
+        if hasattr(self, "qr_box"):
+            self.qr_box.bind("<Button-1>", lambda e: self.focus_set())
+        if hasattr(self, "qr_image_label"):
+            self.qr_image_label.bind("<Button-1>", lambda e: self.focus_set())
+
+    def _on_key_press(self, event):
+        keysym = (event.keysym or "").lower()
+        if keysym in ("escape", "esc"):
+            self.destroy()
+            return "break"
+        elif keysym in ("space", "return"):
+            self._on_next()
+            return "break"
+        elif keysym in ("left", "up"):
+            self._on_prev()
+            return "break"
+        elif keysym in ("right", "down"):
+            self._on_next()
+            return "break"
 
     def _on_prev(self):
         if self.current_idx > 0:
@@ -928,16 +958,6 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.btn_enlarge_qr.pack(side="left", padx=(0, 8))
 
         # Secondary Outline Action Buttons
-        copy_icon = VectorIcons.get("copy", size=13, color=TK["fg_secondary"])
-        self.btn_copy_payload = ctk.CTkButton(
-            airgap_btns, text=" Copy Payload", image=copy_icon, compound="left",
-            font=Fonts.get("btn_sm"),
-            fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
-            border_width=1, border_color=TK["border_card"],
-            text_color=TK["fg_secondary"], height=38, corner_radius=19,
-            command=self.copy_payload_action
-        )
-        self.btn_copy_payload.pack(side="left", padx=(0, 6))
 
         save_icon = VectorIcons.get("save", size=13, color=TK["fg_secondary"])
         ctk.CTkButton(
