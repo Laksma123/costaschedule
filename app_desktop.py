@@ -958,10 +958,9 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         self.btn_enlarge_qr.pack(side="left", padx=(0, 8))
 
         # Secondary Outline Action Buttons
-
         save_icon = VectorIcons.get("save", size=13, color=TK["fg_secondary"])
         ctk.CTkButton(
-            airgap_btns, text=" Save Backup", image=save_icon, compound="left",
+            airgap_btns, text=" Quick Save", image=save_icon, compound="left",
             font=Fonts.get("btn_sm"),
             fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
             border_width=1, border_color=TK["border_card"],
@@ -971,7 +970,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         export_icon = VectorIcons.get("export", size=13, color=TK["fg_secondary"])
         ctk.CTkButton(
-            airgap_btns, text=" Export JSON", image=export_icon, compound="left",
+            airgap_btns, text=" Save As", image=export_icon, compound="left",
             font=Fonts.get("btn_sm"),
             fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
             border_width=1, border_color=TK["border_card"],
@@ -1658,7 +1657,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
             with open(fpath, "w", encoding="utf-8") as f:
                 json.dump(self.schedule_data, f, indent=2, ensure_ascii=False)
-            messagebox.showinfo("Saved", f"Backup saved:\n{fname}")
+            messagebox.showinfo("Quick Save", f"Schedule saved to internal backup:\n{fname}")
         except Exception as err:
             messagebox.showerror("Save Failed", f"Failed:\n{err}")
 
@@ -1667,13 +1666,13 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             messagebox.showwarning("No Data", "Load a schedule first.")
             return
         out = filedialog.asksaveasfilename(
-            parent=self, title="Export Schedule JSON",
+            parent=self, title="Save Schedule As",
             defaultextension=".json", filetypes=[("JSON", "*.json")]
         )
         if out:
             with open(out, "w", encoding="utf-8") as f:
                 json.dump(self.schedule_data, f, indent=2, ensure_ascii=False)
-            messagebox.showinfo("Exported", f"Saved to:\n{out}")
+            messagebox.showinfo("Save As", f"Saved successfully to:\n{out}")
 
     def open_webapp(self):
         from pathlib import Path
