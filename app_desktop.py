@@ -284,7 +284,7 @@ class VectorIcons:
             p = int(dim * 0.2)
             draw.ellipse([p, p, dim - p, dim - p], outline=color, width=w)
 
-        im = im.resize((size, size), PILImage.Resampling.LANCZOS)
+        # Keep supersampled 4x image for razor-sharp Retina/High-DPI rendering
         ctk_img = ctk.CTkImage(light_image=im, dark_image=im, size=(size, size))
         cls._cache[cache_key] = ctk_img
         return ctk_img
@@ -359,8 +359,9 @@ class QRModal(ctk.CTkToplevel):
 
     def __init__(self, parent, segments, meta_info=None, initial_idx=0):
         super().__init__(parent)
+        self.withdraw()  # Hide window immediately off-screen to avoid bottom-right flash
+
         self.title("Costa Cruises — Airgap QR Codes")
-        self.geometry("640x740")
         self.resizable(False, False)
         self.configure(fg_color=TK["bg_base"])
 
@@ -370,22 +371,31 @@ class QRModal(ctk.CTkToplevel):
         self._qr_ref = None
 
         self.transient(parent)
-        self.grab_set()
+
+        # Pre-compute exact center position relative to parent window
+        w, h = 640, 740
+        try:
+            parent.update_idletasks()
+            px = parent.winfo_rootx()
+            py = parent.winfo_rooty()
+            pw = parent.winfo_width()
+            ph = parent.winfo_height()
+            x = max(0, px + (pw - w) // 2)
+            y = max(0, py + (ph - h) // 2)
+            self.geometry(f"{w}x{h}+{x}+{y}")
+        except Exception:
+            self.geometry(f"{w}x{h}")
 
         self._build_ui()
         self._bind_keys()
         self._show_segment(self.current_idx)
 
-        # Center on parent window
+        # Ensure all widgets inside modal are drawn before showing
         self.update_idletasks()
-        try:
-            x = parent.winfo_x() + (parent.winfo_width() - 640) // 2
-            y = parent.winfo_y() + (parent.winfo_height() - 740) // 2
-            self.geometry(f"+{max(0, x)}+{max(0, y)}")
-        except Exception:
-            pass
 
-        # Ensure keyboard focus for Esc and Space shortcuts (macOS & Windows)
+        # Reveal smoothly at center, grab focus, and elevate
+        self.deiconify()
+        self.grab_set()
         self.lift()
         self.focus_force()
         self.after(60, self._ensure_focus)
@@ -536,7 +546,7 @@ class QRModal(ctk.CTkToplevel):
         qr.add_data(data)
         qr.make(fit=True)
         pil = qr.make_image(fill_color="#000000", back_color="#FFFFFF").convert("RGB")
-        pil = pil.resize((460, 460), PILImage.NEAREST)
+        pil = pil.resize((920, 920), PILImage.NEAREST)
 
         ctk_img = ctk.CTkImage(light_image=pil, dark_image=pil, size=(460, 460))
         self.qr_image_label.configure(image=ctk_img, text="")
@@ -1174,7 +1184,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         qr.make(fit=True)
         pil = qr.make_image(fill_color="#000000", back_color="#FFFFFF").convert("RGB")
         if size:
-            pil = pil.resize((size, size), PILImage.NEAREST)
+            pil = pil.resize((size * 2, size * 2), PILImage.NEAREST)
 
         return ctk.CTkImage(
             light_image=pil, dark_image=pil,
