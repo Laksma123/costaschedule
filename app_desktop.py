@@ -158,235 +158,7 @@ class Fonts:
 
 
 # ─────────────────────────────────────────────────────────────
-# VECTOR CANVAS ENGINE  (100% Native Quartz / GDI HD Vectors)
-# ─────────────────────────────────────────────────────────────
-class VectorCanvas(ctk.CTkCanvas):
-    """
-    100% Vector Canvas Icon Renderer.
-    Renders Lucide-style vector paths directly to Tkinter Canvas via native
-    Quartz (macOS Retina) and GDI+ (Windows DirectWrite), delivering razor-sharp
-    subpixel antialiased HD clarity at any scale factor without bitmap downsampling.
-    """
-    def __init__(self, master, name, size=16, color=None, bg=None, **kwargs):
-        if color is None:
-            color = TK["fg_primary"]
-        if bg is None:
-            try:
-                bg = master.cget("fg_color")
-                if bg in ("transparent", None):
-                    bg = master.cget("bg")
-            except Exception:
-                bg = "#FFFFFF"
-            if bg in ("transparent", None):
-                bg = "#FFFFFF"
-
-        super().__init__(master, width=size, height=size, bg=bg, highlightthickness=0, **kwargs)
-        self.name = name
-        self.size = size
-        self.color = color
-        self.draw()
-
-    def set_color(self, color, bg=None):
-        self.color = color
-        if bg:
-            self.configure(bg=bg)
-        self.draw()
-
-    def draw(self, name=None, size=None, color=None):
-        if name is not None:
-            self.name = name
-        if size is not None:
-            self.size = size
-            self.configure(width=size, height=size)
-        if color is not None:
-            self.color = color
-
-        self.delete("all")
-        s = self.size
-        c = self.color
-        w = 1.6
-        n = self.name
-
-        if n == "calendar":
-            p = 2.5
-            self.create_rectangle(p, p + 2.5, s - p, s - p, outline=c, width=w)
-            self.create_line(p + 3, p, p + 3, p + 3, fill=c, width=w)
-            self.create_line(s - p - 3, p, s - p - 3, p + 3, fill=c, width=w)
-            self.create_line(p, p + 5.5, s - p, p + 5.5, fill=c, width=w)
-        elif n == "map_pin":
-            r = s * 0.25
-            cx, cy = s * 0.5, s * 0.38
-            self.create_oval(cx - r, cy - r, cx + r, cy + r, outline=c, width=w)
-            self.create_line(cx - r * 0.9, cy + r * 0.4, cx, s - 2, fill=c, width=w)
-            self.create_line(cx + r * 0.9, cy + r * 0.4, cx, s - 2, fill=c, width=w)
-            self.create_oval(cx - 1.2, cy - 1.2, cx + 1.2, cy + 1.2, fill=c, outline="")
-        elif n == "folder":
-            p = 2.5
-            pts = [
-                p, p + 3,
-                p + 3.5, p + 3,
-                p + 5.5, p + 1.5,
-                s - p - 1, p + 1.5,
-                s - p - 1, p + 3.5,
-                s - p, p + 3.5,
-                s - p, s - p,
-                p, s - p,
-                p, p + 3
-            ]
-            self.create_polygon(pts, outline=c, fill="", width=w)
-        elif n == "refresh":
-            cx, cy, r = s * 0.5, s * 0.5, s * 0.32
-            self.create_arc(cx - r, cy - r, cx + r, cy + r, start=40, extent=280, style="arc", outline=c, width=w)
-            self.create_line(s * 0.75, s * 0.2, s * 0.88, s * 0.38, fill=c, width=w)
-            self.create_line(s * 0.88, s * 0.38, s * 0.65, s * 0.42, fill=c, width=w)
-        elif n == "search":
-            r = s * 0.26
-            cx, cy = s * 0.42, s * 0.42
-            self.create_oval(cx - r, cy - r, cx + r, cy + r, outline=c, width=w)
-            self.create_line(cx + r * 0.7, cy + r * 0.7, s - 2.5, s - 2.5, fill=c, width=w)
-        elif n == "clear":
-            p = 3.5
-            self.create_line(p, p, s - p, s - p, fill=c, width=w)
-            self.create_line(s - p, p, p, s - p, fill=c, width=w)
-        elif n in ("zoom", "enlarge"):
-            p = 2.5
-            k = 3.5
-            self.create_line(p, p + k, p, p, p + k, p, fill=c, width=w)
-            self.create_line(s - p - k, p, s - p, p, s - p, p + k, fill=c, width=w)
-            self.create_line(p, s - p - k, p, s - p, p + k, s - p, fill=c, width=w)
-            self.create_line(s - p - k, s - p, s - p, s - p, s - p, s - p - k, fill=c, width=w)
-        elif n == "save":
-            p = 2.5
-            self.create_rectangle(p, p, s - p, s - p, outline=c, width=w)
-            self.create_rectangle(p + 3, p, s - p - 3, p + 4, fill=c, outline="")
-            self.create_rectangle(p + 2, s * 0.5, s - p - 2, s - p, outline=c, width=w)
-        elif n == "export":
-            p = 2.5
-            self.create_line(p, s * 0.62, p, s - p, s - p, s - p, s - p, s * 0.62, fill=c, width=w)
-            self.create_line(s * 0.5, p + 1, s * 0.5, s * 0.68, fill=c, width=w)
-            self.create_line(s * 0.3, s * 0.48, s * 0.5, s * 0.68, s * 0.7, s * 0.48, fill=c, width=w)
-        elif n == "copy":
-            self.create_line(s * 0.4, 2, s - 2, 2, s - 2, s * 0.68, fill=c, width=w)
-            self.create_rectangle(2, s * 0.32, s * 0.68, s - 2, outline=c, width=w)
-        elif n == "external":
-            p = 2.5
-            self.create_line(s * 0.55, p, p, p, p, s - p, s - p, s - p, s - p, s * 0.45, fill=c, width=w)
-            self.create_line(s * 0.45, s * 0.55, s - p, p, fill=c, width=w)
-            self.create_line(s * 0.62, p, s - p, p, s - p, s * 0.38, fill=c, width=w)
-        elif n == "check":
-            self.create_line(s * 0.18, s * 0.52, s * 0.42, s * 0.78, s * 0.82, s * 0.24, fill=c, width=int(w * 1.5))
-        elif n == "users":
-            r = s * 0.16
-            self.create_oval(s * 0.38 - r, s * 0.32 - r, s * 0.38 + r, s * 0.32 + r, outline=c, width=w)
-            self.create_arc(s * 0.12, s * 0.55, s * 0.64, s * 0.95, start=0, extent=180, style="arc", outline=c, width=w)
-            self.create_arc(s * 0.50, s * 0.20, s * 0.82, s * 0.52, start=-70, extent=140, style="arc", outline=c, width=w)
-            self.create_arc(s * 0.45, s * 0.55, s * 0.92, s * 0.95, start=0, extent=110, style="arc", outline=c, width=w)
-        elif n == "utensils":
-            self.create_line(s * 0.32, 2, s * 0.32, s - 2, fill=c, width=w)
-            self.create_line(s * 0.20, 2, s * 0.20, s * 0.42, s * 0.44, s * 0.42, s * 0.44, 2, fill=c, width=w)
-            self.create_line(s * 0.72, 2, s * 0.72, s - 2, fill=c, width=w)
-            self.create_arc(s * 0.52, 2, s * 0.92, s * 0.52, start=90, extent=90, style="arc", outline=c, width=w)
-        elif n == "qr":
-            k = 4
-            self.create_rectangle(2, 2, 2 + k, 2 + k, outline=c, width=w)
-            self.create_rectangle(s - 2 - k, 2, s - 2, 2 + k, outline=c, width=w)
-            self.create_rectangle(2, s - 2 - k, 2 + k, s - 2, outline=c, width=w)
-            self.create_rectangle(s - 2 - k, s - 2 - k, s - 2, s - 2, fill=c, outline="")
-        elif n == "ship":
-            pts = [
-                s * 0.15, s * 0.75,
-                s * 0.85, s * 0.75,
-                s * 0.75, s * 0.90,
-                s * 0.25, s * 0.90
-            ]
-            self.create_polygon(pts, outline=c, fill="", width=w)
-            self.create_rectangle(s * 0.30, s * 0.50, s * 0.70, s * 0.75, outline=c, width=w)
-            self.create_rectangle(s * 0.55, s * 0.30, s * 0.65, s * 0.50, fill=c, outline="")
-        elif n == "clock":
-            cx, cy, r = s * 0.5, s * 0.5, s * 0.35
-            self.create_oval(cx - r, cy - r, cx + r, cy + r, outline=c, width=w)
-            self.create_line(cx, cy, cx, cy - r * 0.6, fill=c, width=w)
-            self.create_line(cx, cy, cx + r * 0.5, cy, fill=c, width=w)
-        else:
-            p = 2
-            self.create_oval(p, p, s - p, s - p, outline=c, width=w)
-
-    @classmethod
-    def attach_to_button(cls, btn, icon_name, size=16, color=None, compound="left"):
-        """Attach a razor-sharp vector canvas icon directly inside a CTkButton."""
-        if color is None:
-            color = btn.cget("text_color")
-        
-        bg = btn.cget("fg_color")
-        if bg in ("transparent", None):
-            try:
-                bg = btn.master.cget("fg_color")
-            except Exception:
-                bg = "#FFFFFF"
-        hover_bg = btn.cget("hover_color")
-        if hover_bg in ("transparent", None):
-            hover_bg = bg
-
-        btn._image = True  # Prevent CTkButton._draw from destroying _image_label!
-
-        if hasattr(btn, "_vector_canvas") and btn._vector_canvas is not None:
-            try:
-                vc = btn._vector_canvas
-                vc.draw(name=icon_name, size=size, color=color)
-                vc.configure(bg=bg)
-                return vc
-            except Exception:
-                pass
-
-        vc = cls(btn, icon_name, size=size, color=color, bg=bg)
-        btn._vector_canvas = vc
-        btn._image_label = vc
-        btn._compound = compound
-        btn._create_grid()
-
-        def on_enter(e):
-            try:
-                vc.configure(bg=btn.cget("hover_color"))
-            except Exception:
-                pass
-            btn._on_enter(e)
-
-        def on_leave(e):
-            try:
-                vc.configure(bg=btn.cget("fg_color"))
-            except Exception:
-                pass
-            btn._on_leave(e)
-
-        vc.bind("<Enter>", on_enter)
-        vc.bind("<Leave>", on_leave)
-        vc.bind("<Button-1>", btn._clicked)
-
-        orig_enter = btn._on_enter
-        orig_leave = btn._on_leave
-        def wrapped_enter(e):
-            try:
-                vc.configure(bg=btn.cget("hover_color"))
-            except Exception:
-                pass
-            orig_enter(e)
-        def wrapped_leave(e):
-            try:
-                vc.configure(bg=btn.cget("fg_color"))
-            except Exception:
-                pass
-            orig_leave(e)
-
-        btn._on_enter = wrapped_enter
-        btn._on_leave = wrapped_leave
-        btn.bind("<Enter>", wrapped_enter)
-        btn.bind("<Leave>", wrapped_leave)
-
-        return vc
-
-
-# ─────────────────────────────────────────────────────────────
-# VECTOR ICON ENGINE  (100% Crisp Vector SVG, Zero Emojis)
+# VECTOR ICON ENGINE  (Smooth Lucide Curves, Zero Emojis)
 # ─────────────────────────────────────────────────────────────
 class VectorIcons:
     """Renders crisp vector line icons via PyMuPDF SVG engine with supersampled antialiasing."""
@@ -945,7 +717,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         title_box = ctk.CTkFrame(brand, fg_color="transparent")
         title_box.pack(side="left", fill="y", pady=6)
 
-        # "COSTA SMERALDA." with +20% Yellow/Orange Dot
+        # "COSTA SMERALDA." with +20% Yellow Dot aligned to text baseline
         title_frame = ctk.CTkFrame(title_box, fg_color="transparent")
         title_frame.pack(anchor="w")
         
@@ -955,10 +727,10 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         )
         self.lbl_brand_title.pack(side="left")
         
-        ctk.CTkLabel(
-            title_frame, text=".",
-            font=Fonts.get("title_dot"), text_color=TK["gold_accent"]
-        ).pack(side="left")
+        # Perfect circular yellow dot resting strictly on text baseline (per costaassets/text guidelines.png)
+        dot_cv = tk.Canvas(title_frame, width=8, height=28, bg=TK["bg_base"], highlightthickness=0)
+        dot_cv.pack(side="left", padx=(1, 0))
+        dot_cv.create_oval(0, 15, 7, 22, fill=TK["gold_accent"], outline="")
 
         ctk.CTkLabel(
             title_box, text="RESTAURANT SCHEDULE EXPORTER",
@@ -986,28 +758,37 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         ctk.CTkFrame(self, height=1, fg_color=TK["border_inner"], corner_radius=0).pack(fill="x")
 
     def _make_telemetry_badge(self, parent, icon_name, text, text_color, bg_color=None, border_color=None):
-        bg = bg_color or TK["surface_inner"]
         pill = ctk.CTkFrame(
             parent,
             height=32,
             corner_radius=16,
-            fg_color=bg,
+            fg_color=bg_color or TK["surface_inner"],
             border_width=1,
             border_color=border_color or TK["border_card"]
         )
         pill.pack(side="left", padx=4, pady=12)
 
-        vc = VectorCanvas(pill, icon_name, size=16, color=text_color, bg=bg)
-        vc.pack(side="left", padx=(12, 6), pady=6)
-
+        icon_img = VectorIcons.get(icon_name, size=14, color=text_color)
         lbl = ctk.CTkLabel(
             pill,
-            text=text,
+            image=icon_img,
+            text=f"  {text}",
+            compound="left",
             font=Fonts.get("small_bold"),
             text_color=text_color,
             height=30
         )
-        lbl.pack(side="left", padx=(0, 12), pady=1)
+        lbl.pack(padx=12, pady=1)
+
+        # Ensure future .configure(text=...) calls preserve leading space
+        orig_configure = lbl.configure
+        def _safe_configure(**kwargs):
+            if "text" in kwargs:
+                t = str(kwargs["text"])
+                if not t.startswith("  "):
+                    kwargs["text"] = f"  {t}"
+            return orig_configure(**kwargs)
+        lbl.configure = _safe_configure
 
         return lbl
 
@@ -1042,7 +823,11 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         file_pill.pack_propagate(False)
 
         # File vector icon
-        VectorCanvas(file_pill, "folder", size=16, color=TK["fg_secondary"], bg=TK["bg_base"]).pack(side="left", padx=(12, 6), pady=3)
+        ctk.CTkLabel(
+            file_pill, text="",
+            image=VectorIcons.get("folder", size=16, color=TK["fg_secondary"]),
+            width=16
+        ).pack(side="left", padx=(12, 6), pady=3)
 
         self.lbl_file = ctk.CTkLabel(
             file_pill, text=self._file_display_text(),
@@ -1053,6 +838,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         # Browse Button (Outline Pill)
         btn_browse = ctk.CTkButton(
             file_pill, text=" Browse", compound="left",
+            image=VectorIcons.get("folder", size=14, color=TK["fg_primary"]),
             font=Fonts.get("btn_sm"),
             fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
             border_width=1, border_color=TK["border_card"],
@@ -1060,11 +846,11 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self.browse_file
         )
         btn_browse.pack(side="right", padx=5, pady=4)
-        VectorCanvas.attach_to_button(btn_browse, "folder", size=14, color=TK["fg_primary"])
 
         # Reload Button (Outline Pill)
         btn_reload = ctk.CTkButton(
             file_pill, text=" Reload", compound="left",
+            image=VectorIcons.get("refresh", size=14, color=TK["fg_secondary"]),
             font=Fonts.get("btn_sm"),
             fg_color=TK["surface_hover"], hover_color=TK["surface_active"],
             border_width=1, border_color=TK["border_card"],
@@ -1072,7 +858,6 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self.process_schedule
         )
         btn_reload.pack(side="right", padx=(0, 3), pady=4)
-        VectorCanvas.attach_to_button(btn_reload, "refresh", size=14, color=TK["fg_secondary"])
 
         # Meal Shift Selector (HTML/APK Outline Pill Style)
         shift_box = ctk.CTkFrame(r1, fg_color="transparent")
@@ -1105,7 +890,11 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         search_wrap.pack(side="left", fill="x", expand=True, padx=(0, 12))
         search_wrap.pack_propagate(False)
 
-        VectorCanvas(search_wrap, "search", size=16, color=TK["fg_subtle"], bg=TK["bg_base"]).pack(side="left", padx=(12, 6), pady=3)
+        ctk.CTkLabel(
+            search_wrap, text="",
+            image=VectorIcons.get("search", size=16, color=TK["fg_subtle"]),
+            width=16
+        ).pack(side="left", padx=(12, 6), pady=3)
 
         self.search_entry = ctk.CTkEntry(
             search_wrap,
@@ -1119,11 +908,11 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         btn_clear = ctk.CTkButton(
             search_wrap, text="", width=22, height=22, corner_radius=11,
+            image=VectorIcons.get("clear", size=12, color=TK["fg_subtle"]),
             fg_color="transparent", hover_color=TK["surface_hover"],
             command=self._clear_search
         )
         btn_clear.pack(side="right", padx=6, pady=4)
-        VectorCanvas.attach_to_button(btn_clear, "clear", size=12, color=TK["fg_subtle"])
 
         # Filter Pills (HTML/APK Outline Pill Style)
         self.filter_pills = OutlinePillGroup(
@@ -1221,17 +1010,18 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         # One Primary Yellow Action Button
         self.btn_enlarge_qr = ctk.CTkButton(
             airgap_btns, text=" ENLARGE QR CODE (FULL SCREEN)", compound="left",
+            image=VectorIcons.get("zoom", size=16, color=TK["fg_primary"]),
             font=Fonts.get("btn"),
             fg_color=TK["gold_accent"], hover_color=TK["gold_hover"],
             text_color=TK["fg_primary"], height=38, corner_radius=19,
             command=lambda: self.open_qr_modal(0)
         )
         self.btn_enlarge_qr.pack(side="left", padx=(0, 8))
-        VectorCanvas.attach_to_button(self.btn_enlarge_qr, "zoom", size=16, color=TK["fg_primary"])
 
         # Secondary Outline Action Buttons
         self.btn_quick_save = ctk.CTkButton(
             airgap_btns, text=" Quick Save", compound="left",
+            image=VectorIcons.get("save", size=15, color=TK["fg_secondary"]),
             font=Fonts.get("btn_sm"),
             fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
             border_width=1, border_color=TK["border_card"],
@@ -1239,10 +1029,10 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self.save_json_backup_action
         )
         self.btn_quick_save.pack(side="left", padx=(0, 6))
-        VectorCanvas.attach_to_button(self.btn_quick_save, "save", size=15, color=TK["fg_secondary"])
 
         self.btn_save_as = ctk.CTkButton(
             airgap_btns, text=" Save As", compound="left",
+            image=VectorIcons.get("export", size=15, color=TK["fg_secondary"]),
             font=Fonts.get("btn_sm"),
             fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
             border_width=1, border_color=TK["border_card"],
@@ -1250,7 +1040,6 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self.export_json_action
         )
         self.btn_save_as.pack(side="left")
-        VectorCanvas.attach_to_button(self.btn_save_as, "export", size=15, color=TK["fg_secondary"])
 
         # ── Right Column: Dual QR Code Preview Cards (Fixed Width ~290px, No Cutoff!) ──
         self.qr_preview_container = ctk.CTkFrame(qr_inner, fg_color="transparent")
@@ -1284,16 +1073,15 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         )
         self.qr_a_label.pack(expand=True)
 
-        zoom_row_a = ctk.CTkFrame(self.qr_a_sub, fg_color="transparent")
-        zoom_row_a.pack(pady=(4, 6))
-        VectorCanvas(zoom_row_a, "zoom", size=11, color=TK["fg_secondary"], bg=TK["surface_inner"]).pack(side="left", padx=(0, 4))
         self.lbl_zoom_a = ctk.CTkLabel(
-            zoom_row_a, text="Click to enlarge",
+            self.qr_a_sub, text=" Click to enlarge",
+            image=VectorIcons.get("zoom", size=11, color=TK["fg_secondary"]),
+            compound="left",
             font=Fonts.get("qr_label"), text_color=TK["fg_secondary"]
         )
-        self.lbl_zoom_a.pack(side="left")
+        self.lbl_zoom_a.pack(pady=(4, 6))
 
-        for w in (self.qr_a_sub, self.qr_a_box, self.qr_a_label, zoom_row_a, self.lbl_zoom_a):
+        for w in (self.qr_a_sub, self.qr_a_box, self.qr_a_label, self.lbl_zoom_a):
             w.bind("<Button-1>", lambda e: self.open_qr_modal(0))
 
         # QR Part 2 Card
@@ -1324,16 +1112,15 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         )
         self.qr_b_label.pack(expand=True)
 
-        zoom_row_b = ctk.CTkFrame(self.qr_b_sub, fg_color="transparent")
-        zoom_row_b.pack(pady=(4, 6))
-        VectorCanvas(zoom_row_b, "zoom", size=11, color=TK["fg_secondary"], bg=TK["surface_inner"]).pack(side="left", padx=(0, 4))
         self.lbl_zoom_b = ctk.CTkLabel(
-            zoom_row_b, text="Click to enlarge",
+            self.qr_b_sub, text=" Click to enlarge",
+            image=VectorIcons.get("zoom", size=11, color=TK["fg_secondary"]),
+            compound="left",
             font=Fonts.get("qr_label"), text_color=TK["fg_secondary"]
         )
-        self.lbl_zoom_b.pack(side="left")
+        self.lbl_zoom_b.pack(pady=(4, 6))
 
-        for w in (self.qr_b_sub, self.qr_b_box, self.qr_b_label, zoom_row_b, self.lbl_zoom_b):
+        for w in (self.qr_b_sub, self.qr_b_box, self.qr_b_label, self.lbl_zoom_b):
             w.bind("<Button-1>", lambda e: self.open_qr_modal(1))
 
         # ── 3. Cards container ──
@@ -1358,14 +1145,12 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         inner.pack(fill="both", expand=True, padx=14, pady=12)
 
         # Tag with vector icon
-        tag_row = ctk.CTkFrame(inner, fg_color="transparent")
-        tag_row.pack(fill="x")
-        
-        VectorCanvas(tag_row, icon_name, size=15, color=TK["accent"], bg=TK["surface_card"]).pack(side="left", padx=(0, 6))
-
         ctk.CTkLabel(
-            tag_row, text=tag, font=Fonts.get("tiny"), text_color=TK["fg_subtle"]
-        ).pack(side="left")
+            inner, text=f"  {tag}",
+            image=VectorIcons.get(icon_name, size=15, color=TK["accent"]),
+            compound="left",
+            font=Fonts.get("tiny"), text_color=TK["fg_subtle"], anchor="w"
+        ).pack(fill="x")
 
         title_lbl = ctk.CTkLabel(
             inner, text=title, font=Fonts.get("stat_val"),
@@ -1398,6 +1183,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         # Primary Action CTA — Costa Yellow (One Yellow Button Rule)
         self.btn_primary = ctk.CTkButton(
             inner, text=" COPY SCHEDULE TO CLIPBOARD", compound="left",
+            image=VectorIcons.get("copy", size=16, color=TK["fg_primary"]),
             font=Fonts.get("btn"),
             fg_color=TK["gold_accent"], hover_color=TK["gold_hover"],
             text_color=TK["fg_primary"],  # Dark text on yellow (8:1 contrast)
@@ -1405,11 +1191,11 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self._primary_action
         )
         self.btn_primary.pack(side="left", fill="x", expand=True, padx=(0, 12))
-        VectorCanvas.attach_to_button(self.btn_primary, "copy", size=16, color=TK["fg_primary"])
 
         # Secondary Outline: Open WebApp
         self.btn_open_web = ctk.CTkButton(
             inner, text=" Open WebApp", compound="left",
+            image=VectorIcons.get("external", size=15, color=TK["fg_secondary"]),
             font=Fonts.get("btn_sm"),
             fg_color=TK["bg_base"], hover_color=TK["surface_hover"],
             border_width=1, border_color=TK["border_card"],
@@ -1417,7 +1203,6 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             command=self.open_webapp
         )
         self.btn_open_web.pack(side="right")
-        VectorCanvas.attach_to_button(self.btn_open_web, "external", size=15, color=TK["fg_secondary"])
 
         # Live Status Label
         self.lbl_status = ctk.CTkLabel(
@@ -1903,21 +1688,21 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
 
         self.btn_primary.configure(
             text=" COPIED — READY TO PASTE ON WHATSAPP",
+            image=VectorIcons.get("check", size=16, color="#FFFFFF"),
             fg_color=TK["good_ink"],
             hover_color=TK["good_ink"],
             text_color="#FFFFFF"
         )
-        VectorCanvas.attach_to_button(self.btn_primary, "check", size=16, color="#FFFFFF")
         self._toast_job = self.after(2400, self._restore_primary_btn)
 
     def _restore_primary_btn(self):
         self.btn_primary.configure(
             text=" COPY SCHEDULE TO CLIPBOARD",
+            image=VectorIcons.get("copy", size=16, color=TK["fg_primary"]),
             fg_color=TK["gold_accent"],
             hover_color=TK["gold_hover"],
             text_color=TK["fg_primary"]
         )
-        VectorCanvas.attach_to_button(self.btn_primary, "copy", size=16, color=TK["fg_primary"])
 
     def save_json_backup_action(self):
         if not self.schedule_data:
@@ -1954,6 +1739,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             messagebox.showinfo("Save As", f"Saved successfully to:\n{out}")
 
     def open_webapp(self):
+        import subprocess
         from pathlib import Path
         base = os.path.dirname(os.path.abspath(__file__))
         html = os.path.join(base, "CostaSchedule.html")
@@ -1964,14 +1750,20 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         if os.path.exists(build_script) and os.path.exists(web_index) and os.path.exists(html):
             try:
                 if os.path.getmtime(web_index) > os.path.getmtime(html):
-                    import subprocess
                     subprocess.run([sys.executable, build_script], cwd=base, timeout=5)
             except Exception:
                 pass
 
         if os.path.exists(html):
-            uri = Path(html).resolve().as_uri()
-            webbrowser.open(uri)
+            if sys.platform == "darwin":
+                subprocess.Popen(["open", html])
+            elif sys.platform == "win32":
+                os.startfile(html)
+            else:
+                try:
+                    subprocess.Popen(["xdg-open", html])
+                except Exception:
+                    webbrowser.open(Path(html).resolve().as_uri())
         else:
             messagebox.showwarning("Missing", "CostaSchedule.html not found.")
 
