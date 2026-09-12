@@ -669,6 +669,33 @@ function matchesSearchQuery(query, name, extra1, extra2, extra3) {
   return false;
 }
 
+// Clear containers to prevent stale data lingering across shifts
+function clearVenuesContainers() {
+  const md = document.getElementById('bodyMainDining');
+  const bv = document.getElementById('bodyBuffet');
+  const cmd = document.getElementById('countMainDining');
+  const cbv = document.getElementById('countBuffet');
+  if (md) md.innerHTML = '';
+  if (bv) bv.innerHTML = '';
+  if (cmd) cmd.innerText = '0';
+  if (cbv) cbv.innerText = '0';
+}
+
+function clearOperationsContainers() {
+  const bd = document.getElementById('bodyDuties');
+  const be = document.getElementById('bodySpecialEvents');
+  const bs = document.getElementById('bodySickLeave');
+  const cd = document.getElementById('countDuties');
+  const ce = document.getElementById('countSpecialEvents');
+  const cs = document.getElementById('countSickLeave');
+  if (bd) bd.innerHTML = '';
+  if (be) be.innerHTML = '';
+  if (bs) bs.innerHTML = '';
+  if (cd) cd.innerText = '0';
+  if (ce) ce.innerText = '0';
+  if (cs) cs.innerText = '0';
+}
+
 // ==========================================
 // RENDER ENGINE (Newspaper Editorial System)
 // ==========================================
@@ -684,10 +711,39 @@ function renderSchedule() {
   updateUserProfilePill();
   updateAlarmButtonVisibility();
 
+  const mealName = state.currentMeal ? (state.currentMeal.charAt(0).toUpperCase() + state.currentMeal.slice(1).toLowerCase()) : 'Shift';
+
   if (!schedule) {
     if (emptyState) emptyState.classList.remove('hidden');
     if (scheduleContent) scheduleContent.classList.add('hidden');
     if (overviewWrap) overviewWrap.classList.add('hidden');
+
+    const venuesEmpty = document.getElementById('venuesEmptyState');
+    if (venuesEmpty) {
+      venuesEmpty.classList.remove('hidden');
+      const vTitle = document.getElementById('venuesEmptyMealTitle');
+      if (vTitle) vTitle.innerText = `No ${mealName} Schedule Loaded`;
+    }
+    const btnVenues = document.getElementById('toggleVenuesAccordionBtn');
+    if (btnVenues) btnVenues.style.display = 'none';
+
+    const opsEmpty = document.getElementById('operationsEmptyState');
+    const opsContent = document.getElementById('operationsContent');
+    if (opsEmpty) {
+      opsEmpty.classList.remove('hidden');
+      const oTitle = document.getElementById('operationsEmptyMealTitle');
+      if (oTitle) oTitle.innerText = `No ${mealName} Operations Loaded`;
+    }
+    if (opsContent) opsContent.classList.add('hidden');
+    const btnOps = document.getElementById('toggleOperationsAccordionBtn');
+    if (btnOps) btnOps.style.display = 'none';
+
+    clearVenuesContainers();
+    clearOperationsContainers();
+
+    const countEl = document.getElementById('searchCount');
+    if (countEl) countEl.innerHTML = '';
+
     const dDate = document.getElementById('displayDate');
     if (dDate) dDate.innerText = 'No Date';
     const dPortName = document.getElementById('displayPortName');
@@ -707,6 +763,18 @@ function renderSchedule() {
   if (emptyState) emptyState.classList.add('hidden');
   if (scheduleContent) scheduleContent.classList.remove('hidden');
   if (overviewWrap) overviewWrap.classList.remove('hidden');
+
+  const venuesEmpty = document.getElementById('venuesEmptyState');
+  if (venuesEmpty) venuesEmpty.classList.add('hidden');
+  const btnVenues = document.getElementById('toggleVenuesAccordionBtn');
+  if (btnVenues) btnVenues.style.display = '';
+
+  const opsEmpty = document.getElementById('operationsEmptyState');
+  if (opsEmpty) opsEmpty.classList.add('hidden');
+  const opsContent = document.getElementById('operationsContent');
+  if (opsContent) opsContent.classList.remove('hidden');
+  const btnOps = document.getElementById('toggleOperationsAccordionBtn');
+  if (btnOps) btnOps.style.display = '';
 
   // Update Newspaper Masthead & Port Headline
   const portUpper = (schedule.port || 'KAOHSIUNG').toUpperCase();
@@ -2195,6 +2263,20 @@ function setupEventListeners() {
       renderSchedule();
     });
   });
+
+  const jumpToLunch = () => {
+    state.currentMeal = 'LUNCH';
+    document.querySelectorAll('#mealTabs button').forEach(b => {
+      b.classList.toggle('active', b.dataset.meal === 'LUNCH');
+    });
+    renderSchedule();
+  };
+
+  const vLunchBtn = document.getElementById('venuesJumpToLunchBtn');
+  if (vLunchBtn) vLunchBtn.addEventListener('click', jumpToLunch);
+
+  const oLunchBtn = document.getElementById('opsJumpToLunchBtn');
+  if (oLunchBtn) oLunchBtn.addEventListener('click', jumpToLunch);
 
   // Bottom Navigation Bar Tabs
   document.querySelectorAll('#bottomNavBar .nav-tab-btn').forEach(btn => {
