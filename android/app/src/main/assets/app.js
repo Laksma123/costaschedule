@@ -1061,7 +1061,7 @@ function updatePillDisplay(userDuty, defaultShiftText) {
 
   if (!hasUserProfile()) {
     pill.className = 'shift-pill pill-empty';
-    pillText.innerText = 'TAP PROFILE TO SET';
+    pillText.innerText = 'NO PROFILE SET';
     return;
   }
 
@@ -2472,52 +2472,6 @@ function setupEventListeners() {
     document.getElementById('settingsModal').classList.add('hidden');
     showToast('✅ Settings saved!');
     renderSchedule();
-  });
-
-  // Shift Pill Click: Focus / Filter to User's Assigned Duty
-  document.getElementById('displayShift').addEventListener('click', () => {
-    if (!hasUserProfile()) {
-      openSettingsModal();
-      return;
-    }
-
-    const schedule = state.schedules[state.currentDay][state.currentMeal];
-    if (!schedule) {
-      showToast('⚠️ No schedule loaded for this shift.');
-      return;
-    }
-
-    const userDuty = findUserDuty(schedule);
-    if (!userDuty) {
-      showToast('⚠️ You are not scheduled in this shift.');
-      return;
-    }
-
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearchBtn');
-    const userSearchQuery = (state.profile.name || '').trim();
-
-    // Toggle behavior: If already filtered by user query, clear it
-    if (state.searchQuery && state.searchQuery.toLowerCase() === userSearchQuery.toLowerCase()) {
-      searchInput.value = '';
-      state.searchQuery = '';
-      clearBtn.classList.add('hidden');
-      renderSchedule();
-      showToast('📋 Showing full schedule');
-    } else {
-      searchInput.value = userSearchQuery;
-      state.searchQuery = userSearchQuery;
-      clearBtn.classList.remove('hidden');
-      renderSchedule();
-      showToast(`🎯 Focused on your duty: ${userDuty.station || userDuty.venue}`);
-
-      setTimeout(() => {
-        const highlightedRow = document.querySelector('.highlight-my-row');
-        if (highlightedRow) {
-          highlightedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 120);
-    }
   });
 }
 
