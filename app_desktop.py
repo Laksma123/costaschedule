@@ -1393,7 +1393,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             if a.get("tables"):
                 tk.Label(
                     row, text=a["tables"],
-                    font=Fonts.get("mono_sm"), fg=TK["fg_secondary"], bg=bg,
+                    font=Fonts.get("mono_sm"), fg=TK["fg_primary"], bg=bg,
                     anchor="e"
                 ).pack(side="right", padx=8, pady=5)
 
