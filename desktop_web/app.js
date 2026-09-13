@@ -692,7 +692,7 @@ function renderCards() {
         html += '<div class="r-card-body"><div class="chip-row">';
 
         filtered.forEach(c => {
-          html += '<span class="crew-chip chip-secondary">' + escapeHtml(c.name || '') + '</span>';
+          html += '<span class="crew-chip">' + escapeHtml(c.name || '') + '</span>';
         });
 
         html += '</div></div></article>';

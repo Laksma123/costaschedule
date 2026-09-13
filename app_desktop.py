@@ -1385,7 +1385,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             if a.get("attendantName"):
                 tk.Label(
                     row, text=f"/ {a['attendantName']}",
-                    font=Fonts.get("body"), fg=TK["fg_secondary"], bg=bg,
+                    font=Fonts.get("body"), fg=TK["fg_primary"], bg=bg,
                     anchor="w"
                 ).pack(side="left", padx=4)
 
@@ -1428,7 +1428,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
             role = f" — {c['role']}" if c.get("role") else ""
             tk.Label(
                 chip_row, text=f"  {c.get('name', '')}{role}  ",
-                font=Fonts.get("small"), fg=TK["fg_primary"], bg=TK["surface_inner"],
+                font=Fonts.get("small_bold"), fg=TK["fg_primary"], bg=TK["surface_inner"],
                 highlightthickness=1, highlightbackground=TK["border_subtle"],
                 pady=2
             ).pack(side="left", padx=3, pady=3)
@@ -1460,7 +1460,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
         for c in crew:
             tk.Label(
                 chip_row, text=f"  {c.get('name', '')}  ",
-                font=Fonts.get("small"), fg=TK["fg_secondary"], bg=TK["surface_inner"],
+                font=Fonts.get("small_bold"), fg=TK["fg_primary"], bg=TK["surface_inner"],
                 highlightthickness=1, highlightbackground=TK["border_subtle"],
                 pady=2
             ).pack(side="left", padx=3, pady=2)
@@ -1497,7 +1497,7 @@ class CostaDesktopApp(ctk.CTk, TkinterDnD.DnDWrapper if HAS_DND else object):
                 tk.Label(
                     p_frame,
                     text=f"  {p.get('name')} [{p.get('uniform')}]  ",
-                    font=Fonts.get("mono_sm"), fg=TK["fg_secondary"], bg=TK["surface_card"],
+                    font=Fonts.get("small_bold"), fg=TK["fg_primary"], bg=TK["surface_card"],
                     highlightthickness=1, highlightbackground=TK["border_card"],
                     pady=2
                 ).pack(side="left", padx=2, pady=2)
