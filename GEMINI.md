@@ -32,6 +32,9 @@
 ### 4. Folder Structure & Deliverable Boundaries
 - **`web/`** — Source code HTML app (editable, readable, TIDAK di-minify)
 - **`CostaSchedule.html`** — Production build output (minified, single-file, distributable)
+- **`desktop_web/`** — Source code Desktop Exporter HTML app (editable, readable, unminified)
+- **`CostaExporter.html`** — Production build output Desktop Exporter (minified, single-file, zero-install)
+- **`build_desktop_html.py`** — Build script untuk me-rebuild `CostaExporter.html` dari `desktop_web/`
 - **`app_desktop.py`** — Desktop exporter app (Python + customtkinter)
 - **`app.py` + `frontend/`** — Desktop app alternatif (Python + pywebview + React)
 - **`exporter.py`** — Core parsing & encoding engine (shared oleh semua app)

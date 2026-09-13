@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Costa Cruises — Schedule Exporter</title>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Hidden File Input for Browse -->
+  <input type="file" id="file-input" accept=".xlsx,.xls" style="display: none;">
+
+  <!-- 3px Costa Blue Accent Line at Very Top -->
+  <div class="top-accent-line"></div>
+
+  <!-- TOP BAR / MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand-group">
+        <img src="logo.png" alt="Costa Logo" class="brand-logo" id="brand-logo">
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <span class="brand-title" id="lbl-brand-title">COSTA SMERALDA</span>
+            <span class="title-dot">.</span>
+          </div>
+          <span class="brand-sub">RESTAURANT SCHEDULE EXPORTER</span>
+        </div>
+      </div>
+      <div class="telemetry-badges">
+        <div class="telemetry-badge badge-date" id="badge-date-wrap">
+          <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="badge-date">August 23, 2026</span>
+        </div>
+        <div class="telemetry-badge badge-port" id="badge-port-wrap">
+          <svg class="v-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="badge-port">KAOHSIUNG</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTROL STRIP -->
+  <section class="control-strip">
+    <div class="control-inner">
+      <!-- Row 1: Source File + Meal Shift -->
+      <div class="control-row row-1">
+        <div class="file-box">
+          <label class="control-label">SOURCE ROSTER (.XLSX)</label>
+          <div class="file-pill">
+            <svg class="v-icon icon-slate file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span class="file-name" id="lbl-file">Costa_Serena_Schedule_Sample.xlsx</span>
+            <div class="file-actions">
+              <button class="pill-btn-sm" id="btn-browse" type="button">
+                <svg class="v-icon icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span>Browse</span>
+              </button>
+              <button class="pill-btn-sm btn-reload" id="btn-reload" type="button">
+                <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                <span>Reload</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="shift-box">
+          <label class="control-label">MEAL SHIFT</label>
+          <div class="outline-pill-group" id="shift-pills">
+            <button class="outline-pill-btn" data-value="BREAKFAST" type="button">Breakfast</button>
+            <button class="outline-pill-btn active" data-value="LUNCH" type="button">Lunch</button>
+            <button class="outline-pill-btn" data-value="DINNER" type="button">Dinner</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Search Entry + Filter Pills -->
+      <div class="control-row row-2">
+        <div class="search-wrap">
+          <svg class="v-icon icon-faint search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-entry" class="search-input" placeholder="Search crew name, station, table, duty..." autocomplete="off" spellcheck="false">
+          <button class="btn-clear" id="btn-clear-search" type="button" aria-label="Clear search">
+            <svg class="v-icon icon-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="filter-box">
+          <div class="outline-pill-group" id="filter-pills">
+            <button class="outline-pill-btn active" data-filter="ALL" type="button">All</button>
+            <button class="outline-pill-btn" data-filter="MAIN DINING" type="button">Main Dining</button>
+            <button class="outline-pill-btn" data-filter="BUFFET & OUTLETS" type="button">Buffet & Outlets</button>
+            <button class="outline-pill-btn" data-filter="SIDE DUTIES" type="button">Side Duties</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN SCROLLABLE CONTENT AREA -->
+  <main class="content-scroll">
+    <div class="content-inner">
+
+      <!-- 1. Telemetry Stats Row (4 Stat Cards) -->
+      <section class="stats-grid">
+        <div class="stat-card" id="card-stat-port">
+          <div class="stat-tag">
+            <svg class="v-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>PORT & MEAL</span>
+          </div>
+          <div class="stat-val" id="stat-port-val">KAOHSIUNG / LUNCH</div>
+          <div class="stat-sub" id="stat-port-sub">August 23, 2026</div>
+        </div>
+
+        <div class="stat-card" id="card-stat-crew">
+          <div class="stat-tag">
+            <svg class="v-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>ACTIVE ROSTER</span>
+          </div>
+          <div class="stat-val" id="stat-crew-val">0 Crew</div>
+          <div class="stat-sub" id="stat-crew-sub">0 Sections</div>
+        </div>
+
+        <div class="stat-card" id="card-stat-stations">
+          <div class="stat-tag">
+            <svg class="v-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v20M2 2v8a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V2M6 2v20"/></svg>
+            <span>DINING STATIONS</span>
+          </div>
+          <div class="stat-val" id="stat-stations-val">0 Tables</div>
+          <div class="stat-sub" id="stat-stations-sub">0 Venues</div>
+        </div>
+
+        <div class="stat-card" id="card-stat-payload">
+          <div class="stat-tag">
+            <svg class="v-icon icon-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+            <span>ENCODED STREAM</span>
+          </div>
+          <div class="stat-val" id="stat-payload-val">0 Chars</div>
+          <div class="stat-sub" id="stat-payload-sub">0 Bytes</div>
+        </div>
+      </section>
+
+      <!-- 2. Airgap QR Section -->
+      <section class="airgap-card">
+        <div class="airgap-inner">
+          <div class="airgap-info">
+            <div class="airgap-tag-row">
+              <span class="airgap-dot"></span>
+              <span class="airgap-tag">OFFLINE AIRGAP SYSTEM • SHIP IT COMPLIANT</span>
+            </div>
+            <h2 class="airgap-title">Send Schedule via WhatsApp (2 Scans)</h2>
+            <p class="airgap-desc" id="airgap-desc">
+              1. Point phone camera at QR preview or click 'ENLARGE QR CODE'.<br>
+              2. Tap 'Copy text' on phone, then paste into WhatsApp.<br>
+              3. Repeat for Part 2 to transfer complete encrypted roster.
+            </p>
+            <div class="airgap-actions">
+              <button class="btn-primary-pill" id="btn-enlarge-qr" type="button">
+                <svg class="v-icon icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 15 21 21 15 21"/><polyline points="3 9 3 3 9 3"/></svg>
+                <span>ENLARGE QR CODE (FULL SCREEN)</span>
+              </button>
+              <button class="outline-pill-action" id="btn-quick-save" type="button">
+                <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Quick Save</span>
+              </button>
+              <button class="outline-pill-action" id="btn-save-as" type="button">
+                <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Save As</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dual QR Code Preview Cards -->
+          <div class="qr-preview-container">
+            <div class="qr-preview-card" id="qr-card-1" role="button" tabindex="0" title="Click to enlarge Part 1">
+              <span class="qr-preview-tag">PART 1 OF 2</span>
+              <div class="qr-preview-box" id="qr-box-1">
+                <span class="qr-placeholder-text">Part 1<br>(Click to zoom)</span>
+              </div>
+              <div class="qr-preview-zoom">
+                <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 15 21 21 15 21"/><polyline points="3 9 3 3 9 3"/></svg>
+                <span>Click to enlarge</span>
+              </div>
+            </div>
+
+            <div class="qr-preview-card" id="qr-card-2" role="button" tabindex="0" title="Click to enlarge Part 2">
+              <span class="qr-preview-tag">PART 2 OF 2</span>
+              <div class="qr-preview-box" id="qr-box-2">
+                <span class="qr-placeholder-text">Part 2<br>(Click to zoom)</span>
+              </div>
+              <div class="qr-preview-zoom">
+                <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 15 21 21 15 21"/><polyline points="3 9 3 3 9 3"/></svg>
+                <span>Click to enlarge</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Roster Cards Container -->
+      <section class="cards-container" id="cards-container">
+        <div class="empty-state-label" id="empty-state">
+          No schedule loaded. Click Browse to select an Excel roster file.
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM ACTION BAR -->
+  <footer class="bottom-bar">
+    <div class="bottom-bar-inner">
+      <button class="btn-primary-main" id="btn-primary-copy" type="button">
+        <svg class="v-icon icon-dark" id="btn-primary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="btn-primary-text">COPY SCHEDULE TO CLIPBOARD</span>
+      </button>
+      <div class="bottom-right-group">
+        <span class="status-indicator" id="lbl-status">Ready</span>
+        <button class="outline-pill-action btn-open-webapp" id="btn-open-webapp" type="button">
+          <svg class="v-icon icon-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>Open WebApp</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- HIGH RESOLUTION AIRGAP QR MODAL (QRModal) -->
+  <div class="modal-backdrop" id="qr-modal-backdrop" style="display: none;">
+    <div class="modal-dialog" id="qr-modal-dialog">
+      <!-- Top Blue Accent Line (3px) -->
+      <div class="modal-top-accent"></div>
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <div class="modal-title-row">
+            <span class="modal-title">AIRGAP QR TRANSFER</span>
+            <span class="modal-dot">.</span>
+          </div>
+          <span class="modal-sub">Zero network or cables required — Strict ship IT compliant</span>
+        </div>
+        <button class="pill-btn-sm btn-modal-close" id="btn-modal-close" type="button">
+          Close (Esc)
+        </button>
+      </div>
+
+      <!-- Hairline divider -->
+      <div class="modal-divider"></div>
+
+      <!-- Main QR Container Box (500x500) -->
+      <div class="modal-qr-container">
+        <div class="modal-qr-box" id="modal-qr-box">
+          <!-- Rendered QR Canvas inserted here -->
+        </div>
+      </div>
+
+      <!-- Instructions Banner -->
+      <div class="modal-step-banner" id="modal-step-banner">
+        Part 1 of 2: Point camera at QR, tap 'Copy text', then paste into WhatsApp.
+      </div>
+
+      <!-- Navigation Bar -->
+      <div class="modal-nav-bar">
+        <button class="outline-pill-action modal-nav-btn" id="btn-modal-prev" type="button">
+          ◀ PREVIOUS PART
+        </button>
+        <span class="modal-indicator" id="modal-indicator">Part 1 of 2</span>
+        <button class="btn-primary-pill modal-nav-btn" id="btn-modal-next" type="button">
+          NEXT PART (Space) ▶
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drag & Drop Visual Overlay -->
+  <div class="dnd-overlay" id="dnd-overlay">
+    <div class="dnd-card">
+      <svg class="v-icon icon-blue" style="width: 48px; height: 48px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <div class="dnd-title">Drop Costa Excel Roster Here</div>
+      <div class="dnd-sub">(.xlsx or .xls)</div>
+    </div>
+  </div>
+
+  <!-- Vendor Scripts -->
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="vendor/pako_deflate.min.js"></script>
+  <script src="vendor/qrcode.min.js"></script>
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
